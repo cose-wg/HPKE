@@ -9,7 +9,7 @@
 <?rfc sortrefs="yes"?>
 <?rfc symrefs="yes"?>
 
-<rfc ipr="pre5378Trust200902" docName="draft-ietf-cose-hpke-00" category="std">
+<rfc ipr="pre5378Trust200902" docName="draft-ietf-cose-hpke-01" category="std">
   <front>
     <title abbrev="COSE HPKE">Use of Hybrid Public-Key Encryption (HPKE) with CBOR Object Signing and Encryption (COSE)</title>
 
@@ -32,7 +32,7 @@
       </address>
     </author>
 
-    <date year="2022" month="January" day="10"/>
+    <date year="2022" month="January" day="17"/>
 
     <area>Security</area>
     <workgroup>COSE</workgroup>
@@ -42,7 +42,13 @@
 
 
 <t>This specification defines hybrid public-key encryption (HPKE) for use with 
-CBOR Object Signing and Encryption (COSE).</t>
+CBOR Object Signing and Encryption (COSE). HPKE offers a variant of
+public-key encryption of arbitrary-sized plaintexts for a recipient public key.</t>
+
+<t>HPKE works for any combination of an asymmetric key encapsulation mechanism (KEM),
+key derivation function (KDF), and authenticated encryption with
+additional data (AEAD) encryption function. Authentication for HPKE in COSE is
+provided by COSE-native security mechanisms.</t>
 
 
 
@@ -60,14 +66,15 @@ CBOR Object Signing and Encryption (COSE).</t>
 <t>Hybrid public-key encryption (HPKE) <xref target="I-D.irtf-cfrg-hpke"/> is a scheme that 
 provides public key encryption of arbitrary-sized plaintexts given a 
 recipient’s public key. HPKE utilizes a non-interactive ephemeral-static 
-Diffie-Hellman exchange to establish a shared secret, which is then used to 
-encrypt plaintext.</t>
+Diffie-Hellman exchange to establish a shared secret. The motivation for
+standardizing a public key encryption scheme is explained in the introduction
+of <xref target="I-D.irtf-cfrg-hpke"/>.</t>
 
-<t>The HPKE specification defines several features for use with public key encryption 
+<t>The HPKE specification defines several features for use with public key encryption
 and a subset of those features is applied to COSE <xref target="RFC8152"/>. Since COSE provides
-constructs for authenticcation, those are not re-used from the HPKE specification. 
-This specification uses the “base” mode (as it is called in HPKE specification 
-language).</t>
+constructs for authentication, those are not re-used from the HPKE specification.
+This specification uses the “base” mode, as it is called in HPKE specification
+language.</t>
 
 </section>
 <section anchor="conventions-and-terminology" title="Conventions and Terminology">
@@ -78,7 +85,7 @@ document are to be interpreted as described in BCP 14 <xref target="RFC2119"/> 
 when, and only when, they appear in all capitals, as shown here.</t>
 
 <t>This specification uses the following abbreviations and terms:
-- Content-encryption key (CEK), a term defined in RFC 2630 <xref target="RFC2630"/>.
+- Content-encryption key (CEK), a term defined in CMS <xref target="RFC2630"/>.
 - Hybrid Public Key Encryption (HPKE) is defined in <xref target="I-D.irtf-cfrg-hpke"/>.
 - pkR is the public key of the recipient, as defined in <xref target="I-D.irtf-cfrg-hpke"/>.
 - skR is the private key of the recipient, as defined in <xref target="I-D.irtf-cfrg-hpke"/>.</t>
@@ -89,23 +96,30 @@ when, and only when, they appear in all capitals, as shown here.</t>
 <section anchor="overview" title="Overview">
 
 <t>The CDDL for the COSE_Encrypt structure, as used with this specification,
-is shown in <xref target="cddl-hpke"/>. The structures referenced below are found in the CDDL.</t>
+is shown in <xref target="cddl-hpke"/>.</t>
 
 <t>HPKE, when used with COSE, follows a three layer structure:</t>
 
 <t><list style="symbols">
-  <t>Layer 0 (corresponding to the COSE_Encrypt structure) contains content encrypted 
-with the CEK. This ciphertext may be detached. If not detached, then it is included
-in the COSE_Encrypt structure.</t>
+  <t>Layer 0 (corresponding to the COSE_Encrypt structure) contains content (plaintext)
+encrypted with the CEK. This ciphertext may be detached. If not detached, then
+it is included in the COSE_Encrypt structure.</t>
   <t>Layer 1 (see COSE_recipient_outer structure) includes the encrypted CEK.</t>
   <t>Layer 2 (in the COSE_recipient_inner structure) contains parameters needed for 
-HPKE to generate a shared secret used to encrypt the CEK from layer 1.</t>
+HPKE to generate a shared secret used to encrypt the CEK found in layer 1.</t>
 </list></t>
+
+<t>This three-layer structure is used to encrypt content that can also be shared with
+multiple parties at the expense of a single additional encryption operation.
+As stated above, the specification uses a CEK to encrypt the content at layer 0.
+For example, the content to be encrypted at layer 0 may be a firmware image.
+Then, a single firmware image can be encrypted with the same CEK once while
+each recipient receives the CEK encrypted differently.</t>
 
 <figure title="CDDL for HPKE-based COSE_Encrypt Structure" anchor="cddl-hpke"><artwork><![CDATA[
 COSE_Encrypt_Tagged = #6.96(COSE_Encrypt)
  
-SUIT_Encryption_Info = COSE_Encrypt_Tagged
+HPKE_Encryption_Info = COSE_Encrypt_Tagged
 
 ; Layer 0
 COSE_Encrypt = [
@@ -136,44 +150,46 @@ header_map = {
 }
 ]]></artwork></figure>
 
-<t>The COSE_recipient_outer structure shown in <xref target="cddl-hpke"/> includes the 
-encrypted CEK (in the encCEK structure) and the COSE_recipient_inner structure, 
-also shown in <xref target="cddl-hpke"/>, contains the ephemeral public key 
+<t>The COSE_recipient_outer structure shown in <xref target="cddl-hpke"/> includes the
+encrypted CEK (in the encCEK structure) and the COSE_recipient_inner structure,
+also shown in <xref target="cddl-hpke"/>, contains the ephemeral public key
 (in the unprotected structure).</t>
 
 </section>
 <section anchor="hpke-encryption-with-sealbase" title="HPKE Encryption with SealBase">
 
-<t>The SealBase(pkR, info, aad, pt) function is used to encrypt a plaintext pt to 
-a recipient’s public key (pkR). For use in this specification, the plaintext 
-“pt” passed into the SealBase is the CEK. The CEK is a random byte sequence of 
-length appropriate for the encryption algorithm selected in layer 0. For example, 
-AES-128-GCM requires a 16 byte key and the CEK would therefore be 16 bytes long.</t>
+<t>The SealBase(pkR, info, aad, pt) function is used to encrypt a plaintext pt to
+a recipient’s public key (pkR).</t>
 
-<t>The “info” parameter can be used to influence the generation of keys and the 
-“aad” parameter provides additional authenticated data to the AEAD algorithm 
-in use. If successful, SealBase() will output a ciphertext “ct” and an encapsulated 
+<t>IMPORTANT: For use in this specification, the plaintext “pt” passed into the
+SealBase is the CEK. The CEK is a random byte sequence of length appropriate
+for the encryption algorithm selected in layer 0. For example, AES-128-GCM
+requires a 16 byte key and the CEK would therefore be 16 bytes long.</t>
+
+<t>The “info” parameter can be used to influence the generation of keys and the
+“aad” parameter provides additional authenticated data to the AEAD algorithm
+in use. If successful, SealBase() will output a ciphertext “ct” and an encapsulated
 key “enc”.  The content of enc is the ephemeral public key.</t>
 
-<t>The content of the info parameter is based on the ‘COSE_KDF_Context’ structure, 
+<t>The content of the info parameter is based on the ‘COSE_KDF_Context’ structure,
 which is detailed in <xref target="cddl-cose-kdf"/>.</t>
 
 </section>
-<section anchor="hpke-decryption-with-open" title="HPKE Decryption with Open">
+<section anchor="hpke-decryption-with-openbase" title="HPKE Decryption with OpenBase">
 
-<t>The recipient will use the OpenBase(enc, skR, info, aad, ct) function with the enc and 
-ct parameters received from the sender. The “aad” and the “info” parameters are obtained 
+<t>The recipient will use the OpenBase(enc, skR, info, aad, ct) function with the enc and
+ct parameters received from the sender. The “aad” and the “info” parameters are obtained
 via the context of the usage.</t>
 
-<t>The OpenBase function will, if successful, decrypt “ct”. When decrypted, the result 
-will be the CEK. The CK is the symmetric key used to decrypt the ciphertext in the 
-COSE_Encrypt structure.</t>
+<t>The OpenBase function will, if successful, decrypt “ct”. When decrypted, the result
+will be the CEK. The CK is the symmetric key used to decrypt the ciphertext in layer 0
+of the COSE_Encrypt structure.</t>
 
 </section>
 <section anchor="info-structure" title="Info Structure">
 
-<t>This specification re-uses the context information structure defined in 
-<xref target="RFC8152"/> for use with the HPKE algorithm. This payload becomes the content 
+<t>This specification re-uses the context information structure defined in
+<xref target="RFC8152"/> for use with the HPKE algorithm. This payload becomes the content
 of the info parameter for the HPKE functions. For better readability of this specification
 the COSE_KDF_Context structure is repeated in <xref target="cddl-cose-kdf"/>.</t>
 
@@ -197,20 +213,20 @@ the COSE_KDF_Context structure is repeated in <xref target="cddl-cose-kdf"/>.</t
    ]
 ]]></artwork></figure>
 
-<t>Since this specification may be used in a number of different deployment environments 
+<t>Since this specification may be used in a number of different deployment environments
 flexibility for populating the fields in the COSE_KDF_Context structure is provided.</t>
 
-<t>For better interoperability, the following recommended settings 
+<t>For better interoperability, the following recommended settings
 are provided:</t>
 
 <t><list style="symbols">
-  <t>PartyUInfo.identity corresponds to the kid found in the 
-COSE_Sign_Tagged or COSE_Sign1_Tagged structure (when a digital 
-signature is used). When utilizing a MAC, then the kid is found in 
+  <t>PartyUInfo.identity corresponds to the kid found in the
+COSE_Sign_Tagged or COSE_Sign1_Tagged structure (when a digital
+signature is used). When utilizing a MAC, then the kid is found in
 the COSE_Mac_Tagged or COSE_Mac0_Tagged structure.</t>
-  <t>PartyVInfo.identity corresponds to the kid used for the respective 
+  <t>PartyVInfo.identity corresponds to the kid used for the respective
 recipient from the inner-most recipients array.</t>
-  <t>The value in the AlgorithmID field corresponds to the alg parameter 
+  <t>The value in the AlgorithmID field corresponds to the alg parameter
 in the protected structure in the inner-most recipients array.</t>
   <t>keyDataLength is set to the number of bits of the desired output value.</t>
   <t>protected refers to the protected structure of the inner-most array.</t>
@@ -220,16 +236,21 @@ in the protected structure in the inner-most recipients array.</t>
 </section>
 <section anchor="example" title="Example">
 
-<t>An example of the COSE_Encrypt structure using the HPKE scheme is 
-shown in <xref target="hpke-example"/>. It uses the following algorithm 
+<t>An example of the COSE_Encrypt structure using the HPKE scheme is
+shown in <xref target="hpke-example"/>. It uses the following algorithm
 combination:</t>
 
 <t><list style="symbols">
-  <t>AES-GCM-128 for encryption of detached ciphertext.</t>
-  <t>AES-GCM-128 for encryption of the CEK.</t>
-  <t>Key Encapsulation Mechanism (KEM): NIST P-256</t>
-  <t>Key Derivation Function (KDF): HKDF-SHA256</t>
+  <t>AES-GCM-128 for encryption of detached ciphertext in layer 0.</t>
+  <t>AES-GCM-128 for encryption of the CEK in layer 1.</t>
+  <t>NIST P-256 and HKDF-SHA256 as a Key Encapsulation Mechanism (KEM) in
+layer 2.</t>
 </list></t>
+
+<t>The algorithm selection is based on the registry of the values offered
+by the alg parameters (in layer 0 and layer 1) as well as in the hpke-alg
+parameter in layer 2. The hpke-alg parameter is a newly defined parameter
+registered via the IANA COSE Header Parameter registry defined in <xref target="RFC8152"/>.</t>
 
 <figure title="COSE_Encrypt Example for HPKE" anchor="hpke-example"><artwork><![CDATA[
 96( 
@@ -251,7 +272,7 @@ combination:</t>
             / recipients / [  // COSE_recipient_inner
              [
                / protected / h'a1013818' / {
-                   \ alg \ 1:TBD1 \ HPKE/P-256+HKDF-256 \
+                   \ hpke-alg \ 1:16 \ HPKE/P-256+HKDF-256 \
                  } / ,
                / unprotected / {
                  // HPKE encapsulated key
@@ -276,57 +297,38 @@ combination:</t>
 </section>
 <section anchor="sec-cons" title="Security Considerations">
 
-<t>This specification is based on HPKE and the security considerations of HPKE 
+<t>This specification is based on HPKE and the security considerations of HPKE
 <xref target="I-D.irtf-cfrg-hpke"/> are therefore applicable also to this specification.</t>
 
-<t>HPKE assumes that the sender is in possession of the public key of the recipient. 
-A system using HPKE COSE has to assume the same assumptions and public key distribution
+<t>HPKE assumes the sender is in possession of the public key of the recipient and
+HPKE COSE makes the same assumptions. Some form of public key distribution
 mechanism is assumed to exist.</t>
 
-<t>Since the CEK is randomly generated it must be ensured that the guidelines for 
+<t>Since the CEK is randomly generated it must be ensured that the guidelines for
 random number generations are followed, see <xref target="RFC8937"/>.</t>
 
-<t>The SUIT_Encryption_Info structure shown in this document does not provide 
-authentication. Hence, the SUIT_Encryption_Info structure has to be used in 
+<t>The HPKE_Encryption_Info structure shown in this document does not provide
+authentication. Hence, the HPKE_Encryption_Info structure has to be used in
 combination with other COSE constructs, such as the COSE_Sign or COSE_Sign1.</t>
 
 </section>
 <section anchor="iana-considerations" title="IANA Considerations">
 
-<t>This document requests IANA to create new entries in the COSE Algorithms
-registry established with <xref target="RFC8152"/>.</t>
+<t>This document requests IANA to register a new parameter, called hpke-alg,
+in the COSE Header Parameter registry defined in <xref target="RFC8152"/>:</t>
 
-<figure><artwork><![CDATA[
-+-------------+-------+---------+------------+--------+---------------+  
-| Name        | Value | KDF     | Ephemeral- | Key    | Description   |
-|             |       |         | Static     | Wrap   |               |
-+-------------+-------+---------+------------+--------+---------------+
-| HPKE/P-256+ | TBD1  | HKDF -  | yes        | none   | HPKE with     |
-| HKDF-256    |       | SHA-256 |            |        | ECDH-ES       |
-|             |       |         |            |        | (P-256) +     |
-|             |       |         |            |        | HKDF-256      |
-+-------------+-------+---------+------------+--------+---------------+
-| HPKE/P-384+ | TBD2  | HKDF -  | yes        | none   | HPKE with     |
-| HKDF-SHA384 |       | SHA-384 |            |        | ECDH-ES       |
-|             |       |         |            |        | (P-384) +     |
-|             |       |         |            |        | HKDF-384      |
-+-------------+-------+---------+------------+--------+---------------+
-| HPKE/P-521+ | TBD3  | HKDF -  | yes        | none   | HPKE with     |
-| HKDF-SHA521 |       | SHA-521 |            |        | ECDH-ES       |
-|             |       |         |            |        | (P-521) +     |
-|             |       |         |            |        | HKDF-521      |
-+-------------+-------+---------+------------+--------+---------------+
-| HPKE        | TBD4  | HKDF -  | yes        | none   | HPKE with     |
-| X25519 +    |       | SHA-256 |            |        | ECDH-ES       |
-| HKDF-SHA256 |       |         |            |        | (X25519) +    |
-|             |       |         |            |        | HKDF-256      |
-+-------------+-------+---------+------------+--------+---------------+
-| HPKE        | TBD4  | HKDF -  | yes        | none   | HPKE with     |
-| X448 +      |       | SHA-512 |            |        | ECDH-ES       |
-| HKDF-SHA512 |       |         |            |        | (X448) +      |
-|             |       |         |            |        | HKDF-512      |
-+-------------+-------+---------+------------+--------+---------------+
-]]></artwork></figure>
+<t><list style="symbols">
+  <t>Name:  HPKE Key Encapsulation Mechanism (KEM) Algorithm</t>
+  <t>Label:  TBD1</t>
+  <t>Value Type: uint</t>
+  <t>Value Registry: The values in this parameter are based on the
+Key Encapsulation Mechanisms (KEMs) registry established by the
+HPKE specification <xref target="RFC8152"/>.</t>
+  <t>Description: This parameter carries information about the Key
+Encapsulation Mechanism (KEM) to be used according to the HPKE specification.
+The registry for KEMs established by <xref target="RFC8152"/> is re-used.</t>
+  <t>Reference:  [[TBD: This RFC]]</t>
+</list></t>
 
 </section>
 
@@ -468,7 +470,7 @@ registry established with <xref target="RFC8152"/>.</t>
 
 <section anchor="acknowledgements" title="Acknowledgements">
 
-<t>TBD: Add your name here.</t>
+<t>We would like to thank Goeran Selander and John Mattsson for their review feedback.</t>
 
 </section>
 
@@ -476,96 +478,101 @@ registry established with <xref target="RFC8152"/>.</t>
   </back>
 
 <!-- ##markdown-source:
-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
-P1Y9ikUuAAA=
+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
 
 -->
 

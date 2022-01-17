@@ -1,7 +1,7 @@
 ---
 title: Use of Hybrid Public-Key Encryption (HPKE) with CBOR Object Signing and Encryption (COSE)
 abbrev: COSE HPKE
-docname: draft-ietf-cose-hpke-00
+docname: draft-ietf-cose-hpke-01
 category: std
 
 ipr: pre5378Trust200902
@@ -46,7 +46,13 @@ informative:
 --- abstract
 
 This specification defines hybrid public-key encryption (HPKE) for use with 
-CBOR Object Signing and Encryption (COSE). 
+CBOR Object Signing and Encryption (COSE). HPKE offers a variant of
+public-key encryption of arbitrary-sized plaintexts for a recipient public key.
+
+HPKE works for any combination of an asymmetric key encapsulation mechanism (KEM),
+key derivation function (KDF), and authenticated encryption with
+additional data (AEAD) encryption function. Authentication for HPKE in COSE is
+provided by COSE-native security mechanisms.
 
 --- middle
 
@@ -55,14 +61,15 @@ CBOR Object Signing and Encryption (COSE).
 Hybrid public-key encryption (HPKE) {{I-D.irtf-cfrg-hpke}} is a scheme that 
 provides public key encryption of arbitrary-sized plaintexts given a 
 recipient's public key. HPKE utilizes a non-interactive ephemeral-static 
-Diffie-Hellman exchange to establish a shared secret, which is then used to 
-encrypt plaintext.
+Diffie-Hellman exchange to establish a shared secret. The motivation for
+standardizing a public key encryption scheme is explained in the introduction
+of {{I-D.irtf-cfrg-hpke}}.
 
-The HPKE specification defines several features for use with public key encryption 
+The HPKE specification defines several features for use with public key encryption
 and a subset of those features is applied to COSE {{RFC8152}}. Since COSE provides
-constructs for authenticcation, those are not re-used from the HPKE specification. 
-This specification uses the "base" mode (as it is called in HPKE specification 
-language).
+constructs for authentication, those are not re-used from the HPKE specification.
+This specification uses the "base" mode, as it is called in HPKE specification
+language.
 
 # Conventions and Terminology
 
@@ -72,7 +79,7 @@ document are to be interpreted as described in BCP&nbsp;14 {{RFC2119}} {{RFC8174
 when, and only when, they appear in all capitals, as shown here.
 
 This specification uses the following abbreviations and terms:
-- Content-encryption key (CEK), a term defined in RFC 2630 {{RFC2630}}.
+- Content-encryption key (CEK), a term defined in CMS {{RFC2630}}.
 - Hybrid Public Key Encryption (HPKE) is defined in {{I-D.irtf-cfrg-hpke}}.
 - pkR is the public key of the recipient, as defined in {{I-D.irtf-cfrg-hpke}}.
 - skR is the private key of the recipient, as defined in {{I-D.irtf-cfrg-hpke}}.
@@ -82,23 +89,30 @@ This specification uses the following abbreviations and terms:
 ## Overview
 
 The CDDL for the COSE_Encrypt structure, as used with this specification,
-is shown in {{cddl-hpke}}. The structures referenced below are found in the CDDL. 
+is shown in {{cddl-hpke}}.
 
 HPKE, when used with COSE, follows a three layer structure: 
 
-- Layer 0 (corresponding to the COSE_Encrypt structure) contains content encrypted 
-with the CEK. This ciphertext may be detached. If not detached, then it is included
-in the COSE_Encrypt structure.
+- Layer 0 (corresponding to the COSE_Encrypt structure) contains content (plaintext)
+encrypted with the CEK. This ciphertext may be detached. If not detached, then
+it is included in the COSE_Encrypt structure.
 
 - Layer 1 (see COSE_recipient_outer structure) includes the encrypted CEK.
 
 - Layer 2 (in the COSE_recipient_inner structure) contains parameters needed for 
-HPKE to generate a shared secret used to encrypt the CEK from layer 1.
+HPKE to generate a shared secret used to encrypt the CEK found in layer 1.
+
+This three-layer structure is used to encrypt content that can also be shared with
+multiple parties at the expense of a single additional encryption operation.
+As stated above, the specification uses a CEK to encrypt the content at layer 0.
+For example, the content to be encrypted at layer 0 may be a firmware image.
+Then, a single firmware image can be encrypted with the same CEK once while
+each recipient receives the CEK encrypted differently.
 
 ~~~
 COSE_Encrypt_Tagged = #6.96(COSE_Encrypt)
  
-SUIT_Encryption_Info = COSE_Encrypt_Tagged
+HPKE_Encryption_Info = COSE_Encrypt_Tagged
 
 ; Layer 0
 COSE_Encrypt = [
@@ -130,43 +144,45 @@ header_map = {
 ~~~
 {: #cddl-hpke title="CDDL for HPKE-based COSE_Encrypt Structure"}
 
-The COSE_recipient_outer structure shown in {{cddl-hpke}} includes the 
-encrypted CEK (in the encCEK structure) and the COSE_recipient_inner structure, 
-also shown in {{cddl-hpke}}, contains the ephemeral public key 
+The COSE_recipient_outer structure shown in {{cddl-hpke}} includes the
+encrypted CEK (in the encCEK structure) and the COSE_recipient_inner structure,
+also shown in {{cddl-hpke}}, contains the ephemeral public key
 (in the unprotected structure).
 
 ## HPKE Encryption with SealBase
 
-The SealBase(pkR, info, aad, pt) function is used to encrypt a plaintext pt to 
-a recipient's public key (pkR). For use in this specification, the plaintext 
-"pt" passed into the SealBase is the CEK. The CEK is a random byte sequence of 
-length appropriate for the encryption algorithm selected in layer 0. For example, 
-AES-128-GCM requires a 16 byte key and the CEK would therefore be 16 bytes long. 
+The SealBase(pkR, info, aad, pt) function is used to encrypt a plaintext pt to
+a recipient's public key (pkR).
 
-The "info" parameter can be used to influence the generation of keys and the 
-"aad" parameter provides additional authenticated data to the AEAD algorithm 
-in use. If successful, SealBase() will output a ciphertext "ct" and an encapsulated 
-key "enc".  The content of enc is the ephemeral public key. 
+IMPORTANT: For use in this specification, the plaintext "pt" passed into the
+SealBase is the CEK. The CEK is a random byte sequence of length appropriate
+for the encryption algorithm selected in layer 0. For example, AES-128-GCM
+requires a 16 byte key and the CEK would therefore be 16 bytes long.
 
-The content of the info parameter is based on the 'COSE_KDF_Context' structure, 
+The "info" parameter can be used to influence the generation of keys and the
+"aad" parameter provides additional authenticated data to the AEAD algorithm
+in use. If successful, SealBase() will output a ciphertext "ct" and an encapsulated
+key "enc".  The content of enc is the ephemeral public key.
+
+The content of the info parameter is based on the 'COSE_KDF_Context' structure,
 which is detailed in {{cddl-cose-kdf}}.
 
-## HPKE Decryption with Open
+## HPKE Decryption with OpenBase
 
-The recipient will use the OpenBase(enc, skR, info, aad, ct) function with the enc and 
-ct parameters received from the sender. The "aad" and the "info" parameters are obtained 
-via the context of the usage. 
+The recipient will use the OpenBase(enc, skR, info, aad, ct) function with the enc and
+ct parameters received from the sender. The "aad" and the "info" parameters are obtained
+via the context of the usage.
 
-The OpenBase function will, if successful, decrypt "ct". When decrypted, the result 
-will be the CEK. The CK is the symmetric key used to decrypt the ciphertext in the 
-COSE_Encrypt structure.
+The OpenBase function will, if successful, decrypt "ct". When decrypted, the result
+will be the CEK. The CK is the symmetric key used to decrypt the ciphertext in layer 0
+of the COSE_Encrypt structure.
 
 ## Info Structure
 
-This specification re-uses the context information structure defined in 
-{{RFC8152}} for use with the HPKE algorithm. This payload becomes the content 
+This specification re-uses the context information structure defined in
+{{RFC8152}} for use with the HPKE algorithm. This payload becomes the content
 of the info parameter for the HPKE functions. For better readability of this specification
-the COSE_KDF_Context structure is repeated in {{cddl-cose-kdf}}. 
+the COSE_KDF_Context structure is repeated in {{cddl-cose-kdf}}.
 
 ~~~
    PartyInfo = (
@@ -189,37 +205,42 @@ the COSE_KDF_Context structure is repeated in {{cddl-cose-kdf}}.
 ~~~
 {: #cddl-cose-kdf title="COSE_KDF_Context Data Structure for info parameter"}
 
-Since this specification may be used in a number of different deployment environments 
+Since this specification may be used in a number of different deployment environments
 flexibility for populating the fields in the COSE_KDF_Context structure is provided.
 
-For better interoperability, the following recommended settings 
+For better interoperability, the following recommended settings
 are provided:
 
-- PartyUInfo.identity corresponds to the kid found in the 
-COSE_Sign_Tagged or COSE_Sign1_Tagged structure (when a digital 
-signature is used). When utilizing a MAC, then the kid is found in 
+- PartyUInfo.identity corresponds to the kid found in the
+COSE_Sign_Tagged or COSE_Sign1_Tagged structure (when a digital
+signature is used). When utilizing a MAC, then the kid is found in
 the COSE_Mac_Tagged or COSE_Mac0_Tagged structure.
 
-- PartyVInfo.identity corresponds to the kid used for the respective 
+- PartyVInfo.identity corresponds to the kid used for the respective
 recipient from the inner-most recipients array.
 
-- The value in the AlgorithmID field corresponds to the alg parameter 
-in the protected structure in the inner-most recipients array. 
+- The value in the AlgorithmID field corresponds to the alg parameter
+in the protected structure in the inner-most recipients array.
 
 - keyDataLength is set to the number of bits of the desired output value.
 
-- protected refers to the protected structure of the inner-most array. 
+- protected refers to the protected structure of the inner-most array.
 
 # Example
 
-An example of the COSE_Encrypt structure using the HPKE scheme is 
-shown in {{hpke-example}}. It uses the following algorithm 
+An example of the COSE_Encrypt structure using the HPKE scheme is
+shown in {{hpke-example}}. It uses the following algorithm
 combination: 
 
-- AES-GCM-128 for encryption of detached ciphertext. 
-- AES-GCM-128 for encryption of the CEK.
-- Key Encapsulation Mechanism (KEM): NIST P-256
-- Key Derivation Function (KDF): HKDF-SHA256
+- AES-GCM-128 for encryption of detached ciphertext in layer 0.
+- AES-GCM-128 for encryption of the CEK in layer 1.
+- NIST P-256 and HKDF-SHA256 as a Key Encapsulation Mechanism (KEM) in
+  layer 2.
+
+The algorithm selection is based on the registry of the values offered
+by the alg parameters (in layer 0 and layer 1) as well as in the hpke-alg
+parameter in layer 2. The hpke-alg parameter is a newly defined parameter
+registered via the IANA COSE Header Parameter registry defined in {{RFC8152}}.
   
 ~~~
 96( 
@@ -241,7 +262,7 @@ combination:
             / recipients / [  // COSE_recipient_inner
              [
                / protected / h'a1013818' / {
-                   \ alg \ 1:TBD1 \ HPKE/P-256+HKDF-256 \
+                   \ hpke-alg \ 1:16 \ HPKE/P-256+HKDF-256 \
                  } / ,
                / unprotected / {
                  // HPKE encapsulated key
@@ -266,59 +287,43 @@ combination:
 
 # Security Considerations {#sec-cons}
 
-This specification is based on HPKE and the security considerations of HPKE 
+This specification is based on HPKE and the security considerations of HPKE
 {{I-D.irtf-cfrg-hpke}} are therefore applicable also to this specification.
 
-HPKE assumes that the sender is in possession of the public key of the recipient. 
-A system using HPKE COSE has to assume the same assumptions and public key distribution
-mechanism is assumed to exist. 
+HPKE assumes the sender is in possession of the public key of the recipient and
+HPKE COSE makes the same assumptions. Some form of public key distribution
+mechanism is assumed to exist.
 
-Since the CEK is randomly generated it must be ensured that the guidelines for 
+Since the CEK is randomly generated it must be ensured that the guidelines for
 random number generations are followed, see {{RFC8937}}.
 
-The SUIT_Encryption_Info structure shown in this document does not provide 
-authentication. Hence, the SUIT_Encryption_Info structure has to be used in 
-combination with other COSE constructs, such as the COSE_Sign or COSE_Sign1. 
+The HPKE_Encryption_Info structure shown in this document does not provide
+authentication. Hence, the HPKE_Encryption_Info structure has to be used in
+combination with other COSE constructs, such as the COSE_Sign or COSE_Sign1.
 
 #  IANA Considerations
 
-This document requests IANA to create new entries in the COSE Algorithms
-registry established with {{RFC8152}}.
+This document requests IANA to register a new parameter, called hpke-alg,
+in the COSE Header Parameter registry defined in {{RFC8152}}:
 
-~~~
-+-------------+-------+---------+------------+--------+---------------+  
-| Name        | Value | KDF     | Ephemeral- | Key    | Description   |
-|             |       |         | Static     | Wrap   |               |
-+-------------+-------+---------+------------+--------+---------------+
-| HPKE/P-256+ | TBD1  | HKDF -  | yes        | none   | HPKE with     |
-| HKDF-256    |       | SHA-256 |            |        | ECDH-ES       |
-|             |       |         |            |        | (P-256) +     |
-|             |       |         |            |        | HKDF-256      |
-+-------------+-------+---------+------------+--------+---------------+
-| HPKE/P-384+ | TBD2  | HKDF -  | yes        | none   | HPKE with     |
-| HKDF-SHA384 |       | SHA-384 |            |        | ECDH-ES       |
-|             |       |         |            |        | (P-384) +     |
-|             |       |         |            |        | HKDF-384      |
-+-------------+-------+---------+------------+--------+---------------+
-| HPKE/P-521+ | TBD3  | HKDF -  | yes        | none   | HPKE with     |
-| HKDF-SHA521 |       | SHA-521 |            |        | ECDH-ES       |
-|             |       |         |            |        | (P-521) +     |
-|             |       |         |            |        | HKDF-521      |
-+-------------+-------+---------+------------+--------+---------------+
-| HPKE        | TBD4  | HKDF -  | yes        | none   | HPKE with     |
-| X25519 +    |       | SHA-256 |            |        | ECDH-ES       |
-| HKDF-SHA256 |       |         |            |        | (X25519) +    |
-|             |       |         |            |        | HKDF-256      |
-+-------------+-------+---------+------------+--------+---------------+
-| HPKE        | TBD4  | HKDF -  | yes        | none   | HPKE with     |
-| X448 +      |       | SHA-512 |            |        | ECDH-ES       |
-| HKDF-SHA512 |       |         |            |        | (X448) +      |
-|             |       |         |            |        | HKDF-512      |
-+-------------+-------+---------+------------+--------+---------------+
-~~~ 
+- Name:  HPKE Key Encapsulation Mechanism (KEM) Algorithm
+
+- Label:  TBD1
+
+- Value Type: uint
+
+-  Value Registry: The values in this parameter are based on the
+   Key Encapsulation Mechanisms (KEMs) registry established by the
+   HPKE specification {{RFC8152}}.
+
+-  Description: This parameter carries information about the Key
+   Encapsulation Mechanism (KEM) to be used according to the HPKE specification.
+   The registry for KEMs established by {{RFC8152}} is re-used.
+
+-  Reference:  [[TBD: This RFC]]
 
 --- back
 
 # Acknowledgements
 
-TBD: Add your name here. 
+We would like to thank Goeran Selander and John Mattsson for their review feedback.

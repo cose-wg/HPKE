@@ -5,20 +5,28 @@
 COSE                                                       H. Tschofenig
 Internet-Draft                                               Arm Limited
 Intended status: Standards Track                              R. Housley
-Expires: July 14, 2022                                    Vigil Security
+Expires: July 21, 2022                                    Vigil Security
                                                                 B. Moran
                                                              Arm Limited
-                                                        January 10, 2022
+                                                        January 17, 2022
 
 
 Use of Hybrid Public-Key Encryption (HPKE) with CBOR Object Signing and
                            Encryption (COSE)
-                        draft-ietf-cose-hpke-00
+                        draft-ietf-cose-hpke-01
 
 Abstract
 
    This specification defines hybrid public-key encryption (HPKE) for
-   use with CBOR Object Signing and Encryption (COSE).
+   use with CBOR Object Signing and Encryption (COSE).  HPKE offers a
+   variant of public-key encryption of arbitrary-sized plaintexts for a
+   recipient public key.
+
+   HPKE works for any combination of an asymmetric key encapsulation
+   mechanism (KEM), key derivation function (KDF), and authenticated
+   encryption with additional data (AEAD) encryption function.
+   Authentication for HPKE in COSE is provided by COSE-native security
+   mechanisms.
 
 Status of This Memo
 
@@ -35,12 +43,20 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on July 14, 2022.
+   This Internet-Draft will expire on July 21, 2022.
 
 Copyright Notice
 
    Copyright (c) 2022 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
+
+
+
+
+Tschofenig, et al.        Expires July 21, 2022                 [Page 1]
+
+Internet-Draft                  COSE HPKE                   January 2022
+
 
    This document is subject to BCP 78 and the IETF Trust's Legal
    Provisions Relating to IETF Documents
@@ -49,15 +65,6 @@ Copyright Notice
    carefully, as they describe your rights and restrictions with respect
    to this document.  Code Components extracted from this document must
    include Simplified BSD License text as described in Section 4.e of
-
-
-
-
-Tschofenig, et al.        Expires July 14, 2022                 [Page 1]
-
-Internet-Draft                  COSE HPKE                   January 2022
-
-
    the Trust Legal Provisions and are provided without warranty as
    described in the Simplified BSD License.
 
@@ -80,16 +87,16 @@ Table of Contents
    3.  HPKE for COSE . . . . . . . . . . . . . . . . . . . . . . . .   3
      3.1.  Overview  . . . . . . . . . . . . . . . . . . . . . . . .   3
      3.2.  HPKE Encryption with SealBase . . . . . . . . . . . . . .   4
-     3.3.  HPKE Decryption with Open . . . . . . . . . . . . . . . .   5
+     3.3.  HPKE Decryption with OpenBase . . . . . . . . . . . . . .   5
      3.4.  Info Structure  . . . . . . . . . . . . . . . . . . . . .   5
-   4.  Example . . . . . . . . . . . . . . . . . . . . . . . . . . .   6
-   5.  Security Considerations . . . . . . . . . . . . . . . . . . .   7
-   6.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   8
+   4.  Example . . . . . . . . . . . . . . . . . . . . . . . . . . .   7
+   5.  Security Considerations . . . . . . . . . . . . . . . . . . .   8
+   6.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   9
    7.  References  . . . . . . . . . . . . . . . . . . . . . . . . .   9
      7.1.  Normative References  . . . . . . . . . . . . . . . . . .   9
-     7.2.  Informative References  . . . . . . . . . . . . . . . . .   9
-   Appendix A.  Acknowledgements . . . . . . . . . . . . . . . . . .   9
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .   9
+     7.2.  Informative References  . . . . . . . . . . . . . . . . .  10
+   Appendix A.  Acknowledgements . . . . . . . . . . . . . . . . . .  10
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  10
 
 1.  Introduction
 
@@ -97,22 +104,21 @@ Table of Contents
    that provides public key encryption of arbitrary-sized plaintexts
    given a recipient's public key.  HPKE utilizes a non-interactive
    ephemeral-static Diffie-Hellman exchange to establish a shared
-   secret, which is then used to encrypt plaintext.
-
-   The HPKE specification defines several features for use with public
-   key encryption and a subset of those features is applied to COSE
-   [RFC8152].  Since COSE provides constructs for authenticcation, those
-   are not re-used from the HPKE specification.  This specification uses
-   the "base" mode (as it is called in HPKE specification language).
+   secret.  The motivation for standardizing a public key encryption
+   scheme is explained in the introduction of [I-D.irtf-cfrg-hpke].
 
 
 
-
-
-Tschofenig, et al.        Expires July 14, 2022                 [Page 2]
+Tschofenig, et al.        Expires July 21, 2022                 [Page 2]
 
 Internet-Draft                  COSE HPKE                   January 2022
 
+
+   The HPKE specification defines several features for use with public
+   key encryption and a subset of those features is applied to COSE
+   [RFC8152].  Since COSE provides constructs for authentication, those
+   are not re-used from the HPKE specification.  This specification uses
+   the "base" mode, as it is called in HPKE specification language.
 
 2.  Conventions and Terminology
 
@@ -123,8 +129,8 @@ Internet-Draft                  COSE HPKE                   January 2022
    capitals, as shown here.
 
    This specification uses the following abbreviations and terms: -
-   Content-encryption key (CEK), a term defined in RFC 2630 [RFC2630].
-   - Hybrid Public Key Encryption (HPKE) is defined in
+   Content-encryption key (CEK), a term defined in CMS [RFC2630].  -
+   Hybrid Public Key Encryption (HPKE) is defined in
    [I-D.irtf-cfrg-hpke].  - pkR is the public key of the recipient, as
    defined in [I-D.irtf-cfrg-hpke].  - skR is the private key of the
    recipient, as defined in [I-D.irtf-cfrg-hpke].
@@ -134,45 +140,42 @@ Internet-Draft                  COSE HPKE                   January 2022
 3.1.  Overview
 
    The CDDL for the COSE_Encrypt structure, as used with this
-   specification, is shown in Figure 1.  The structures referenced below
-   are found in the CDDL.
+   specification, is shown in Figure 1.
 
    HPKE, when used with COSE, follows a three layer structure:
 
    o  Layer 0 (corresponding to the COSE_Encrypt structure) contains
-      content encrypted with the CEK.  This ciphertext may be detached.
-      If not detached, then it is included in the COSE_Encrypt
-      structure.
+      content (plaintext) encrypted with the CEK.  This ciphertext may
+      be detached.  If not detached, then it is included in the
+      COSE_Encrypt structure.
 
    o  Layer 1 (see COSE_recipient_outer structure) includes the
       encrypted CEK.
 
    o  Layer 2 (in the COSE_recipient_inner structure) contains
       parameters needed for HPKE to generate a shared secret used to
-      encrypt the CEK from layer 1.
+      encrypt the CEK found in layer 1.
+
+   This three-layer structure is used to encrypt content that can also
+   be shared with multiple parties at the expense of a single additional
+   encryption operation.  As stated above, the specification uses a CEK
+   to encrypt the content at layer 0.  For example, the content to be
+   encrypted at layer 0 may be a firmware image.  Then, a single
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-Tschofenig, et al.        Expires July 14, 2022                 [Page 3]
+Tschofenig, et al.        Expires July 21, 2022                 [Page 3]
 
 Internet-Draft                  COSE HPKE                   January 2022
 
 
+   firmware image can be encrypted with the same CEK once while each
+   recipient receives the CEK encrypted differently.
+
  COSE_Encrypt_Tagged = #6.96(COSE_Encrypt)
 
- SUIT_Encryption_Info = COSE_Encrypt_Tagged
+ HPKE_Encryption_Info = COSE_Encrypt_Tagged
 
  ; Layer 0
  COSE_Encrypt = [
@@ -212,19 +215,22 @@ Internet-Draft                  COSE HPKE                   January 2022
 3.2.  HPKE Encryption with SealBase
 
    The SealBase(pkR, info, aad, pt) function is used to encrypt a
-   plaintext pt to a recipient's public key (pkR).  For use in this
-   specification, the plaintext "pt" passed into the SealBase is the
-   CEK.  The CEK is a random byte sequence of length appropriate for the
-   encryption algorithm selected in layer 0.  For example, AES-128-GCM
-   requires a 16 byte key and the CEK would therefore be 16 bytes long.
+   plaintext pt to a recipient's public key (pkR).
 
 
 
 
-Tschofenig, et al.        Expires July 14, 2022                 [Page 4]
+
+Tschofenig, et al.        Expires July 21, 2022                 [Page 4]
 
 Internet-Draft                  COSE HPKE                   January 2022
 
+
+   IMPORTANT: For use in this specification, the plaintext "pt" passed
+   into the SealBase is the CEK.  The CEK is a random byte sequence of
+   length appropriate for the encryption algorithm selected in layer 0.
+   For example, AES-128-GCM requires a 16 byte key and the CEK would
+   therefore be 16 bytes long.
 
    The "info" parameter can be used to influence the generation of keys
    and the "aad" parameter provides additional authenticated data to the
@@ -235,7 +241,7 @@ Internet-Draft                  COSE HPKE                   January 2022
    The content of the info parameter is based on the 'COSE_KDF_Context'
    structure, which is detailed in Figure 2.
 
-3.3.  HPKE Decryption with Open
+3.3.  HPKE Decryption with OpenBase
 
    The recipient will use the OpenBase(enc, skR, info, aad, ct) function
    with the enc and ct parameters received from the sender.  The "aad"
@@ -243,7 +249,8 @@ Internet-Draft                  COSE HPKE                   January 2022
 
    The OpenBase function will, if successful, decrypt "ct".  When
    decrypted, the result will be the CEK.  The CK is the symmetric key
-   used to decrypt the ciphertext in the COSE_Encrypt structure.
+   used to decrypt the ciphertext in layer 0 of the COSE_Encrypt
+   structure.
 
 3.4.  Info Structure
 
@@ -252,6 +259,28 @@ Internet-Draft                  COSE HPKE                   January 2022
    the content of the info parameter for the HPKE functions.  For better
    readability of this specification the COSE_KDF_Context structure is
    repeated in Figure 2.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Tschofenig, et al.        Expires July 21, 2022                 [Page 5]
+
+Internet-Draft                  COSE HPKE                   January 2022
+
 
       PartyInfo = (
           identity : bstr / nil,
@@ -272,15 +301,6 @@ Internet-Draft                  COSE HPKE                   January 2022
       ]
 
        Figure 2: COSE_KDF_Context Data Structure for info parameter
-
-
-
-
-
-Tschofenig, et al.        Expires July 14, 2022                 [Page 5]
-
-Internet-Draft                  COSE HPKE                   January 2022
-
 
    Since this specification may be used in a number of different
    deployment environments flexibility for populating the fields in the
@@ -307,25 +327,34 @@ Internet-Draft                  COSE HPKE                   January 2022
    o  protected refers to the protected structure of the inner-most
       array.
 
+
+
+
+
+
+
+Tschofenig, et al.        Expires July 21, 2022                 [Page 6]
+
+Internet-Draft                  COSE HPKE                   January 2022
+
+
 4.  Example
 
    An example of the COSE_Encrypt structure using the HPKE scheme is
    shown in Figure 3.  It uses the following algorithm combination:
 
-   o  AES-GCM-128 for encryption of detached ciphertext.
+   o  AES-GCM-128 for encryption of detached ciphertext in layer 0.
 
-   o  AES-GCM-128 for encryption of the CEK.
+   o  AES-GCM-128 for encryption of the CEK in layer 1.
 
-   o  Key Encapsulation Mechanism (KEM): NIST P-256
+   o  NIST P-256 and HKDF-SHA256 as a Key Encapsulation Mechanism (KEM)
+      in layer 2.
 
-   o  Key Derivation Function (KDF): HKDF-SHA256
-
-
-
-
-
-
-
+   The algorithm selection is based on the registry of the values
+   offered by the alg parameters (in layer 0 and layer 1) as well as in
+   the hpke-alg parameter in layer 2.  The hpke-alg parameter is a newly
+   defined parameter registered via the IANA COSE Header Parameter
+   registry defined in [RFC8152].
 
 
 
@@ -333,7 +362,34 @@ Internet-Draft                  COSE HPKE                   January 2022
 
 
 
-Tschofenig, et al.        Expires July 14, 2022                 [Page 6]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Tschofenig, et al.        Expires July 21, 2022                 [Page 7]
 
 Internet-Draft                  COSE HPKE                   January 2022
 
@@ -357,7 +413,7 @@ Internet-Draft                  COSE HPKE                   January 2022
                / recipients / [  // COSE_recipient_inner
                 [
                   / protected / h'a1013818' / {
-                      \ alg \ 1:TBD1 \ HPKE/P-256+HKDF-256 \
+                      \ hpke-alg \ 1:16 \ HPKE/P-256+HKDF-256 \
                     } / ,
                   / unprotected / {
                     // HPKE encapsulated key
@@ -389,80 +445,66 @@ Internet-Draft                  COSE HPKE                   January 2022
 
 
 
-Tschofenig, et al.        Expires July 14, 2022                 [Page 7]
+Tschofenig, et al.        Expires July 21, 2022                 [Page 8]
 
 Internet-Draft                  COSE HPKE                   January 2022
 
 
-   HPKE assumes that the sender is in possession of the public key of
-   the recipient.  A system using HPKE COSE has to assume the same
-   assumptions and public key distribution mechanism is assumed to
-   exist.
+   HPKE assumes the sender is in possession of the public key of the
+   recipient and HPKE COSE makes the same assumptions.  Some form of
+   public key distribution mechanism is assumed to exist.
 
    Since the CEK is randomly generated it must be ensured that the
    guidelines for random number generations are followed, see [RFC8937].
 
-   The SUIT_Encryption_Info structure shown in this document does not
-   provide authentication.  Hence, the SUIT_Encryption_Info structure
+   The HPKE_Encryption_Info structure shown in this document does not
+   provide authentication.  Hence, the HPKE_Encryption_Info structure
    has to be used in combination with other COSE constructs, such as the
    COSE_Sign or COSE_Sign1.
 
 6.  IANA Considerations
 
-   This document requests IANA to create new entries in the COSE
-   Algorithms registry established with [RFC8152].
+   This document requests IANA to register a new parameter, called hpke-
+   alg, in the COSE Header Parameter registry defined in [RFC8152]:
 
- +-------------+-------+---------+------------+--------+---------------+
- | Name        | Value | KDF     | Ephemeral- | Key    | Description   |
- |             |       |         | Static     | Wrap   |               |
- +-------------+-------+---------+------------+--------+---------------+
- | HPKE/P-256+ | TBD1  | HKDF -  | yes        | none   | HPKE with     |
- | HKDF-256    |       | SHA-256 |            |        | ECDH-ES       |
- |             |       |         |            |        | (P-256) +     |
- |             |       |         |            |        | HKDF-256      |
- +-------------+-------+---------+------------+--------+---------------+
- | HPKE/P-384+ | TBD2  | HKDF -  | yes        | none   | HPKE with     |
- | HKDF-SHA384 |       | SHA-384 |            |        | ECDH-ES       |
- |             |       |         |            |        | (P-384) +     |
- |             |       |         |            |        | HKDF-384      |
- +-------------+-------+---------+------------+--------+---------------+
- | HPKE/P-521+ | TBD3  | HKDF -  | yes        | none   | HPKE with     |
- | HKDF-SHA521 |       | SHA-521 |            |        | ECDH-ES       |
- |             |       |         |            |        | (P-521) +     |
- |             |       |         |            |        | HKDF-521      |
- +-------------+-------+---------+------------+--------+---------------+
- | HPKE        | TBD4  | HKDF -  | yes        | none   | HPKE with     |
- | X25519 +    |       | SHA-256 |            |        | ECDH-ES       |
- | HKDF-SHA256 |       |         |            |        | (X25519) +    |
- |             |       |         |            |        | HKDF-256      |
- +-------------+-------+---------+------------+--------+---------------+
- | HPKE        | TBD4  | HKDF -  | yes        | none   | HPKE with     |
- | X448 +      |       | SHA-512 |            |        | ECDH-ES       |
- | HKDF-SHA512 |       |         |            |        | (X448) +      |
- |             |       |         |            |        | HKDF-512      |
- +-------------+-------+---------+------------+--------+---------------+
+   o  Name: HPKE Key Encapsulation Mechanism (KEM) Algorithm
 
+   o  Label: TBD1
 
+   o  Value Type: uint
 
+   o  Value Registry: The values in this parameter are based on the Key
+      Encapsulation Mechanisms (KEMs) registry established by the HPKE
+      specification [RFC8152].
 
-Tschofenig, et al.        Expires July 14, 2022                 [Page 8]
-
-Internet-Draft                  COSE HPKE                   January 2022
+   o  Description: This parameter carries information about the Key
+      Encapsulation Mechanism (KEM) to be used according to the HPKE
+      specification.  The registry for KEMs established by [RFC8152] is
+      re-used.
 
+   o  Reference: [[TBD: This RFC]]
 
 7.  References
 
 7.1.  Normative References
 
    [I-D.irtf-cfrg-hpke]
-              Cisco, Inria, Inria, and Cloudflare, "Hybrid Public Key
-              Encryption", draft-irtf-cfrg-hpke-12 (work in progress),
-              September 2021.
+              Barnes, R. L., Bhargavan, K., Lipp, B., and C. A. Wood,
+              "Hybrid Public Key Encryption", draft-irtf-cfrg-hpke-12
+              (work in progress), September 2021.
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
               DOI 10.17487/RFC2119, March 1997,
               <https://www.rfc-editor.org/info/rfc2119>.
+
+
+
+
+Tschofenig, et al.        Expires July 21, 2022                 [Page 9]
+
+Internet-Draft                  COSE HPKE                   January 2022
+
 
    [RFC8152]  Schaad, J., "CBOR Object Signing and Encryption (COSE)",
               RFC 8152, DOI 10.17487/RFC8152, July 2017,
@@ -485,7 +527,8 @@ Internet-Draft                  COSE HPKE                   January 2022
 
 Appendix A.  Acknowledgements
 
-   TBD: Add your name here.
+   We would like to thank Goeran Selander and John Mattsson for their
+   review feedback.
 
 Authors' Addresses
 
@@ -493,17 +536,6 @@ Authors' Addresses
    Arm Limited
 
    Email: hannes.tschofenig@arm.com
-
-
-
-
-
-
-
-
-Tschofenig, et al.        Expires July 14, 2022                 [Page 9]
-
-Internet-Draft                  COSE HPKE                   January 2022
 
 
    Russ Housley
@@ -525,36 +557,4 @@ Internet-Draft                  COSE HPKE                   January 2022
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Tschofenig, et al.        Expires July 14, 2022                [Page 10]
+Tschofenig, et al.        Expires July 21, 2022                [Page 10]
