@@ -91,20 +91,20 @@ This specification uses the following abbreviations and terms:
 The CDDL for the COSE_Encrypt structure, as used with this specification,
 is shown in {{cddl-hpke}}.
 
-HPKE, when used with COSE, follows a three layer structure: 
+HPKE, when used with COSE, follows a two layer structure: 
 
 - Layer 0 (corresponding to the COSE_Encrypt structure) contains content (plaintext)
 encrypted with the CEK. This ciphertext may be detached. If not detached, then
 it is included in the COSE_Encrypt structure.
 
-- Layer 1 (see COSE_recipient_outer structure) includes the encrypted CEK.
+- Layer 1 (corresponding to a recipient structure) contains parameters needed for 
+HPKE to generate a shared secret used to encrypt the CEK. This layer includes the 
+encrypted CEK.
 
-- Layer 2 (in the COSE_recipient_inner structure) contains parameters needed for 
-HPKE to generate a shared secret used to encrypt the CEK found in layer 1.
-
-This three-layer structure is used to encrypt content that can also be shared with
+This two-layer structure is used to encrypt content that can also be shared with
 multiple parties at the expense of a single additional encryption operation.
 As stated above, the specification uses a CEK to encrypt the content at layer 0.
+
 For example, the content to be encrypted at layer 0 may be a firmware image.
 Then, a single firmware image can be encrypted with the same CEK once while
 each recipient receives the CEK encrypted differently.
@@ -118,23 +118,14 @@ HPKE_Encryption_Info = COSE_Encrypt_Tagged
 COSE_Encrypt = [
   Headers,
   ciphertext : bstr / nil,
-  recipients : [+COSE_recipient_outer]
+  recipients : + COSE_recipient
 ]
 
 ; Layer 1   
-COSE_recipient_outer = [
-  protected   : bstr .size 0,
-  unprotected : header_map, ; must contain alg
-  encCEK      : bstr, ; CEK encrypted with HPKE-derived shared secret
-  recipients  : [ + COSE_recipient_inner ]  
-]
-
-; Layer 2
-COSE_recipient_inner = [
-  protected   : bstr .cbor header_map, ; must contain HPKE alg
+COSE_recipient = [
+  protected   : bstr .cbor header_map, ; must contain alg parameter
   unprotected : header_map, ; must contain kid and ephemeral public key
-  empty       : null,
-  empty       : null
+  encCEK      : bstr, ; CEK encrypted with HPKE-derived shared secret
 ]
 
 header_map = {
@@ -144,10 +135,9 @@ header_map = {
 ~~~
 {: #cddl-hpke title="CDDL for HPKE-based COSE_Encrypt Structure"}
 
-The COSE_recipient_outer structure shown in {{cddl-hpke}} includes the
-encrypted CEK (in the encCEK structure) and the COSE_recipient_inner structure,
-also shown in {{cddl-hpke}}, contains the ephemeral public key
-(in the unprotected structure).
+The COSE_recipient structure shown in {{cddl-hpke}} includes the
+encrypted CEK as well as the ephemeral public key (in the unprotected header 
+structure).
 
 ## HPKE Encryption with SealBase
 
@@ -220,7 +210,7 @@ the COSE_Mac_Tagged or COSE_Mac0_Tagged structure.
 recipient from the inner-most recipients array.
 
 - The value in the AlgorithmID field corresponds to the alg parameter
-in the protected structure in the inner-most recipients array.
+in the unprotected header structure of the recipient structure.
 
 - keyDataLength is set to the number of bits of the desired output value.
 
@@ -233,57 +223,43 @@ shown in {{hpke-example}}. It uses the following algorithm
 combination: 
 
 - AES-GCM-128 for encryption of detached ciphertext in layer 0.
-- AES-GCM-128 for encryption of the CEK in layer 1.
-- NIST P-256 and HKDF-SHA256 as a Key Encapsulation Mechanism (KEM) in
-  layer 2.
+- AES-GCM-128 for encryption of the CEK in layer 1 as well as NIST P-256 
+and HKDF-SHA256 as a Key Encapsulation Mechanism (KEM).
 
 The algorithm selection is based on the registry of the values offered
-by the alg parameters (in layer 0 and layer 1) as well as in the hpke-alg
-parameter in layer 2. The hpke-alg parameter is a newly defined parameter
-registered via the IANA COSE Header Parameter registry defined in {{RFC8152}}.
-  
+by the alg parameters.
+
 ~~~
-96( 
+96_0([
+    / protected header with alg=AES-GCM-128 /
+    h'a10101',
+    / unprotected header with nonce /
+    {5: h'938b528516193cc7123ff037809f4c2a'},
+    / detached ciphertext /
+    null,
+    / recipient structure /
     [
-        // protected field with alg=AES-GCM-128
-        h'A10101',   
-        {    // unprotected field with iv
-             5: h'26682306D4FB28CA01B43B80'
-        }, 
-        // null because of detached ciphertext
-        null,  
-        [  // COSE_recipient_outer
-            h'',          // empty protected field
-            {             // unprotected field with ... 
-                 1: 1     //     alg=A128GCM
-            },
-            // Encrypted CEK
-            h'FA55A50CF110908DA6443149F2C2062011A7D8333A72721A',
-            / recipients / [  // COSE_recipient_inner
-             [
-               / protected / h'a1013818' / {
-                   \ hpke-alg \ 1:16 \ HPKE/P-256+HKDF-256 \
-                 } / ,
-               / unprotected / {
-                 // HPKE encapsulated key
-                 / ephemeral / -1:{
-                   / kty / 1:2,
-                   / crv / -1:1,
-                   / x / -2:h'98f50a4ff6c05861c8...90bbf91d6280',
-                   / y / -3:true
-                 },
-                 // kid for recipient static ECDH public key
-                 / kid / 4:'meriadoc.brandybuck@buckland.example'
-               },
-               // empty ciphertext
-               / ciphertext / h''
-             ]
-            ]
-        ]
-     ]
-)
+        / protected field with alg for HPKE /
+        h'a1013863',
+        / unprotected header /
+        {
+            / ephemeral public key with x / y coodinate /
+            -1: h'a401022001215820a596f2ca8d159c04942308ca90
+                  cfbfca65b108ca127df8fe191a063d00d7c5172258
+                  20aef47a45d6d6c572e7bd1b9f3e69b50ad3875c68
+                  f6da0caaa90c675df4162c39',
+             /  kid for recipient static ECDH public key /
+             4: h'6b69642d32',
+        },
+        / encrypted CEK /
+        h'9aba6fa44e9b2cef9d646614dcda670dbdb31a3b9d37c7a65b099a8152533062',
+    ],
+])
 ~~~
 {: #hpke-example title="COSE_Encrypt Example for HPKE"}
+
+Note that the COSE_Sign1 wrapper outside the COSE_Encrypt structure is not shown
+in the example above.
 
 # Security Considerations {#sec-cons}
 
@@ -297,33 +273,38 @@ mechanism is assumed to exist.
 Since the CEK is randomly generated it must be ensured that the guidelines for
 random number generations are followed, see {{RFC8937}}.
 
-The HPKE_Encryption_Info structure shown in this document does not provide
-authentication. Hence, the HPKE_Encryption_Info structure has to be used in
-combination with other COSE constructs, such as the COSE_Sign or COSE_Sign1.
+The COSE_Encrypt structure must be authenticated using COSE constructs like 
+COSE_Sign, or COSE_Sign1.
 
 #  IANA Considerations
 
-This document requests IANA to register a new parameter, called hpke-alg,
-in the COSE Header Parameter registry defined in {{RFC8152}}:
+This document requests IANA to add new values to the COSE Algorithms registry
+defined in {{RFC8152}} (in the Standards Action With Expert Review category):
 
-- Name:  HPKE Key Encapsulation Mechanism (KEM) Algorithm
+## HPKE/P-256+HKDF-256 and AES-128-GCM
 
-- Label:  TBD1
-
-- Value Type: uint
-
--  Value Registry: The values in this parameter are based on the
-   Key Encapsulation Mechanisms (KEMs) registry established by the
-   HPKE specification {{RFC8152}}.
-
--  Description: This parameter carries information about the Key
-   Encapsulation Mechanism (KEM) to be used according to the HPKE specification.
-   The registry for KEMs established by {{RFC8152}} is re-used.
-
+-  Name: HPKE_P256_HKDF256_AES128_GCM
+-  Value: TBD1
+-  Description: HPKE/P-256+HKDF-256 and AES-128-GCM 
+-  Capabilities: [kty]
+-  Change Controller: IESG
 -  Reference:  [[TBD: This RFC]]
+-  Recommended: Yes
+
+## HPKE/P-512+HKDF-512 and AES-256-GCM
+
+-  Name: HPKE_P521_HKDF512_AES256_GCM
+-  Value: TBD2
+-  Description: HPKE/P-512+HKDF-512 and AES-256-GCM
+-  Capabilities: [kty]
+-  Change Controller: IESG
+-  Reference:  [[TBD: This RFC]]
+-  Recommended: Yes
+
+TBD: More values to be added. 
 
 --- back
 
 # Acknowledgements
 
-We would like to thank Goeran Selander and John Mattsson for their review feedback.
+We would like to thank Goeran Selander, John Mattsson and Ilari Liusvaara for their review feedback.
