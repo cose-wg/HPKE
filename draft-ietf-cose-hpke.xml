@@ -9,7 +9,7 @@
 <?rfc sortrefs="yes"?>
 <?rfc symrefs="yes"?>
 
-<rfc ipr="pre5378Trust200902" docName="draft-ietf-cose-hpke-01" category="std" consensus="true">
+<rfc ipr="pre5378Trust200902" docName="draft-ietf-cose-hpke-01" category="std">
   <front>
     <title abbrev="COSE HPKE">Use of Hybrid Public-Key Encryption (HPKE) with CBOR Object Signing and Encryption (COSE)</title>
 
