@@ -105,9 +105,9 @@ This two-layer structure is used to encrypt content that can also be shared with
 multiple parties at the expense of a single additional encryption operation.
 As stated above, the specification uses a CEK to encrypt the content at layer 0.
 
-For example, the content to be encrypted at layer 0 may be a firmware image.
-Then, a single firmware image can be encrypted with the same CEK once while
-each recipient receives the CEK encrypted differently.
+For example, the content encrypted at layer 0 is a firmware image.  The
+same ciphertext firmware image is processed by all of the recipients;
+however, each recipient uses their own private key to obtain the CEK.
 
 ~~~
 COSE_Encrypt_Tagged = #6.96(COSE_Encrypt)
@@ -135,9 +135,9 @@ header_map = {
 ~~~
 {: #cddl-hpke title="CDDL for HPKE-based COSE_Encrypt Structure"}
 
-The COSE_recipient structure shown in {{cddl-hpke}} includes the
-encrypted CEK as well as the ephemeral public key (in the unprotected header 
-structure).
+The COSE_recipient structure shown in {{cddl-hpke}} is repeated for each
+recipient, and it includes the encrypted CEK as well as the sender-generated
+ephemeral public key in the unprotected header structure.
 
 ## HPKE Encryption with SealBase
 
@@ -151,7 +151,10 @@ requires a 16 byte key and the CEK would therefore be 16 bytes long.
 
 The "info" parameter can be used to influence the generation of keys and the
 "aad" parameter provides additional authenticated data to the AEAD algorithm
-in use. If successful, SealBase() will output a ciphertext "ct" and an encapsulated
+in use. This specification does not mandate the use of the info and the aad
+parameters.
+
+If SealBase() is successful, it will output a ciphertext "ct" and an encapsulated
 key "enc".  The content of enc is the ephemeral public key.
 
 The content of the info parameter is based on the 'COSE_KDF_Context' structure,
@@ -169,10 +172,15 @@ of the COSE_Encrypt structure.
 
 ## Info Structure
 
+This section provides a suggestion for constructing the info structure, when used with
+SealBase() and OpenBase(). Note that the use of the aad and the info structures for these
+two functions is optional. Profiles of this specification may require their use and may
+define different info structure.
+
 This specification re-uses the context information structure defined in
-{{RFC8152}} for use with the HPKE algorithm. This payload becomes the content
-of the info parameter for the HPKE functions. For better readability of this specification
-the COSE_KDF_Context structure is repeated in {{cddl-cose-kdf}}.
+{{RFC8152}} as a foundation for the info structure. This payload becomes the content
+of the info parameter for the HPKE functions, when utilized. For better readability of
+this specification the COSE_KDF_Context structure is repeated in {{cddl-cose-kdf}}.
 
 ~~~
    PartyInfo = (
@@ -195,11 +203,7 @@ the COSE_KDF_Context structure is repeated in {{cddl-cose-kdf}}.
 ~~~
 {: #cddl-cose-kdf title="COSE_KDF_Context Data Structure for info parameter"}
 
-Since this specification may be used in a number of different deployment environments
-flexibility for populating the fields in the COSE_KDF_Context structure is provided.
-
-For better interoperability, the following recommended settings
-are provided:
+The fields in {{cddl-cose-kdf}} are populated as follows:
 
 - PartyUInfo.identity corresponds to the kid found in the
 COSE_Sign_Tagged or COSE_Sign1_Tagged structure (when a digital
@@ -219,12 +223,13 @@ in the unprotected header structure of the recipient structure.
 # Example
 
 An example of the COSE_Encrypt structure using the HPKE scheme is
-shown in {{hpke-example}}. It uses the following algorithm
+shown in {{hpke-example}}. Line breaks and comments have been inserted
+for better readability. It uses the following algorithm
 combination: 
 
 - AES-GCM-128 for encryption of detached ciphertext in layer 0.
-- AES-GCM-128 for encryption of the CEK in layer 1 as well as NIST P-256 
-and HKDF-SHA256 as a Key Encapsulation Mechanism (KEM).
+- AES-GCM-128 for encryption of the CEK in layer 1 as well as ECDH
+  with NIST P-256 and HKDF-SHA256 as a Key Encapsulation Mechanism (KEM).
 
 The algorithm selection is based on the registry of the values offered
 by the alg parameters.
@@ -252,7 +257,8 @@ by the alg parameters.
              4: h'6b69642d32',
         },
         / encrypted CEK /
-        h'9aba6fa44e9b2cef9d646614dcda670dbdb31a3b9d37c7a65b099a8152533062',
+        h'9aba6fa44e9b2cef9d646614dcda670dbdb31a3b9d37c7a
+          65b099a8152533062',
     ],
 ])
 ~~~

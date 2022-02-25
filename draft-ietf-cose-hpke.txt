@@ -5,10 +5,10 @@
 COSE                                                       H. Tschofenig
 Internet-Draft                                               Arm Limited
 Intended status: Standards Track                              R. Housley
-Expires: August 27, 2022                                  Vigil Security
+Expires: August 29, 2022                                  Vigil Security
                                                                 B. Moran
                                                              Arm Limited
-                                                       February 23, 2022
+                                                       February 25, 2022
 
 
 Use of Hybrid Public-Key Encryption (HPKE) with CBOR Object Signing and
@@ -43,7 +43,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on August 27, 2022.
+   This Internet-Draft will expire on August 29, 2022.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-Tschofenig, et al.       Expires August 27, 2022                [Page 1]
+Tschofenig, et al.       Expires August 29, 2022                [Page 1]
 
 Internet-Draft                  COSE HPKE                  February 2022
 
@@ -94,8 +94,8 @@ Table of Contents
    6.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   8
      6.1.  HPKE/P-256+HKDF-256 and AES-128-GCM . . . . . . . . . . .   8
      6.2.  HPKE/P-512+HKDF-512 and AES-256-GCM . . . . . . . . . . .   8
-   7.  References  . . . . . . . . . . . . . . . . . . . . . . . . .   8
-     7.1.  Normative References  . . . . . . . . . . . . . . . . . .   8
+   7.  References  . . . . . . . . . . . . . . . . . . . . . . . . .   9
+     7.1.  Normative References  . . . . . . . . . . . . . . . . . .   9
      7.2.  Informative References  . . . . . . . . . . . . . . . . .   9
    Appendix A.  Acknowledgements . . . . . . . . . . . . . . . . . .   9
    Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .   9
@@ -109,7 +109,7 @@ Table of Contents
 
 
 
-Tschofenig, et al.       Expires August 27, 2022                [Page 2]
+Tschofenig, et al.       Expires August 29, 2022                [Page 2]
 
 Internet-Draft                  COSE HPKE                  February 2022
 
@@ -165,14 +165,15 @@ Internet-Draft                  COSE HPKE                  February 2022
 
 
 
-Tschofenig, et al.       Expires August 27, 2022                [Page 3]
+Tschofenig, et al.       Expires August 29, 2022                [Page 3]
 
 Internet-Draft                  COSE HPKE                  February 2022
 
 
-   For example, the content to be encrypted at layer 0 may be a firmware
-   image.  Then, a single firmware image can be encrypted with the same
-   CEK once while each recipient receives the CEK encrypted differently.
+   For example, the content encrypted at layer 0 is a firmware image.
+   The same ciphertext firmware image is processed by all of the
+   recipients; however, each recipient uses their own private key to
+   obtain the CEK.
 
  COSE_Encrypt_Tagged = #6.96(COSE_Encrypt)
 
@@ -199,9 +200,9 @@ Internet-Draft                  COSE HPKE                  February 2022
 
            Figure 1: CDDL for HPKE-based COSE_Encrypt Structure
 
-   The COSE_recipient structure shown in Figure 1 includes the encrypted
-   CEK as well as the ephemeral public key (in the unprotected header
-   structure).
+   The COSE_recipient structure shown in Figure 1 is repeated for each
+   recipient, and it includes the encrypted CEK as well as the sender-
+   generated ephemeral public key in the unprotected header structure.
 
 3.2.  HPKE Encryption with SealBase
 
@@ -216,18 +217,21 @@ Internet-Draft                  COSE HPKE                  February 2022
 
    The "info" parameter can be used to influence the generation of keys
    and the "aad" parameter provides additional authenticated data to the
-   AEAD algorithm in use.  If successful, SealBase() will output a
 
 
 
 
-Tschofenig, et al.       Expires August 27, 2022                [Page 4]
+Tschofenig, et al.       Expires August 29, 2022                [Page 4]
 
 Internet-Draft                  COSE HPKE                  February 2022
 
 
-   ciphertext "ct" and an encapsulated key "enc".  The content of enc is
-   the ephemeral public key.
+   AEAD algorithm in use.  This specification does not mandate the use
+   of the info and the aad parameters.
+
+   If SealBase() is successful, it will output a ciphertext "ct" and an
+   encapsulated key "enc".  The content of enc is the ephemeral public
+   key.
 
    The content of the info parameter is based on the 'COSE_KDF_Context'
    structure, which is detailed in Figure 2.
@@ -245,11 +249,38 @@ Internet-Draft                  COSE HPKE                  February 2022
 
 3.4.  Info Structure
 
+   This section provides a suggestion for constructing the info
+   structure, when used with SealBase() and OpenBase().  Note that the
+   use of the aad and the info structures for these two functions is
+   optional.  Profiles of this specification may require their use and
+   may define different info structure.
+
    This specification re-uses the context information structure defined
-   in [RFC8152] for use with the HPKE algorithm.  This payload becomes
-   the content of the info parameter for the HPKE functions.  For better
-   readability of this specification the COSE_KDF_Context structure is
-   repeated in Figure 2.
+   in [RFC8152] as a foundation for the info structure.  This payload
+   becomes the content of the info parameter for the HPKE functions,
+   when utilized.  For better readability of this specification the
+   COSE_KDF_Context structure is repeated in Figure 2.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Tschofenig, et al.       Expires August 29, 2022                [Page 5]
+
+Internet-Draft                  COSE HPKE                  February 2022
+
 
       PartyInfo = (
           identity : bstr / nil,
@@ -271,19 +302,7 @@ Internet-Draft                  COSE HPKE                  February 2022
 
        Figure 2: COSE_KDF_Context Data Structure for info parameter
 
-   Since this specification may be used in a number of different
-   deployment environments flexibility for populating the fields in the
-   COSE_KDF_Context structure is provided.
-
-
-
-Tschofenig, et al.       Expires August 27, 2022                [Page 5]
-
-Internet-Draft                  COSE HPKE                  February 2022
-
-
-   For better interoperability, the following recommended settings are
-   provided:
+   The fields in Figure 2 are populated as follows:
 
    o  PartyUInfo.identity corresponds to the kid found in the
       COSE_Sign_Tagged or COSE_Sign1_Tagged structure (when a digital
@@ -306,63 +325,52 @@ Internet-Draft                  COSE HPKE                  February 2022
 4.  Example
 
    An example of the COSE_Encrypt structure using the HPKE scheme is
-   shown in Figure 3.  It uses the following algorithm combination:
+   shown in Figure 3.  Line breaks and comments have been inserted for
+   better readability.  It uses the following algorithm combination:
 
    o  AES-GCM-128 for encryption of detached ciphertext in layer 0.
 
-   o  AES-GCM-128 for encryption of the CEK in layer 1 as well as NIST
-      P-256 and HKDF-SHA256 as a Key Encapsulation Mechanism (KEM).
-
-   The algorithm selection is based on the registry of the values
-   offered by the alg parameters.
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Tschofenig, et al.       Expires August 27, 2022                [Page 6]
+Tschofenig, et al.       Expires August 29, 2022                [Page 6]
 
 Internet-Draft                  COSE HPKE                  February 2022
 
 
-96_0([
-    / protected header with alg=AES-GCM-128 /
-    h'a10101',
-    / unprotected header with nonce /
-    {5: h'938b528516193cc7123ff037809f4c2a'},
-    / detached ciphertext /
-    null,
-    / recipient structure /
-    [
-        / protected field with alg for HPKE /
-        h'a1013863',
-        / unprotected header /
-        {
-            / ephemeral public key with x / y coodinate /
-            -1: h'a401022001215820a596f2ca8d159c04942308ca90
-                  cfbfca65b108ca127df8fe191a063d00d7c5172258
-                  20aef47a45d6d6c572e7bd1b9f3e69b50ad3875c68
-                  f6da0caaa90c675df4162c39',
-             /  kid for recipient static ECDH public key /
-             4: h'6b69642d32',
-        },
-        / encrypted CEK /
-        h'9aba6fa44e9b2cef9d646614dcda670dbdb31a3b9d37c7a65b099a8152533062',
-    ],
-])
+   o  AES-GCM-128 for encryption of the CEK in layer 1 as well as ECDH
+      with NIST P-256 and HKDF-SHA256 as a Key Encapsulation Mechanism
+      (KEM).
+
+   The algorithm selection is based on the registry of the values
+   offered by the alg parameters.
+
+   96_0([
+       / protected header with alg=AES-GCM-128 /
+       h'a10101',
+       / unprotected header with nonce /
+       {5: h'938b528516193cc7123ff037809f4c2a'},
+       / detached ciphertext /
+       null,
+       / recipient structure /
+       [
+           / protected field with alg for HPKE /
+           h'a1013863',
+           / unprotected header /
+           {
+               / ephemeral public key with x / y coodinate /
+               -1: h'a401022001215820a596f2ca8d159c04942308ca90
+                     cfbfca65b108ca127df8fe191a063d00d7c5172258
+                     20aef47a45d6d6c572e7bd1b9f3e69b50ad3875c68
+                     f6da0caaa90c675df4162c39',
+                /  kid for recipient static ECDH public key /
+                4: h'6b69642d32',
+           },
+           / encrypted CEK /
+           h'9aba6fa44e9b2cef9d646614dcda670dbdb31a3b9d37c7a
+             65b099a8152533062',
+       ],
+   ])
 
                   Figure 3: COSE_Encrypt Example for HPKE
 
@@ -379,20 +387,18 @@ Internet-Draft                  COSE HPKE                  February 2022
    recipient and HPKE COSE makes the same assumptions.  Some form of
    public key distribution mechanism is assumed to exist.
 
+
+
+Tschofenig, et al.       Expires August 29, 2022                [Page 7]
+
+Internet-Draft                  COSE HPKE                  February 2022
+
+
    Since the CEK is randomly generated it must be ensured that the
    guidelines for random number generations are followed, see [RFC8937].
 
    The COSE_Encrypt structure must be authenticated using COSE
    constructs like COSE_Sign, or COSE_Sign1.
-
-
-
-
-
-Tschofenig, et al.       Expires August 27, 2022                [Page 7]
-
-Internet-Draft                  COSE HPKE                  February 2022
-
 
 6.  IANA Considerations
 
@@ -434,21 +440,24 @@ Internet-Draft                  COSE HPKE                  February 2022
 
    TBD: More values to be added.
 
+
+
+
+
+
+Tschofenig, et al.       Expires August 29, 2022                [Page 8]
+
+Internet-Draft                  COSE HPKE                  February 2022
+
+
 7.  References
 
 7.1.  Normative References
 
    [I-D.irtf-cfrg-hpke]
-              Barnes, R. L., Bhargavan, K., Lipp, B., and C. A. Wood,
-              "Hybrid Public Key Encryption", draft-irtf-cfrg-hpke-12
-              (work in progress), September 2021.
-
-
-
-Tschofenig, et al.       Expires August 27, 2022                [Page 8]
-
-Internet-Draft                  COSE HPKE                  February 2022
-
+              Cisco, Inria, Inria, and Cloudflare, "Hybrid Public Key
+              Encryption", draft-irtf-cfrg-hpke-12 (work in progress),
+              September 2021.
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
@@ -487,6 +496,16 @@ Authors' Addresses
    Email: hannes.tschofenig@arm.com
 
 
+
+
+
+
+
+Tschofenig, et al.       Expires August 29, 2022                [Page 9]
+
+Internet-Draft                  COSE HPKE                  February 2022
+
+
    Russ Housley
    Vigil Security, LLC
 
@@ -501,4 +520,41 @@ Authors' Addresses
 
 
 
-Tschofenig, et al.       Expires August 27, 2022                [Page 9]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Tschofenig, et al.       Expires August 29, 2022               [Page 10]
