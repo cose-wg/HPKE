@@ -5,10 +5,10 @@
 COSE                                                       H. Tschofenig
 Internet-Draft                                               Arm Limited
 Intended status: Standards Track                              R. Housley
-Expires: August 29, 2022                                  Vigil Security
+Expires: September 8, 2022                                Vigil Security
                                                                 B. Moran
                                                              Arm Limited
-                                                       February 25, 2022
+                                                          March 07, 2022
 
 
 Use of Hybrid Public-Key Encryption (HPKE) with CBOR Object Signing and
@@ -43,7 +43,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on August 29, 2022.
+   This Internet-Draft will expire on September 8, 2022.
 
 Copyright Notice
 
@@ -53,9 +53,9 @@ Copyright Notice
 
 
 
-Tschofenig, et al.       Expires August 29, 2022                [Page 1]
+Tschofenig, et al.      Expires September 8, 2022               [Page 1]
 
-Internet-Draft                  COSE HPKE                  February 2022
+Internet-Draft                  COSE HPKE                     March 2022
 
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -109,9 +109,9 @@ Table of Contents
 
 
 
-Tschofenig, et al.       Expires August 29, 2022                [Page 2]
+Tschofenig, et al.      Expires September 8, 2022               [Page 2]
 
-Internet-Draft                  COSE HPKE                  February 2022
+Internet-Draft                  COSE HPKE                     March 2022
 
 
    secret.  The motivation for standardizing a public key encryption
@@ -165,9 +165,9 @@ Internet-Draft                  COSE HPKE                  February 2022
 
 
 
-Tschofenig, et al.       Expires August 29, 2022                [Page 3]
+Tschofenig, et al.      Expires September 8, 2022               [Page 3]
 
-Internet-Draft                  COSE HPKE                  February 2022
+Internet-Draft                  COSE HPKE                     March 2022
 
 
    For example, the content encrypted at layer 0 is a firmware image.
@@ -221,9 +221,9 @@ Internet-Draft                  COSE HPKE                  February 2022
 
 
 
-Tschofenig, et al.       Expires August 29, 2022                [Page 4]
+Tschofenig, et al.      Expires September 8, 2022               [Page 4]
 
-Internet-Draft                  COSE HPKE                  February 2022
+Internet-Draft                  COSE HPKE                     March 2022
 
 
    AEAD algorithm in use.  This specification does not mandate the use
@@ -277,9 +277,9 @@ Internet-Draft                  COSE HPKE                  February 2022
 
 
 
-Tschofenig, et al.       Expires August 29, 2022                [Page 5]
+Tschofenig, et al.      Expires September 8, 2022               [Page 5]
 
-Internet-Draft                  COSE HPKE                  February 2022
+Internet-Draft                  COSE HPKE                     March 2022
 
 
       PartyInfo = (
@@ -333,9 +333,9 @@ Internet-Draft                  COSE HPKE                  February 2022
 
 
 
-Tschofenig, et al.       Expires August 29, 2022                [Page 6]
+Tschofenig, et al.      Expires September 8, 2022               [Page 6]
 
-Internet-Draft                  COSE HPKE                  February 2022
+Internet-Draft                  COSE HPKE                     March 2022
 
 
    o  AES-GCM-128 for encryption of the CEK in layer 1 as well as ECDH
@@ -389,9 +389,9 @@ Internet-Draft                  COSE HPKE                  February 2022
 
 
 
-Tschofenig, et al.       Expires August 29, 2022                [Page 7]
+Tschofenig, et al.      Expires September 8, 2022               [Page 7]
 
-Internet-Draft                  COSE HPKE                  February 2022
+Internet-Draft                  COSE HPKE                     March 2022
 
 
    Since the CEK is randomly generated it must be ensured that the
@@ -445,9 +445,9 @@ Internet-Draft                  COSE HPKE                  February 2022
 
 
 
-Tschofenig, et al.       Expires August 29, 2022                [Page 8]
+Tschofenig, et al.      Expires September 8, 2022               [Page 8]
 
-Internet-Draft                  COSE HPKE                  February 2022
+Internet-Draft                  COSE HPKE                     March 2022
 
 
 7.  References
@@ -501,9 +501,9 @@ Authors' Addresses
 
 
 
-Tschofenig, et al.       Expires August 29, 2022                [Page 9]
+Tschofenig, et al.      Expires September 8, 2022               [Page 9]
 
-Internet-Draft                  COSE HPKE                  February 2022
+Internet-Draft                  COSE HPKE                     March 2022
 
 
    Russ Housley
@@ -557,4 +557,4 @@ Internet-Draft                  COSE HPKE                  February 2022
 
 
 
-Tschofenig, et al.       Expires August 29, 2022               [Page 10]
+Tschofenig, et al.      Expires September 8, 2022              [Page 10]
