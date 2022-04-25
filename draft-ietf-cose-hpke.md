@@ -144,10 +144,12 @@ ephemeral public key in the unprotected header structure.
 The SealBase(pkR, info, aad, pt) function is used to encrypt a plaintext pt to
 a recipient's public key (pkR).
 
-IMPORTANT: For use in this specification, the plaintext "pt" passed into the
-SealBase is the CEK. The CEK is a random byte sequence of length appropriate
-for the encryption algorithm selected in layer 0. For example, AES-128-GCM
-requires a 16 byte key and the CEK would therefore be 16 bytes long.
+IMPORTANT: For use in cose_encrypt, the plaintext "pt" passed into the 
+SealBase is the CEK. The CEK is a random byte sequence of length 
+appropriate for the encryption algorithm selected in layer 0. For 
+example, AES-128-GCM requires a 16 byte key and the CEK would 
+therefore be 16 bytes long. In case of COSE_Encrypt0, the plaintext 
+"pt" passed into the SealBase is the raw plaintext.
 
 The "info" parameter can be used to influence the generation of keys and the
 "aad" parameter provides additional authenticated data to the AEAD algorithm
