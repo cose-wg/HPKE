@@ -321,7 +321,7 @@ by the alg parameters (see {{IANA}}).
 ~~~
 96_0([
     / protected header with alg=AES-GCM-128 /
-    h'a10101',
+    << {1: 1} >>,
     / unprotected header with nonce /
     {5: h'938b528516193cc7123ff037809f4c2a'},
     / detached ciphertext /
@@ -332,13 +332,16 @@ by the alg parameters (see {{IANA}}).
         << {1: -100} >>, 
         / unprotected header /
         {
-            / ephemeral public key with x - y coodinate /
-            -1: h'a401022001215820a596f2ca8d159c04942308ca90
-                  cfbfca65b108ca127df8fe191a063d00d7c5172258
-                  20aef47a45d6d6c572e7bd1b9f3e69b50ad3875c68
-                  f6da0caaa90c675df4162c39',
-             /  kid for recipient static ECDH public key /
-             4: h'6b69642d32',
+            / ephemeral public key structure /
+            -1: << {
+                1: 2,
+                -1: 1,
+                -2: h'985E2FDE3E67E1F7146AB305AA98FE89
+                      B1CFE545965B6CFB066C0BB19DE7E489',
+                -3: h'4AC5E777A7C96CB5D70B8A40E2951562
+                      F20C21DB021AAD12E54A8DBE7EF9DF10'
+                } >>,
+             4: 'kid-2'
         },
         / encrypted CEK /
         h'9aba6fa44e9b2cef9d646614dcda670dbdb31a3b9d37c7a
