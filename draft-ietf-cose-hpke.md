@@ -192,7 +192,7 @@ header_map = {
 
 The COSE_Encrypt MAY be tagged or untagged. 
 
-An example is shown in {{one-layer-example}}.
+An example is shown in {{two-layer-example}}.
 
 ## HPKE Encryption with SealBase
 
@@ -304,7 +304,7 @@ in the unprotected header structure of the recipient structure.
 ~~~
 {: #hpke-example-one title="COSE_Encrypt0 Example for HPKE"}
 
-## Two Layer {#one-layer-example}
+## Two Layer {#two-layer-example}
 
 An example of the COSE_Encrypt structure using the HPKE scheme is
 shown in {{hpke-example}}. Line breaks and comments have been inserted
