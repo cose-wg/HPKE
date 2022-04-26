@@ -224,8 +224,9 @@ ct parameters received from the sender. The "aad" and the "info" parameters are 
 via the context of the usage.
 
 The OpenBase function will, if successful, decrypt "ct". When decrypted, the result
-will be the CEK. The CK is the symmetric key used to decrypt the ciphertext in layer 0
-of the COSE_Encrypt structure.
+will be either the CEK (if using COSE_Encrypt), or the raw plaintext (if using 
+COSE_Encrypt0). The CEK is the symmetric key used to decrypt the ciphertext in 
+layer 0 of the COSE_Encrypt structure.
 
 ## Info Structure
 
