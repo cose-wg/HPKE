@@ -185,7 +185,7 @@ COSE_recipient = [
 
 header_map = {
   Generic_Headers,
-  * label =values,
+  * label => values,
 }
 ~~~
 {: #cddl-hpke title="CDDL for HPKE-based COSE_Encrypt Structure"}
