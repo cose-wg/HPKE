@@ -1,7 +1,7 @@
 ---
 title: Use of Hybrid Public-Key Encryption (HPKE) with CBOR Object Signing and Encryption (COSE)
 abbrev: COSE HPKE
-docname: draft-ietf-cose-hpke-01
+docname: draft-ietf-cose-hpke-02
 category: std
 
 ipr: pre5378Trust200902
@@ -36,7 +36,7 @@ author:
 normative:
   RFC2119:
   RFC8174:
-  I-D.irtf-cfrg-hpke:
+  RFC9180:
   RFC8152:
   
 informative:
@@ -58,12 +58,12 @@ provided by COSE-native security mechanisms.
 
 #  Introduction
 
-Hybrid public-key encryption (HPKE) {{I-D.irtf-cfrg-hpke}} is a scheme that 
+Hybrid public-key encryption (HPKE) {{RFC9180}} is a scheme that 
 provides public key encryption of arbitrary-sized plaintexts given a 
 recipient's public key. HPKE utilizes a non-interactive ephemeral-static 
 Diffie-Hellman exchange to establish a shared secret. The motivation for
 standardizing a public key encryption scheme is explained in the introduction
-of {{I-D.irtf-cfrg-hpke}}.
+of {{RFC9180}}.
 
 The HPKE specification defines several features for use with public key encryption
 and a subset of those features is applied to COSE {{RFC8152}}. Since COSE provides
@@ -80,52 +80,107 @@ when, and only when, they appear in all capitals, as shown here.
 
 This specification uses the following abbreviations and terms:
 - Content-encryption key (CEK), a term defined in CMS {{RFC2630}}.
-- Hybrid Public Key Encryption (HPKE) is defined in {{I-D.irtf-cfrg-hpke}}.
-- pkR is the public key of the recipient, as defined in {{I-D.irtf-cfrg-hpke}}.
-- skR is the private key of the recipient, as defined in {{I-D.irtf-cfrg-hpke}}.
+- Hybrid Public Key Encryption (HPKE) is defined in {{RFC9180}}.
+- pkR is the public key of the recipient, as defined in {{RFC9180}}.
+- skR is the private key of the recipient, as defined in {{RFC9180}}.
 
 # HPKE for COSE
 
 ## Overview
 
-The CDDL for the COSE_Encrypt structure, as used with this specification,
-is shown in {{cddl-hpke}}.
+This specification supports two uses of HPKE in COSE, namely 
 
-HPKE, when used with COSE, follows a two layer structure: 
+* HPKE in a single sender - single recipient setup.
+  This use cases uses a one layer structure for efficiency. 
+  {{one-layer}} provides the details.
+
+* HPKE in a single sender - multiple recipient setup. 
+  This use case requires a two layer structure.  {{two-layer}} 
+  provides the details.
+
+HPKE in "base" mode requires little information to be exchanged between 
+a sender and a recipient, namely
+
+* algorithm information, 
+* the ephemeral public key, and 
+* an identifier of the static recipient key.
+
+In the subsections below we explain how this information is carried
+inside the COSE_Encrypt0 and the COSE_Encrypt1 for the one layer and the
+two layer structure, respectively.
+
+### One Layer Structure {#one-layer}
+
+With the one layer structure the information carried inside the 
+COSE_recipient structure is embedded inside the COSE_Encrypt0. 
+
+HPKE is used to directly encrypt the plaintext. The resulting ciphertext
+may be included in the COSE_Encrypt0 or may be detached.
+
+A sender MUST set the alg parameter in the protected header, which
+indicates the use of HPKE. 
+
+The sender MUST place the kid and ephemeral public key into the unprotected
+header. 
+
+The following CDDL structure shows the COSE_Encrypt0 structure:
+~~~
+COSE_Encrypt0_Tagged = #6.16(COSE_Encrypt0)
+
+; Layer 0
+COSE_Encrypt0 = [
+    Headers,
+    ciphertext : bstr / nil,
+]
+~~~
+{: #cddl-hpke-one-layer title="CDDL for HPKE-based COSE_Encrypt0 Structure"}
+
+The COSE_Encrypt0 MAY be tagged or untagged. 
+
+An example is shown in {{one-layer-example}}.
+
+### Two Layer Structure {#two-layer}
+
+With the two layer structure the HPKE information is conveyed in the COSE_recipient structure, i.e. one
+COSE_recipient structure per recipient. 
+
+In this approach the following layers are involved: 
 
 - Layer 0 (corresponding to the COSE_Encrypt structure) contains content (plaintext)
 encrypted with the CEK. This ciphertext may be detached. If not detached, then
 it is included in the COSE_Encrypt structure.
 
 - Layer 1 (corresponding to a recipient structure) contains parameters needed for 
-HPKE to generate a shared secret used to encrypt the CEK. This layer includes the 
-encrypted CEK.
+HPKE to generate a shared secret used to encrypt the CEK. This layer conveys the 
+encrypted CEK in the encCEK structure. The protected header MUST contain the algorithm
+information and the unprotected header MUST contain the ephemeral public key and the
+key id (kid) of the static recipient public key.
 
 This two-layer structure is used to encrypt content that can also be shared with
 multiple parties at the expense of a single additional encryption operation.
 As stated above, the specification uses a CEK to encrypt the content at layer 0.
-
 For example, the content encrypted at layer 0 is a firmware image.  The
 same ciphertext firmware image is processed by all of the recipients;
 however, each recipient uses their own private key to obtain the CEK.
 
+The COSE_recipient structure shown in {{cddl-hpke}} is repeated for each
+recipient.
+
 ~~~
 COSE_Encrypt_Tagged = #6.96(COSE_Encrypt)
  
-HPKE_Encryption_Info = COSE_Encrypt_Tagged
-
-; Layer 0
+/ Layer 0 /
 COSE_Encrypt = [
   Headers,
   ciphertext : bstr / nil,
   recipients : + COSE_recipient
 ]
 
-; Layer 1   
+/ Layer 1 /
 COSE_recipient = [
-  protected   : bstr .cbor header_map, ; must contain alg parameter
-  unprotected : header_map, ; must contain kid and ephemeral public key
-  encCEK      : bstr, ; CEK encrypted with HPKE-derived shared secret
+  protected   : bstr .cbor header_map,
+  unprotected : header_map,
+  encCEK      : bstr,
 ]
 
 header_map = {
@@ -135,9 +190,9 @@ header_map = {
 ~~~
 {: #cddl-hpke title="CDDL for HPKE-based COSE_Encrypt Structure"}
 
-The COSE_recipient structure shown in {{cddl-hpke}} is repeated for each
-recipient, and it includes the encrypted CEK as well as the sender-generated
-ephemeral public key in the unprotected header structure.
+The COSE_Encrypt MAY be tagged or untagged. 
+
+An example is shown in {{two-layer-example}}.
 
 ## HPKE Encryption with SealBase
 
@@ -220,7 +275,36 @@ in the unprotected header structure of the recipient structure.
 
 - protected refers to the protected structure of the inner-most array.
 
-# Example
+# Examples
+
+## One Layer {#one-layer-example}
+
+~~~
+96(
+    [
+        / algorithm id -100 for HPKE_P256_HKDF256_AES128_GCM /
+        << {1: -100} >>, 
+        {
+            / ephemeral public key structure /
+            -1: << {
+                1: 2,
+                -1: 1,
+                -2: h'985E2FDE3E67E1F7146AB305AA98FE89
+                      B1CFE545965B6CFB066C0BB19DE7E489',
+                -3: h'4AC5E777A7C96CB5D70B8A40E2951562
+                      F20C21DB021AAD12E54A8DBE7EF9DF10'
+                } >>,
+             4: 'kid-2'
+        },
+        / encrypted plaintext /
+        h'4123E7C3CD992723F0FA1CD3A903A588
+          42B1161E02D8E7FD842C4DA3B984B9CF'
+    ]
+)
+~~~
+{: #hpke-example-one title="COSE_Encrypt0 Example for HPKE"}
+
+## Two Layer {#two-layer-example}
 
 An example of the COSE_Encrypt structure using the HPKE scheme is
 shown in {{hpke-example}}. Line breaks and comments have been inserted
@@ -232,29 +316,32 @@ combination:
   with NIST P-256 and HKDF-SHA256 as a Key Encapsulation Mechanism (KEM).
 
 The algorithm selection is based on the registry of the values offered
-by the alg parameters.
+by the alg parameters (see {{IANA}}).
 
 ~~~
 96_0([
     / protected header with alg=AES-GCM-128 /
-    h'a10101',
+    << {1: 1} >>,
     / unprotected header with nonce /
     {5: h'938b528516193cc7123ff037809f4c2a'},
     / detached ciphertext /
     null,
     / recipient structure /
     [
-        / protected field with alg for HPKE /
-        h'a1013863',
+        / algorithm id -100 for HPKE_P256_HKDF256_AES128_GCM /
+        << {1: -100} >>, 
         / unprotected header /
         {
-            / ephemeral public key with x / y coodinate /
-            -1: h'a401022001215820a596f2ca8d159c04942308ca90
-                  cfbfca65b108ca127df8fe191a063d00d7c5172258
-                  20aef47a45d6d6c572e7bd1b9f3e69b50ad3875c68
-                  f6da0caaa90c675df4162c39',
-             /  kid for recipient static ECDH public key /
-             4: h'6b69642d32',
+            / ephemeral public key structure /
+            -1: << {
+                1: 2,
+                -1: 1,
+                -2: h'985E2FDE3E67E1F7146AB305AA98FE89
+                      B1CFE545965B6CFB066C0BB19DE7E489',
+                -3: h'4AC5E777A7C96CB5D70B8A40E2951562
+                      F20C21DB021AAD12E54A8DBE7EF9DF10'
+                } >>,
+             4: 'kid-2'
         },
         / encrypted CEK /
         h'9aba6fa44e9b2cef9d646614dcda670dbdb31a3b9d37c7a
@@ -262,27 +349,54 @@ by the alg parameters.
     ],
 ])
 ~~~
-{: #hpke-example title="COSE_Encrypt Example for HPKE"}
+{: #hpke-example-two title="COSE_Encrypt Example for HPKE"}
 
-Note that the COSE_Sign1 wrapper outside the COSE_Encrypt structure is not shown
-in the example above.
+To offer authentication of the sender the payload in {{hpke-example-two}}
+is signed with a COSE_Sign1 wrapper, which is shown in {{hpke-example-sign}}.
+The payload in {{hpke-example-sign}} corresponds to the content shown in
+{{hpke-example-two}}.
+
+~~~
+18(
+  [
+    / protected / h'a10126' / {
+            \ alg \ 1:-7 \ ECDSA 256 \
+          } / ,
+    / unprotected / {
+          / kid / 4:'sender@example.com'
+        },
+    / payload /     h'AA19...B80C',
+    / signature /   h'E3B8...25B8'
+  ]
+)
+~~~
+{: #hpke-example-sign title="COSE_Encrypt Example for HPKE"}
+
 
 # Security Considerations {#sec-cons}
 
 This specification is based on HPKE and the security considerations of HPKE
-{{I-D.irtf-cfrg-hpke}} are therefore applicable also to this specification.
+{{RFC9180}} are therefore applicable also to this specification.
 
 HPKE assumes the sender is in possession of the public key of the recipient and
-HPKE COSE makes the same assumptions. Some form of public key distribution
+HPKE COSE makes the same assumptions. Hence, some form of public key distribution
 mechanism is assumed to exist.
 
-Since the CEK is randomly generated it must be ensured that the guidelines for
-random number generations are followed, see {{RFC8937}}.
+HPKE relies on a source of randomness to be available on the device. Additionally, 
+with the two layer structure the CEK is randomly generated and the it MUST be
+ensured that the guidelines for random number generations are followed. 
 
-The COSE_Encrypt structure must be authenticated using COSE constructs like 
-COSE_Sign, or COSE_Sign1.
+The COSE_Encrypt structure MUST be authenticated using COSE constructs like 
+COSE_Sign, COSE_Sign1, COSE_MAC, or COSE_MAC0.
 
-#  IANA Considerations
+When COSE_Encrypt or COSE_Encrypt0 is used with a detached ciphertext then the
+subsequently applied integrity protection via COSE_Sign, COSE_Sign1, COSE_MAC, 
+or COSE_MAC0 does not cover this detached ciphertext. Implementers MUST ensure
+that the detached ciphertext also experiences integrity protection. This is, for
+example, the case when an AEAD cipher is used to produce the detached ciphertext
+but may not be guaranteed by non-AEAD ciphers.
+
+#  IANA Considerations {#IANA}
 
 This document requests IANA to add new values to the COSE Algorithms registry
 defined in {{RFC8152}} (in the Standards Action With Expert Review category):
@@ -307,7 +421,7 @@ defined in {{RFC8152}} (in the Standards Action With Expert Review category):
 -  Reference:  [[TBD: This RFC]]
 -  Recommended: Yes
 
-TBD: More values to be added. 
+TBD: More values to be added.
 
 --- back
 
