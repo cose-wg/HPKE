@@ -123,7 +123,8 @@ indicates the use of HPKE.
 The sender MUST place the kid and ephemeral public key into the unprotected
 header. 
 
-The following CDDL structure shows the COSE_Encrypt0 structure:
+{{cddl-hpke-one-layer}} shows the COSE_Encrypt0 CDDL structure.
+
 ~~~
 COSE_Encrypt0_Tagged = #6.16(COSE_Encrypt0)
 
@@ -310,7 +311,7 @@ in the unprotected header structure of the recipient structure.
 ## Two Layer {#two-layer-example}
 
 An example of the COSE_Encrypt structure using the HPKE scheme is
-shown in {{hpke-example}}. Line breaks and comments have been inserted
+shown in {{hpke-example-two}}. Line breaks and comments have been inserted
 for better readability. It uses the following algorithm
 combination: 
 
