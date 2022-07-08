@@ -5,10 +5,10 @@
 COSE                                                       H. Tschofenig
 Internet-Draft                                               Arm Limited
 Intended status: Standards Track                              R. Housley
-Expires: October 28, 2022                                 Vigil Security
+Expires: January 9, 2023                                  Vigil Security
                                                                 B. Moran
                                                              Arm Limited
-                                                          April 26, 2022
+                                                           July 08, 2022
 
 
 Use of Hybrid Public-Key Encryption (HPKE) with CBOR Object Signing and
@@ -43,7 +43,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on October 28, 2022.
+   This Internet-Draft will expire on January 9, 2023.
 
 Copyright Notice
 
@@ -53,9 +53,9 @@ Copyright Notice
 
 
 
-Tschofenig, et al.      Expires October 28, 2022                [Page 1]
+Tschofenig, et al.       Expires January 9, 2023                [Page 1]
 
-Internet-Draft                  COSE HPKE                     April 2022
+Internet-Draft                  COSE HPKE                      July 2022
 
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -91,28 +91,34 @@ Table of Contents
      3.2.  HPKE Encryption with SealBase . . . . . . . . . . . . . .   6
      3.3.  HPKE Decryption with OpenBase . . . . . . . . . . . . . .   6
      3.4.  Info Structure  . . . . . . . . . . . . . . . . . . . . .   6
-   4.  Examples  . . . . . . . . . . . . . . . . . . . . . . . . . .   7
+   4.  Examples  . . . . . . . . . . . . . . . . . . . . . . . . . .   8
      4.1.  One Layer . . . . . . . . . . . . . . . . . . . . . . . .   8
      4.2.  Two Layer . . . . . . . . . . . . . . . . . . . . . . . .   8
    5.  Security Considerations . . . . . . . . . . . . . . . . . . .  10
    6.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  10
-     6.1.  HPKE/P-256+HKDF-256 and AES-128-GCM . . . . . . . . . . .  11
-     6.2.  HPKE/P-512+HKDF-512 and AES-256-GCM . . . . . . . . . . .  11
-   7.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  11
-     7.1.  Normative References  . . . . . . . . . . . . . . . . . .  11
-     7.2.  Informative References  . . . . . . . . . . . . . . . . .  12
-   Appendix A.  Acknowledgements . . . . . . . . . . . . . . . . . .  12
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  12
+     6.1.  COSE Algorithms Registry  . . . . . . . . . . . . . . . .  11
+       6.1.1.  COSE_ALG_HPKE_AES_128_GCM . . . . . . . . . . . . . .  11
+       6.1.2.  COSE_ALG_HPKE_AES_256_GCM . . . . . . . . . . . . . .  11
+       6.1.3.  COSE_ALG_HPKE_CHACHA20_POLY1305 . . . . . . . . . . .  11
+     6.2.  COSE Elliptic Curves Registry . . . . . . . . . . . . . .  12
+       6.2.1.  COSE_CRV_HPKE_P256_SHA256 . . . . . . . . . . . . . .  12
+       6.2.2.  COSE_CRV_HPKE_P384_SHA384 . . . . . . . . . . . . . .  12
+       6.2.3.  COSE_CRV_HPKE_P521_SHA512 . . . . . . . . . . . . . .  12
+       6.2.4.  COSE_CRV_HPKE_X25519_SHA256 . . . . . . . . . . . . .  13
+       6.2.5.  COSE_CRV_HPKE_X448_SHA512 . . . . . . . . . . . . . .  13
 
 
 
-
-
-
-Tschofenig, et al.      Expires October 28, 2022                [Page 2]
+Tschofenig, et al.       Expires January 9, 2023                [Page 2]
 
-Internet-Draft                  COSE HPKE                     April 2022
+Internet-Draft                  COSE HPKE                      July 2022
 
+
+   7.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  13
+     7.1.  Normative References  . . . . . . . . . . . . . . . . . .  13
+     7.2.  Informative References  . . . . . . . . . . . . . . . . .  14
+   Appendix A.  Acknowledgements . . . . . . . . . . . . . . . . . .  14
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  14
 
 1.  Introduction
 
@@ -157,18 +163,17 @@ Internet-Draft                  COSE HPKE                     April 2022
       requires a two layer structure.  Section 3.1.2 provides the
       details.
 
+
+
+Tschofenig, et al.       Expires January 9, 2023                [Page 3]
+
+Internet-Draft                  COSE HPKE                      July 2022
+
+
    HPKE in "base" mode requires little information to be exchanged
    between a sender and a recipient, namely
 
    o  algorithm information,
-
-
-
-
-Tschofenig, et al.      Expires October 28, 2022                [Page 3]
-
-Internet-Draft                  COSE HPKE                     April 2022
-
 
    o  the ephemeral public key, and
 
@@ -214,18 +219,17 @@ Internet-Draft                  COSE HPKE                     April 2022
    COSE_recipient structure, i.e. one COSE_recipient structure per
    recipient.
 
+
+
+Tschofenig, et al.       Expires January 9, 2023                [Page 4]
+
+Internet-Draft                  COSE HPKE                      July 2022
+
+
    In this approach the following layers are involved:
 
    o  Layer 0 (corresponding to the COSE_Encrypt structure) contains
       content (plaintext) encrypted with the CEK.  This ciphertext may
-
-
-
-Tschofenig, et al.      Expires October 28, 2022                [Page 4]
-
-Internet-Draft                  COSE HPKE                     April 2022
-
-
       be detached.  If not detached, then it is included in the
       COSE_Encrypt structure.
 
@@ -271,23 +275,23 @@ Internet-Draft                  COSE HPKE                     April 2022
 
            Figure 2: CDDL for HPKE-based COSE_Encrypt Structure
 
+
+
+Tschofenig, et al.       Expires January 9, 2023                [Page 5]
+
+Internet-Draft                  COSE HPKE                      July 2022
+
+
    The COSE_Encrypt MAY be tagged or untagged.
 
    An example is shown in Section 4.2.
-
-
-
-Tschofenig, et al.      Expires October 28, 2022                [Page 5]
-
-Internet-Draft                  COSE HPKE                     April 2022
-
 
 3.2.  HPKE Encryption with SealBase
 
    The SealBase(pkR, info, aad, pt) function is used to encrypt a
    plaintext pt to a recipient's public key (pkR).
 
-   IMPORTANT: For use in cose_encrypt, the plaintext "pt" passed into
+   IMPORTANT: For use in COSE_Encrypt, the plaintext "pt" passed into
    the SealBase is the CEK.  The CEK is a random byte sequence of length
    appropriate for the encryption algorithm selected in layer 0.  For
    example, AES-128-GCM requires a 16 byte key and the CEK would
@@ -326,18 +330,17 @@ Internet-Draft                  COSE HPKE                     April 2022
    optional.  Profiles of this specification may require their use and
    may define different info structure.
 
+
+
+
+Tschofenig, et al.       Expires January 9, 2023                [Page 6]
+
+Internet-Draft                  COSE HPKE                      July 2022
+
+
    This specification re-uses the context information structure defined
    in [RFC8152] as a foundation for the info structure.  This payload
    becomes the content of the info parameter for the HPKE functions,
-
-
-
-
-Tschofenig, et al.      Expires October 28, 2022                [Page 6]
-
-Internet-Draft                  COSE HPKE                     April 2022
-
-
    when utilized.  For better readability of this specification the
    COSE_KDF_Context structure is repeated in Figure 3.
 
@@ -381,42 +384,44 @@ Internet-Draft                  COSE HPKE                     April 2022
    o  protected refers to the protected structure of the inner-most
       array.
 
-4.  Examples
 
 
 
 
 
-
-
-Tschofenig, et al.      Expires October 28, 2022                [Page 7]
+Tschofenig, et al.       Expires January 9, 2023                [Page 7]
 
-Internet-Draft                  COSE HPKE                     April 2022
+Internet-Draft                  COSE HPKE                      July 2022
 
+
+4.  Examples
 
 4.1.  One Layer
 
-   96(
-       [
-           / algorithm id -100 for HPKE_P256_HKDF256_AES128_GCM /
-           << {1: -100} >>,
-           {
-               / ephemeral public key structure /
-               -1: << {
-                   1: 2,
-                   -1: 1,
-                   -2: h'985E2FDE3E67E1F7146AB305AA98FE89
-                         B1CFE545965B6CFB066C0BB19DE7E489',
-                   -3: h'4AC5E777A7C96CB5D70B8A40E2951562
-                         F20C21DB021AAD12E54A8DBE7EF9DF10'
-                   } >>,
-                4: 'kid-2'
-           },
-           / encrypted plaintext /
-           h'4123E7C3CD992723F0FA1CD3A903A588
-             42B1161E02D8E7FD842C4DA3B984B9CF'
-       ]
-   )
+96(
+    [
+        / algorithm id TBD1 for COSE_ALG_HPKE_AES_128_GCM /
+        << {1: TBD1} >>,
+        {
+            / ephemeral public key structure /
+            -1: << {
+                1: 2,
+                                / crv set to COSE_CRV_HPKE_P256_SHA256 /
+                -1: TBD4,
+                                / x-coordinate /
+                -2: h'985E2FDE3E67E1F7146AB305AA98FE89
+                      B1CFE545965B6CFB066C0BB19DE7E489',
+                                / y-coordinate /
+                -3: h'4AC5E777A7C96CB5D70B8A40E2951562
+                      F20C21DB021AAD12E54A8DBE7EF9DF10'
+                } >>,
+             4: 'kid-2'
+        },
+        / encrypted plaintext /
+        h'4123E7C3CD992723F0FA1CD3A903A588
+          42B1161E02D8E7FD842C4DA3B984B9CF'
+    ]
+)
 
                  Figure 4: COSE_Encrypt0 Example for HPKE
 
@@ -440,45 +445,43 @@ Internet-Draft                  COSE HPKE                     April 2022
 
 
 
-
-
-
-
-
-Tschofenig, et al.      Expires October 28, 2022                [Page 8]
+Tschofenig, et al.       Expires January 9, 2023                [Page 8]
 
-Internet-Draft                  COSE HPKE                     April 2022
+Internet-Draft                  COSE HPKE                      July 2022
 
 
-   96_0([
-       / protected header with alg=AES-GCM-128 /
-       << {1: 1} >>,
-       / unprotected header with nonce /
-       {5: h'938b528516193cc7123ff037809f4c2a'},
-       / detached ciphertext /
-       null,
-       / recipient structure /
-       [
-           / algorithm id -100 for HPKE_P256_HKDF256_AES128_GCM /
-           << {1: -100} >>,
-           / unprotected header /
-           {
-               / ephemeral public key structure /
-               -1: << {
-                   1: 2,
-                   -1: 1,
-                   -2: h'985E2FDE3E67E1F7146AB305AA98FE89
-                         B1CFE545965B6CFB066C0BB19DE7E489',
-                   -3: h'4AC5E777A7C96CB5D70B8A40E2951562
-                         F20C21DB021AAD12E54A8DBE7EF9DF10'
-                   } >>,
-                4: 'kid-2'
-           },
-           / encrypted CEK /
-           h'9aba6fa44e9b2cef9d646614dcda670dbdb31a3b9d37c7a
-             65b099a8152533062',
-       ],
-   ])
+96_0([
+    / protected header with COSE_ALG_HPKE_AES_128_GCM /
+    << {1: TBD1} >>,
+    / unprotected header with nonce /
+    {5: h'938b528516193cc7123ff037809f4c2a'},
+    / detached ciphertext /
+    null,
+    / recipient structure /
+    [
+        / algorithm id TBD4 for COSE_CRV_HPKE_P256_SHA256 /
+        << {1: TBD4} >>,
+        / unprotected header /
+        {
+            / ephemeral public key structure /
+            -1: << {
+                1: 2,
+                                / crv set to COSE_CRV_HPKE_P256_SHA256 /
+                -1: TBD4,
+                                / x-coordinate /
+                -2: h'985E2FDE3E67E1F7146AB305AA98FE89
+                      B1CFE545965B6CFB066C0BB19DE7E489',
+                                / y-coordinate /
+                -3: h'4AC5E777A7C96CB5D70B8A40E2951562
+                      F20C21DB021AAD12E54A8DBE7EF9DF10'
+                } >>,
+             4: 'kid-2'
+        },
+        / encrypted CEK /
+        h'9aba6fa44e9b2cef9d646614dcda670dbdb31a3b9d37c7a
+          65b099a8152533062',
+    ],
+])
 
                   Figure 5: COSE_Encrypt Example for HPKE
 
@@ -498,12 +501,9 @@ Internet-Draft                  COSE HPKE                     April 2022
 
 
 
-
-
-
-Tschofenig, et al.      Expires October 28, 2022                [Page 9]
+Tschofenig, et al.       Expires January 9, 2023                [Page 9]
 
-Internet-Draft                  COSE HPKE                     April 2022
+Internet-Draft                  COSE HPKE                      July 2022
 
 
    18(
@@ -550,25 +550,27 @@ Internet-Draft                  COSE HPKE                     April 2022
 6.  IANA Considerations
 
    This document requests IANA to add new values to the COSE Algorithms
-   registry defined in [RFC8152] (in the Standards Action With Expert
-   Review category):
+   registry and to the COSE Elliptic Curves registry, defined in
+   [RFC8152] (in the Standards Action With Expert Review category).
 
 
 
 
 
-Tschofenig, et al.      Expires October 28, 2022               [Page 10]
+Tschofenig, et al.       Expires January 9, 2023               [Page 10]
 
-Internet-Draft                  COSE HPKE                     April 2022
+Internet-Draft                  COSE HPKE                      July 2022
 
 
-6.1.  HPKE/P-256+HKDF-256 and AES-128-GCM
+6.1.  COSE Algorithms Registry
 
-   o  Name: HPKE_P256_HKDF256_AES128_GCM
+6.1.1.  COSE_ALG_HPKE_AES_128_GCM
+
+   o  Name: COSE_ALG_HPKE_AES_128_GCM
 
    o  Value: TBD1
 
-   o  Description: HPKE/P-256+HKDF-256 and AES-128-GCM
+   o  Description: HPKE with AES-128-GCM
 
    o  Capabilities: [kty]
 
@@ -578,13 +580,13 @@ Internet-Draft                  COSE HPKE                     April 2022
 
    o  Recommended: Yes
 
-6.2.  HPKE/P-512+HKDF-512 and AES-256-GCM
+6.1.2.  COSE_ALG_HPKE_AES_256_GCM
 
-   o  Name: HPKE_P521_HKDF512_AES256_GCM
+   o  Name: COSE_ALG_HPKE_AES_256_GCM
 
    o  Value: TBD2
 
-   o  Description: HPKE/P-512+HKDF-512 and AES-256-GCM
+   o  Description: HPKE with AES-256-GCM
 
    o  Capabilities: [kty]
 
@@ -594,7 +596,119 @@ Internet-Draft                  COSE HPKE                     April 2022
 
    o  Recommended: Yes
 
-   TBD: More values to be added.
+6.1.3.  COSE_ALG_HPKE_CHACHA20_POLY1305
+
+   o  Name: COSE_ALG_HPKE_CHACHA20_POLY1305
+
+   o  Value: TBD3
+
+   o  Description: HPKE with CHACHA20-POLY1305
+
+   o  Capabilities: [kty]
+
+   o  Change Controller: IESG
+
+   o  Reference: [[TBD: This RFC]]
+
+
+
+
+Tschofenig, et al.       Expires January 9, 2023               [Page 11]
+
+Internet-Draft                  COSE HPKE                      July 2022
+
+
+   o  Recommended: Yes
+
+6.2.  COSE Elliptic Curves Registry
+
+6.2.1.  COSE_CRV_HPKE_P256_SHA256
+
+   o  Name: COSE_CRV_HPKE_P256_SHA256
+
+   o  Value: TBD4
+
+   o  Key Type:
+
+   o  Description: NIST P256 and SHA256 for use with HPKE
+
+   o  Change Controller: IESG
+
+   o  Reference: [[TBD: This RFC]]
+
+   o  Recommended: Yes
+
+6.2.2.  COSE_CRV_HPKE_P384_SHA384
+
+   o  Name: COSE_CRV_HPKE_P384_SHA384
+
+   o  Value: TBD5
+
+   o  Key Type:
+
+   o  Description: NIST P384 and SHA384 for use with HPKE
+
+   o  Change Controller: IESG
+
+   o  Reference: [[TBD: This RFC]]
+
+   o  Recommended: Yes
+
+6.2.3.  COSE_CRV_HPKE_P521_SHA512
+
+   o  Name: COSE_CRV_HPKE_P521_SHA512
+
+   o  Value: TBD6
+
+   o  Key Type:
+
+   o  Description: NIST P521 and SHA512 for use with HPKE
+
+   o  Change Controller: IESG
+
+
+
+
+Tschofenig, et al.       Expires January 9, 2023               [Page 12]
+
+Internet-Draft                  COSE HPKE                      July 2022
+
+
+   o  Reference: [[TBD: This RFC]]
+
+   o  Recommended: Yes
+
+6.2.4.  COSE_CRV_HPKE_X25519_SHA256
+
+   o  Name: COSE_CRV_HPKE_X25519_SHA256
+
+   o  Value: TBD7
+
+   o  Key Type:
+
+   o  Description: X25519 and SHA256 for use with HPKE
+
+   o  Change Controller: IESG
+
+   o  Reference: [[TBD: This RFC]]
+
+   o  Recommended: Yes
+
+6.2.5.  COSE_CRV_HPKE_X448_SHA512
+
+   o  Name: COSE_CRV_HPKE_X448_SHA512
+
+   o  Value: TBD8
+
+   o  Key Type:
+
+   o  Description: X448 and SHA512 for use with HPKE
+
+   o  Change Controller: IESG
+
+   o  Reference: [[TBD: This RFC]]
+
+   o  Recommended: Yes
 
 7.  References
 
@@ -611,11 +725,9 @@ Internet-Draft                  COSE HPKE                     April 2022
 
 
 
-
-
-Tschofenig, et al.      Expires October 28, 2022               [Page 11]
+Tschofenig, et al.       Expires January 9, 2023               [Page 13]
 
-Internet-Draft                  COSE HPKE                     April 2022
+Internet-Draft                  COSE HPKE                      July 2022
 
 
    [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
@@ -669,4 +781,4 @@ Authors' Addresses
 
 
 
-Tschofenig, et al.      Expires October 28, 2022               [Page 12]
+Tschofenig, et al.       Expires January 9, 2023               [Page 14]

@@ -32,7 +32,7 @@
       </address>
     </author>
 
-    <date year="2022" month="April" day="26"/>
+    <date year="2022" month="July" day="08"/>
 
     <area>Security</area>
     <workgroup>COSE</workgroup>
@@ -212,7 +212,7 @@ header_map = {
 <t>The SealBase(pkR, info, aad, pt) function is used to encrypt a plaintext pt to
 a recipient’s public key (pkR).</t>
 
-<t>IMPORTANT: For use in cose_encrypt, the plaintext “pt” passed into the 
+<t>IMPORTANT: For use in COSE_Encrypt, the plaintext “pt” passed into the 
 SealBase is the CEK. The CEK is a random byte sequence of length 
 appropriate for the encryption algorithm selected in layer 0. For 
 example, AES-128-GCM requires a 16 byte key and the CEK would 
@@ -299,15 +299,18 @@ in the unprotected header structure of the recipient structure.</t>
 <figure title="COSE_Encrypt0 Example for HPKE" anchor="hpke-example-one"><artwork><![CDATA[
 96(
     [
-        / algorithm id -100 for HPKE_P256_HKDF256_AES128_GCM /
-        << {1: -100} >>, 
+        / algorithm id TBD1 for COSE_ALG_HPKE_AES_128_GCM /
+        << {1: TBD1} >>, 
         {
             / ephemeral public key structure /
             -1: << {
                 1: 2,
-                -1: 1,
+                                / crv set to COSE_CRV_HPKE_P256_SHA256 /
+                -1: TBD4,
+                                / x-coordinate /
                 -2: h'985E2FDE3E67E1F7146AB305AA98FE89
                       B1CFE545965B6CFB066C0BB19DE7E489',
+                                / y-coordinate /
                 -3: h'4AC5E777A7C96CB5D70B8A40E2951562
                       F20C21DB021AAD12E54A8DBE7EF9DF10'
                 } >>,
@@ -339,24 +342,27 @@ by the alg parameters (see <xref target="IANA"/>).</t>
 
 <figure title="COSE_Encrypt Example for HPKE" anchor="hpke-example-two"><artwork><![CDATA[
 96_0([
-    / protected header with alg=AES-GCM-128 /
-    << {1: 1} >>,
+    / protected header with COSE_ALG_HPKE_AES_128_GCM /
+    << {1: TBD1} >>,
     / unprotected header with nonce /
     {5: h'938b528516193cc7123ff037809f4c2a'},
     / detached ciphertext /
     null,
     / recipient structure /
     [
-        / algorithm id -100 for HPKE_P256_HKDF256_AES128_GCM /
-        << {1: -100} >>, 
+        / algorithm id TBD4 for COSE_CRV_HPKE_P256_SHA256 /
+        << {1: TBD4} >>,
         / unprotected header /
         {
             / ephemeral public key structure /
             -1: << {
                 1: 2,
-                -1: 1,
+                                / crv set to COSE_CRV_HPKE_P256_SHA256 /
+                -1: TBD4,
+                                / x-coordinate /
                 -2: h'985E2FDE3E67E1F7146AB305AA98FE89
                       B1CFE545965B6CFB066C0BB19DE7E489',
+                                / y-coordinate /
                 -3: h'4AC5E777A7C96CB5D70B8A40E2951562
                       F20C21DB021AAD12E54A8DBE7EF9DF10'
                 } >>,
@@ -418,14 +424,17 @@ but may not be guaranteed by non-AEAD ciphers.</t>
 <section anchor="IANA" title="IANA Considerations">
 
 <t>This document requests IANA to add new values to the COSE Algorithms registry
-defined in <xref target="RFC8152"/> (in the Standards Action With Expert Review category):</t>
+and to the COSE Elliptic Curves registry, defined in <xref target="RFC8152"/> (in the Standards 
+Action With Expert Review category).</t>
 
-<section anchor="hpkep-256hkdf-256-and-aes-128-gcm" title="HPKE/P-256+HKDF-256 and AES-128-GCM">
+<section anchor="cose-algorithms-registry" title="COSE Algorithms Registry">
+
+<section anchor="cosealghpkeaes128gcm" title="COSE_ALG_HPKE_AES_128_GCM">
 
 <t><list style="symbols">
-  <t>Name: HPKE_P256_HKDF256_AES128_GCM</t>
+  <t>Name: COSE_ALG_HPKE_AES_128_GCM</t>
   <t>Value: TBD1</t>
-  <t>Description: HPKE/P-256+HKDF-256 and AES-128-GCM</t>
+  <t>Description: HPKE with AES-128-GCM</t>
   <t>Capabilities: [kty]</t>
   <t>Change Controller: IESG</t>
   <t>Reference:  [[TBD: This RFC]]</t>
@@ -433,20 +442,100 @@ defined in <xref target="RFC8152"/> (in the Standards Action With Expert Review 
 </list></t>
 
 </section>
-<section anchor="hpkep-512hkdf-512-and-aes-256-gcm" title="HPKE/P-512+HKDF-512 and AES-256-GCM">
+<section anchor="cosealghpkeaes256gcm" title="COSE_ALG_HPKE_AES_256_GCM">
 
 <t><list style="symbols">
-  <t>Name: HPKE_P521_HKDF512_AES256_GCM</t>
+  <t>Name: COSE_ALG_HPKE_AES_256_GCM</t>
   <t>Value: TBD2</t>
-  <t>Description: HPKE/P-512+HKDF-512 and AES-256-GCM</t>
+  <t>Description: HPKE with AES-256-GCM</t>
   <t>Capabilities: [kty]</t>
   <t>Change Controller: IESG</t>
   <t>Reference:  [[TBD: This RFC]]</t>
   <t>Recommended: Yes</t>
 </list></t>
 
-<t>TBD: More values to be added.</t>
+</section>
+<section anchor="cosealghpkechacha20poly1305" title="COSE_ALG_HPKE_CHACHA20_POLY1305">
 
+<t><list style="symbols">
+  <t>Name: COSE_ALG_HPKE_CHACHA20_POLY1305</t>
+  <t>Value: TBD3</t>
+  <t>Description: HPKE with CHACHA20-POLY1305</t>
+  <t>Capabilities: [kty]</t>
+  <t>Change Controller: IESG</t>
+  <t>Reference:  [[TBD: This RFC]]</t>
+  <t>Recommended: Yes</t>
+</list></t>
+
+</section>
+</section>
+<section anchor="cose-elliptic-curves-registry" title="COSE Elliptic Curves Registry">
+
+<section anchor="cosecrvhpkep256sha256" title="COSE_CRV_HPKE_P256_SHA256">
+
+<t><list style="symbols">
+  <t>Name: COSE_CRV_HPKE_P256_SHA256</t>
+  <t>Value: TBD4</t>
+  <t>Key Type:</t>
+  <t>Description: NIST P256 and SHA256 for use with HPKE</t>
+  <t>Change Controller: IESG</t>
+  <t>Reference:  [[TBD: This RFC]]</t>
+  <t>Recommended: Yes</t>
+</list></t>
+
+</section>
+<section anchor="cosecrvhpkep384sha384" title="COSE_CRV_HPKE_P384_SHA384">
+
+<t><list style="symbols">
+  <t>Name: COSE_CRV_HPKE_P384_SHA384</t>
+  <t>Value: TBD5</t>
+  <t>Key Type:</t>
+  <t>Description: NIST P384 and SHA384 for use with HPKE</t>
+  <t>Change Controller: IESG</t>
+  <t>Reference:  [[TBD: This RFC]]</t>
+  <t>Recommended: Yes</t>
+</list></t>
+
+</section>
+<section anchor="cosecrvhpkep521sha512" title="COSE_CRV_HPKE_P521_SHA512">
+
+<t><list style="symbols">
+  <t>Name: COSE_CRV_HPKE_P521_SHA512</t>
+  <t>Value: TBD6</t>
+  <t>Key Type:</t>
+  <t>Description: NIST P521 and SHA512 for use with HPKE</t>
+  <t>Change Controller: IESG</t>
+  <t>Reference:  [[TBD: This RFC]]</t>
+  <t>Recommended: Yes</t>
+</list></t>
+
+</section>
+<section anchor="cosecrvhpkex25519sha256" title="COSE_CRV_HPKE_X25519_SHA256">
+
+<t><list style="symbols">
+  <t>Name: COSE_CRV_HPKE_X25519_SHA256</t>
+  <t>Value: TBD7</t>
+  <t>Key Type:</t>
+  <t>Description: X25519 and SHA256 for use with HPKE</t>
+  <t>Change Controller: IESG</t>
+  <t>Reference:  [[TBD: This RFC]]</t>
+  <t>Recommended: Yes</t>
+</list></t>
+
+</section>
+<section anchor="cosecrvhpkex448sha512" title="COSE_CRV_HPKE_X448_SHA512">
+
+<t><list style="symbols">
+  <t>Name: COSE_CRV_HPKE_X448_SHA512</t>
+  <t>Value: TBD8</t>
+  <t>Key Type:</t>
+  <t>Description: X448 and SHA512 for use with HPKE</t>
+  <t>Change Controller: IESG</t>
+  <t>Reference:  [[TBD: This RFC]]</t>
+  <t>Recommended: Yes</t>
+</list></t>
+
+</section>
 </section>
 </section>
 
@@ -571,122 +660,129 @@ defined in <xref target="RFC8152"/> (in the Standards Action With Expert Review 
   </back>
 
 <!-- ##markdown-source:
-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
-DSMsnsksl+BiuHGL/TfzQZPnnDgAAA==
+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
+QQAA
 
 -->
 

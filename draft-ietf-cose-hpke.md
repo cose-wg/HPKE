@@ -200,7 +200,7 @@ An example is shown in {{two-layer-example}}.
 The SealBase(pkR, info, aad, pt) function is used to encrypt a plaintext pt to
 a recipient's public key (pkR).
 
-IMPORTANT: For use in cose_encrypt, the plaintext "pt" passed into the 
+IMPORTANT: For use in COSE_Encrypt, the plaintext "pt" passed into the 
 SealBase is the CEK. The CEK is a random byte sequence of length 
 appropriate for the encryption algorithm selected in layer 0. For 
 example, AES-128-GCM requires a 16 byte key and the CEK would 
@@ -286,15 +286,18 @@ in the unprotected header structure of the recipient structure.
 ~~~
 96(
     [
-        / algorithm id -100 for HPKE_P256_HKDF256_AES128_GCM /
-        << {1: -100} >>, 
+        / algorithm id TBD1 for COSE_ALG_HPKE_AES_128_GCM /
+        << {1: TBD1} >>, 
         {
             / ephemeral public key structure /
             -1: << {
                 1: 2,
-                -1: 1,
+				/ crv set to COSE_CRV_HPKE_P256_SHA256 /
+                -1: TBD4,
+				/ x-coordinate /
                 -2: h'985E2FDE3E67E1F7146AB305AA98FE89
                       B1CFE545965B6CFB066C0BB19DE7E489',
+				/ y-coordinate /
                 -3: h'4AC5E777A7C96CB5D70B8A40E2951562
                       F20C21DB021AAD12E54A8DBE7EF9DF10'
                 } >>,
@@ -324,24 +327,27 @@ by the alg parameters (see {{IANA}}).
 
 ~~~
 96_0([
-    / protected header with alg=AES-GCM-128 /
-    << {1: 1} >>,
+    / protected header with COSE_ALG_HPKE_AES_128_GCM /
+    << {1: TBD1} >>,
     / unprotected header with nonce /
     {5: h'938b528516193cc7123ff037809f4c2a'},
     / detached ciphertext /
     null,
     / recipient structure /
     [
-        / algorithm id -100 for HPKE_P256_HKDF256_AES128_GCM /
-        << {1: -100} >>, 
+        / algorithm id TBD4 for COSE_CRV_HPKE_P256_SHA256 /
+        << {1: TBD4} >>,
         / unprotected header /
         {
             / ephemeral public key structure /
             -1: << {
                 1: 2,
-                -1: 1,
+				/ crv set to COSE_CRV_HPKE_P256_SHA256 /
+                -1: TBD4,
+				/ x-coordinate /
                 -2: h'985E2FDE3E67E1F7146AB305AA98FE89
                       B1CFE545965B6CFB066C0BB19DE7E489',
+				/ y-coordinate /
                 -3: h'4AC5E777A7C96CB5D70B8A40E2951562
                       F20C21DB021AAD12E54A8DBE7EF9DF10'
                 } >>,
@@ -403,29 +409,92 @@ but may not be guaranteed by non-AEAD ciphers.
 #  IANA Considerations {#IANA}
 
 This document requests IANA to add new values to the COSE Algorithms registry
-defined in {{RFC8152}} (in the Standards Action With Expert Review category):
+and to the COSE Elliptic Curves registry, defined in {{RFC8152}} (in the Standards 
+Action With Expert Review category).
 
-## HPKE/P-256+HKDF-256 and AES-128-GCM
+## COSE Algorithms Registry
 
--  Name: HPKE_P256_HKDF256_AES128_GCM
+### COSE_ALG_HPKE_AES_128_GCM
+
+-  Name: COSE_ALG_HPKE_AES_128_GCM
 -  Value: TBD1
--  Description: HPKE/P-256+HKDF-256 and AES-128-GCM 
+-  Description: HPKE with AES-128-GCM
 -  Capabilities: [kty]
 -  Change Controller: IESG
 -  Reference:  [[TBD: This RFC]]
 -  Recommended: Yes
 
-## HPKE/P-512+HKDF-512 and AES-256-GCM
+### COSE_ALG_HPKE_AES_256_GCM
 
--  Name: HPKE_P521_HKDF512_AES256_GCM
+-  Name: COSE_ALG_HPKE_AES_256_GCM
 -  Value: TBD2
--  Description: HPKE/P-512+HKDF-512 and AES-256-GCM
+-  Description: HPKE with AES-256-GCM
 -  Capabilities: [kty]
 -  Change Controller: IESG
 -  Reference:  [[TBD: This RFC]]
 -  Recommended: Yes
 
-TBD: More values to be added.
+### COSE_ALG_HPKE_CHACHA20_POLY1305
+
+-  Name: COSE_ALG_HPKE_CHACHA20_POLY1305
+-  Value: TBD3
+-  Description: HPKE with CHACHA20-POLY1305
+-  Capabilities: [kty]
+-  Change Controller: IESG
+-  Reference:  [[TBD: This RFC]]
+-  Recommended: Yes
+
+## COSE Elliptic Curves Registry
+
+### COSE_CRV_HPKE_P256_SHA256
+
+-  Name: COSE_CRV_HPKE_P256_SHA256
+-  Value: TBD4
+-  Key Type: 
+-  Description: NIST P256 and SHA256 for use with HPKE
+-  Change Controller: IESG
+-  Reference:  [[TBD: This RFC]]
+-  Recommended: Yes
+
+### COSE_CRV_HPKE_P384_SHA384
+
+-  Name: COSE_CRV_HPKE_P384_SHA384
+-  Value: TBD5
+-  Key Type: 
+-  Description: NIST P384 and SHA384 for use with HPKE
+-  Change Controller: IESG
+-  Reference:  [[TBD: This RFC]]
+-  Recommended: Yes
+
+### COSE_CRV_HPKE_P521_SHA512
+
+-  Name: COSE_CRV_HPKE_P521_SHA512
+-  Value: TBD6
+-  Key Type: 
+-  Description: NIST P521 and SHA512 for use with HPKE
+-  Change Controller: IESG
+-  Reference:  [[TBD: This RFC]]
+-  Recommended: Yes
+
+### COSE_CRV_HPKE_X25519_SHA256
+
+-  Name: COSE_CRV_HPKE_X25519_SHA256
+-  Value: TBD7
+-  Key Type: 
+-  Description: X25519 and SHA256 for use with HPKE
+-  Change Controller: IESG
+-  Reference:  [[TBD: This RFC]]
+-  Recommended: Yes
+
+### COSE_CRV_HPKE_X448_SHA512
+
+-  Name: COSE_CRV_HPKE_X448_SHA512
+-  Value: TBD8
+-  Key Type: 
+-  Description: X448 and SHA512 for use with HPKE
+-  Change Controller: IESG
+-  Reference:  [[TBD: This RFC]]
+-  Recommended: Yes
 
 --- back
 
