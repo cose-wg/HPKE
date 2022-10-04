@@ -338,17 +338,17 @@ key encapsulation mechanism DHKEM(P-256, HKDF-SHA256) with AES-128-GCM
             / HPKE sender information structure /
             TBD2: << {
                 /  Key Encapsulation Mechanism identifier /
-		/  KEM id = DHKEM(P-256, HKDF-SHA256) (0x0010) /
+                /  KEM id = DHKEM(P-256, HKDF-SHA256) (0x0010) /
                 1: 0x0010,
                 /  HPKE symmetric cipher suite (KDF id || AEAD id) /
-		/  AEAD id = AES-128-GCM (0x0001) /
-		/  KDF id  = HKDF-SHA256 (0x0001) /
+                /  AEAD id = AES-128-GCM (0x0001) /
+                /  KDF id  = HKDF-SHA256 (0x0001) /
                 2: 0x00010001,
                 / HPKE encapsulated key /
                 3: h'985E2FDE3E67E1F7146AB305AA98FE89
-		     B1CFE545965B6CFB066C0BB19DE7E489
-		     4AC5E777A7C96CB5D70B8A40E2951562
-		     F20C21DB021AAD12E54A8DBE7EF9DF10',
+                     B1CFE545965B6CFB066C0BB19DE7E489
+                     4AC5E777A7C96CB5D70B8A40E2951562
+                     F20C21DB021AAD12E54A8DBE7EF9DF10',
                 } >>,
              4: 'kid-2'
         },
