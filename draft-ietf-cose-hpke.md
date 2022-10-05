@@ -165,8 +165,8 @@ may be included in the COSE_Encrypt0 or may be detached.
 A sender MUST set the alg parameter in the protected header, which
 indicates the use of HPKE. 
 
-The sender MUST place the HPKE sender information structure into the unprotected
-header. 
+The sender MUST place the kid and the HPKE sender information structure
+into the unprotected header. 
 
 {{cddl-hpke-one-layer}} shows the COSE_Encrypt0 CDDL structure.
 
