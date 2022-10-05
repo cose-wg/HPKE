@@ -147,9 +147,12 @@ The CDDL grammar describing COSE_HPKE_Sender is:
       Functions (KDF) identifier and the Authenticated Encryption with
       Associated Data (AEAD) identifiers. The registry containing the 
       KDF ids and the AEAD ids has been established with RFC 9180.
+      The cipher id parameter MUST be present in the COSE_HPKE_Sender 
+      structure.
 
    enc: This parameter contains the encapsulated key, which is output
-      of the HPKE KEM.
+      of the HPKE KEM. The enc parameter MUST be present in the 
+      COSE_HPKE_Sender structure.
 
 ### One Layer Structure {#one-layer}
 
@@ -196,7 +199,8 @@ it is included in the COSE_Encrypt structure.
 - Layer 1 (corresponding to a recipient structure) contains parameters needed for 
 HPKE to generate a shared secret used to encrypt the CEK. This layer conveys the 
 encrypted CEK in the encCEK structure. The protected header MUST contain the algorithm
-information and the unprotected header MUST contain the HPKE sender information structure.
+information and the unprotected header MUST contain the HPKE sender information structure
+and the key id (kid) of the static recipient public key.
 
 This two-layer structure is used to encrypt content that can also be shared with
 multiple parties at the expense of a single additional encryption operation.
