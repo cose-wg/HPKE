@@ -1,7 +1,7 @@
 ---
 title: Use of Hybrid Public-Key Encryption (HPKE) with CBOR Object Signing and Encryption (COSE)
 abbrev: COSE HPKE
-docname: draft-ietf-cose-hpke-02
+docname: draft-ietf-cose-hpke-03
 category: std
 
 ipr: pre5378Trust200902
@@ -109,9 +109,9 @@ The CDDL grammar describing COSE_HPKE_Sender is:
 
 ~~~
    COSE_HPKE_Sender = {
-       1 => tstr / int,          ; kem id
-       2 => tstr / int,          ; cipher id
-       3 => bstr,                ; enc
+       ? 1 => int,         ; kem id
+       2 =>  int,          ; cipher id
+       3 => bstr,          ; enc
        * label => values
    }
 ~~~
@@ -140,7 +140,8 @@ The CDDL grammar describing COSE_HPKE_Sender is:
 
    kem id:  This parameter is used to identify the Key Encapsulation
        Mechanisms (KEM). The registry for KEMs has been established
-       with RFC 9180.
+       with RFC 9180. This parameter is optional since the kid may be
+       used to determine the KEM.
 
    cipher id: This parameter contains the concatenated Key Derivation 
       Functions (KDF) identifier and the Authenticated Encryption with
