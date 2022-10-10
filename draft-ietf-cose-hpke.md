@@ -121,12 +121,12 @@ The CDDL grammar describing COSE_HPKE_Sender is:
    | Name    | Label | CBOR Type      | Value      | Description       |
    |         |       |                | Registry   |                   |
    +---------+-------+----------------+------------+-------------------+
-   | kem id  | 1     | tstr / int     | HPKE       | Identifiers for   |
+   | kem id  | 1     | int            | HPKE       | Identifiers for   |
    |         |       |                | KEM IDs    | the Key           |
    |         |       |                | Registry   | Encapsulation     |
    |         |       |                |            | Mechanisms        |
    |         |       |                |            |                   |
-   | cipher  | 2     | tstr / int     | HPKE       | Identifiers for   |
+   | cipher  | 2     | int            | HPKE       | Identifiers for   |
    | id      |       |                | KDF IDs    | KDFs and AEAD IDs |
    |         |       |                | and        | concatenated      |
    |         |       |                | AEAD IDs   |                   |
