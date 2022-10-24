@@ -99,7 +99,7 @@ a sender and a recipient, namely
 * an identifier of the static recipient key.
 
 In the subsections below we explain how this information is carried
-inside the COSE_Encrypt0 and the COSE_Encrypt1 for the one layer and the
+inside the COSE_Encrypt0 and the COSE_Encrypt for the one layer and the
 two layer structure, respectively.
 
 In both cases a new structure is used to convey information about the HPKE
@@ -328,40 +328,34 @@ in the unprotected header structure of the recipient structure.
 
 ## One Layer {#one-layer-example}
 
-An example of the COSE_Encrypt1 structure using the HPKE scheme is
+An example of the COSE_Encrypt0 structure using the HPKE scheme is
 shown in {{hpke-example-one}}. Line breaks and comments have been inserted
 for better readability. It uses the following algorithm combination: The
 key encapsulation mechanism DHKEM(P-256, HKDF-SHA256) with AES-128-GCM 
 (as the AEAD) and HKDF-SHA256 as the KDF is used.
 
 ~~~
-96(
-    [
-        / algorithm id TBD1 for COSE_HPKE /
-        << {1: TBD1} >>, 
-        {
-            / HPKE sender information structure /
-            TBD2: << {
-                /  Key Encapsulation Mechanism identifier /
-                /  KEM id = DHKEM(P-256, HKDF-SHA256) (0x0010) /
-                1: 0x0010,
-                /  HPKE symmetric cipher suite (KDF id || AEAD id) /
-                /  AEAD id = AES-128-GCM (0x0001) /
-                /  KDF id  = HKDF-SHA256 (0x0001) /
-                2: 0x00010001,
-                / HPKE encapsulated key /
-                3: h'985E2FDE3E67E1F7146AB305AA98FE89
-                     B1CFE545965B6CFB066C0BB19DE7E489
-                     4AC5E777A7C96CB5D70B8A40E2951562
-                     F20C21DB021AAD12E54A8DBE7EF9DF10',
-                } >>,
-             4: 'kid-2'
+// Example of COSE-HPKE (Encrypt0)
+// payload: "This is the content", aad: ""
+// 
+16([
+    h'a10120',  // alg = HPKE (-1 #T.B.D.)
+    {
+        4: h'3031',
+        -4: {
+            1: 16, // kem = DHKEM(P-256, HKDF-SHA256)
+            5: 1,  // kdf = HKDF-SHA256
+            2: 1,  // aead = AES-128-GCM
+            3: h'048c6f75e463a773082f3cb0d3a701348a578c67
+                 80aba658646682a9af7291dfc277ec93c3d58707
+                 818286c1097825457338dc3dcaff367e2951342e
+                 9db30dc0e7',  // enc
         },
-        / encrypted plaintext /
-        h'4123E7C3CD992723F0FA1CD3A903A588
-          42B1161E02D8E7FD842C4DA3B984B9CF'
-    ]
-)
+    },
+    / encrypted plaintext /
+    h'ee22206308e478c279b94bb071f3a5fbbac412a6effe34195f7
+      c4169d7d8e81666d8be13',
+])
 ~~~
 {: #hpke-example-one title="COSE_Encrypt0 Example for HPKE"}
 
@@ -381,39 +375,31 @@ The algorithm selection is based on the registry of the values offered
 by the alg parameters (see {{IANA}}).
 
 ~~~
+// Example of COSE-HPKE (Encrypt)
+// plaintext: "This is the content.", aad: ""
 96_0([
-    / protected header with A128GCM /
-    << {1: 1} >>,
-    / unprotected header containing nonce /
-    {5: h'938b528516193cc7123ff037809f4c2a'},
-    / detached ciphertext /
-    null,
-    / recipient structure /
+    h'a10120',  // alg = HPKE  (-1 #T.B.D.)
+    {},
+    h'',
     [
-        / algorithm id TBD1 for COSE_HPKE /
-        << {1: TBD1} >>,
-        / unprotected header /
-        {
-            / HPKE sender information structure /
-            TBD2: << {
-                /  Key Encapsulation Mechanism identifier /
-                /  KEM id = DHKEM(P-256, HKDF-SHA256) (0x0010) /
-                1: 0x0010,
-                /  HPKE symmetric cipher suite (KDF id || AEAD id) /
-                /  AEAD id = AES-128-GCM (0x0001) /
-                /  KDF id  = HKDF-SHA256 (0x0001) /
-                2: 0x00010001,
-                / HPKE encapsulated key /
-                3: h'985E2FDE3E67E1F7146AB305AA98FE89
-                     B1CFE545965B6CFB066C0BB19DE7E489
-                     4AC5E777A7C96CB5D70B8A40E2951562
-                     F20C21DB021AAD12E54A8DBE7EF9DF10',
-                } >>,
-             4: 'kid-2'
-        },
-        / encrypted CEK /
-        h'9aba6fa44e9b2cef9d646614dcda670dbdb31a3b9d37c7a
-          65b099a8152533062',
+        [
+            h'a10120',  // alg = HPKE (-1 #T.B.D.)
+            {
+                4: h'3031', // kid
+                -4: {
+                    1: 16,
+                    5: 1,
+                    2: 1,
+                    3: h'0421ccd1b00dd958d77e10399c
+                         97530fcbb91a1dc71cb3bf41d9
+                         9fd39f22918505c973816ecbca
+                         6de507c4073d05cceff73e0d35
+                         f60e2373e09a9433be9e95e53c',
+                },
+            },
+            h'bb2f1433546c55fb38d6f23f5cd95e1d72eb4
+              c129b99a165cd5a28bd75859c10939b7e4d',
+        ],
     ],
 ])
 ~~~
