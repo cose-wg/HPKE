@@ -339,13 +339,13 @@ key encapsulation mechanism DHKEM(P-256, HKDF-SHA256) with AES-128-GCM
 // payload: "This is the content", aad: ""
 // 
 16([
-    h'a10120',  // alg = HPKE (-1 #T.B.D.)
+    h'a10120',  // alg = HPKE (-1)
     {
-        4: h'3031',
-        -4: {
-            1: 16, // kem = DHKEM(P-256, HKDF-SHA256)
-            5: 1,  // kdf = HKDF-SHA256
-            2: 1,  // aead = AES-128-GCM
+        4: h'3031', // kid
+        -4: {       // HPKE sender information
+            1: 16,  // kem = DHKEM(P-256, HKDF-SHA256)
+            5: 1,   // kdf = HKDF-SHA256
+            2: 1,   // aead = AES-128-GCM
             3: h'048c6f75e463a773082f3cb0d3a701348a578c67
                  80aba658646682a9af7291dfc277ec93c3d58707
                  818286c1097825457338dc3dcaff367e2951342e
@@ -379,17 +379,18 @@ by the alg parameters (see {{IANA}}).
 // plaintext: "This is the content.", aad: ""
 96_0([
     h'a10120',  // alg = HPKE  (-1 #T.B.D.)
-    {},
-    h'',
+    {},         // protected header
+    h'',        // detached plaintext
     [
         [
-            h'a10120',  // alg = HPKE (-1 #T.B.D.)
+            h'a10120',  // alg = HPKE
             {
                 4: h'3031', // kid
-                -4: {
-                    1: 16,
-                    5: 1,
-                    2: 1,
+                -4: {       // HPKE sender information
+                    1: 16,  // kem = DHKEM(P-256, HKDF-SHA256)
+                    5: 1,   // kdf = HKDF-SHA256
+                    2: 1,   // aead = AES-128-GCM
+                    / enc output /
                     3: h'0421ccd1b00dd958d77e10399c
                          97530fcbb91a1dc71cb3bf41d9
                          9fd39f22918505c973816ecbca
@@ -397,6 +398,7 @@ by the alg parameters (see {{IANA}}).
                          f60e2373e09a9433be9e95e53c',
                 },
             },
+            // ciphertext containing encrypted CEK
             h'bb2f1433546c55fb38d6f23f5cd95e1d72eb4
               c129b99a165cd5a28bd75859c10939b7e4d',
         ],
@@ -459,8 +461,8 @@ registry called 'HPKE Sender Registry'.
 
 ## COSE Algorithms Registry
 
--  Name: COSE_HPKE
--  Value: TBD1
+-  Name: HPKE
+-  Value: TBD1 (Assumed: -1)
 -  Description: HPKE for use with COSE
 -  Capabilities: [kty]
 -  Change Controller: IESG
@@ -470,7 +472,7 @@ registry called 'HPKE Sender Registry'.
 ## Common Header Parameters
 
 -  Name: hpke_sender
--  Label: TBD2
+-  Label: TBD2 (Assumed: -4)
 -  Value Type: COSE_HPKE_Sender 
 -  Value Registry: COSE HPKE Sender Registry
 -  Description: HPKE sender information structure
