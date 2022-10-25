@@ -459,9 +459,8 @@ but may not be guaranteed by non-AEAD ciphers.
 #  IANA Considerations {#IANA}
 
 This document requests IANA to add new values to the COSE Algorithms registry
-and to the Common Header Parameters registry, defined in {{RFC8152}} (in the Standards 
-Action With Expert Review category). Additionally, IANA is asked to create a new
-registry called 'HPKE Sender Registry'. 
+and to the COSE Header Algorithm Parameters registry, defined in {{RFC8152}} 
+(in the Standards Action With Expert Review category).
 
 ## COSE Algorithms Registry
 
@@ -473,53 +472,13 @@ registry called 'HPKE Sender Registry'.
 -  Reference:  [[TBD: This RFC]]
 -  Recommended: Yes
 
-## Common Header Parameters
+## COSE Header Algorithm Parameters
 
--  Name: hpke_sender
+-  Name: encapsulated_key
 -  Label: TBD2 (Assumed: -4)
--  Value Type: COSE_HPKE_Sender 
--  Value Registry: COSE HPKE Sender Registry
--  Description: HPKE sender information structure
-
-## COSE HPKE Sender Parameter Registry
-
-IANA is asked to create a new registry titled "COSE HPKE Sender Parameters".
-The registry has been created to use the "Expert Review Required"
-registration procedure.  Guidelines for the experts are provided in
-Section 16.11 of RFC 8152.  It should be noted that, in addition to the expert
-review, some portions of the registry require a specification,
-potentially a Standards Track RFC, be supplied as well.
-
-The columns of the registry are:
-
-   Name:  This is a descriptive name that enables easier reference to
-      the item.  It is not used in the encoding.
-
-   Label:  The value to be used to identify this algorithm.  Key map
-      labels MUST be unique.  The label can be a positive integer, a
-      negative integer, or a string.  Integer values between 0 and 255
-      and strings of length 1 are designated as "Standards Action".
-      Integer values from 256 to 65535 and strings of length 2 are
-      designated as "Specification Required".  Integer values of greater
-      than 65535 and strings of length greater than 2 are designated as
-      "Expert Review".  Integer values in the range -65536 to -1 are
-      are also designated as "Expert Review".    Integer values less
-      than -65536 are marked as private use.
-
-   CBOR Type:  This field contains the CBOR type for the field.
-
-   Value Registry:  This field denotes the registry that values come
-      from, if one exists.
-
-   Description:  This field contains a brief description for the field.
-
-   Reference:  This contains a pointer to the public specification for
-      the field if one exists.
-
-   This registry has been initially populated by the values in {{table-hpke-sender}}
-   All of the entries in the "References" column of this registry point
-   to this document.
-
+-  Value type: bstr / [*any] / {* any => any }
+-  Value Registry: N/A
+-  Description: Encapsulated key for KEM-like algorithms
 
 --- back
 
