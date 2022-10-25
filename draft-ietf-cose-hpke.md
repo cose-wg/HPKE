@@ -110,9 +110,9 @@ The CDDL grammar describing COSE_HPKE_Sender is:
 ~~~
    COSE_HPKE_Sender = {
        ? 1 => int,         ; kem id
-       2 => int,           ; aead id
-       5 => int,           ; kdf id       
-       3 => bstr,          ; enc
+       2 => int,           ; kdf id
+       3 => int,           ; aead id
+       4 => bstr,          ; enc
        * label => values
    }
 ~~~
@@ -127,13 +127,13 @@ The CDDL grammar describing COSE_HPKE_Sender is:
    |         |       |                | Registry   | Encapsulation     |
    |         |       |                |            | Mechanisms        |
    |         |       |                |            |                   |
-   | aead id | 2     | int            | HPKE AEAD  | Identifiers for   |
-   |         |       |                | IDs        | AEAD IDs          |
-   |         |       |                |            |                   |
-   | kdf id  | 5     | int            | HPKE KDF   | Identifiers for   |
+   | kdf id  | 2     | int            | HPKE KDF   | Identifiers for   |
    |         |       |                | IDs        | KDF IDs           |
    |         |       |                |            |                   |
-   | enc     | 3     | bstr           |            | Encapsulated key  |
+   | aead id | 3     | int            | HPKE AEAD  | Identifiers for   |
+   |         |       |                | IDs        | AEAD IDs          |
+   |         |       |                |            |                   |
+   | enc     | 4     | bstr           |            | Encapsulated key  |
    |         |       |                |            | defined by HPKE   |
    |         |       |                |            |                   |
    +---------+-------+----------------+------------+-------------------+
@@ -145,15 +145,15 @@ The CDDL grammar describing COSE_HPKE_Sender is:
        with RFC 9180. This parameter is optional since the kid may be
        used to determine the KEM.
 
-   aead id: This parameter contains the Authenticated Encryption with
-      Associated Data (AEAD) identifiers. The registry containing the 
-      AEAD ids has been established with RFC 9180. The cipher id 
-      parameter MUST be present in the COSE_HPKE_Sender structure.
-
    kdf id: This parameter contains the Key Derivation Functions (KDF)
       identifier. The registry containing the KDF ids has been established 
       with RFC 9180. The cipher id parameter MUST be present in the 
       COSE_HPKE_Sender structure.
+
+   aead id: This parameter contains the Authenticated Encryption with
+      Associated Data (AEAD) identifiers. The registry containing the 
+      AEAD ids has been established with RFC 9180. The cipher id 
+      parameter MUST be present in the COSE_HPKE_Sender structure.
 
    enc: This parameter contains the encapsulated key, which is output
       of the HPKE KEM. The enc parameter MUST be present in the 
