@@ -111,7 +111,7 @@ The CDDL grammar describing COSE_HPKE_Sender is:
    COSE_HPKE_Sender = {
        ? 1 => int,         ; kem id
        2 => int,           ; aead id
-       5 => int,           ; kdk id       
+       5 => int,           ; kdf id       
        3 => bstr,          ; enc
        * label => values
    }
