@@ -108,48 +108,43 @@ sender, namely the HPKE Sender Information structure (COSE_HPKE_Sender).
 The CDDL grammar describing COSE_HPKE_Sender is:
 
 ~~~
-   COSE_HPKE_Sender = {
-       ? 1 => uint,         ; kem id
-       2 => uint,           ; kdf id
-       3 => uint,           ; aead id
-       4 => bstr,           ; enc
-   }
+   COSE_HPKE_Sender = [
+       kdf_id : uint,           ; kdf id
+       aead_id : uint,          ; aead id
+       enc : bstr,              ; enc
+       ? kem_id : uint,         ; kem id
+   ]
 ~~~
 
 ~~~
-   +---------+-------+----------------+------------+-------------------+
-   | Name    | Label | CBOR Type      | Value      | Description       |
-   |         |       |                | Registry   |                   |
-   +---------+-------+----------------+------------+-------------------+
-   | kem id  | 1     | int            | HPKE       | Identifiers for   |
-   |         |       |                | KEM IDs    | the Key           |
-   |         |       |                | Registry   | Encapsulation     |
-   |         |       |                |            | Mechanisms        |
-   |         |       |                |            |                   |
-   | kdf id  | 2     | int            | HPKE KDF   | Identifiers for   |
-   |         |       |                | IDs        | KDF IDs           |
-   |         |       |                |            |                   |
-   | aead id | 3     | int            | HPKE AEAD  | Identifiers for   |
-   |         |       |                | IDs        | AEAD IDs          |
-   |         |       |                |            |                   |
-   | enc     | 4     | bstr           |            | Encapsulated key  |
-   |         |       |                |            | defined by HPKE   |
-   |         |       |                |            |                   |
-   +---------+-------+----------------+------------+-------------------+
+   +---------+----------------+------------+-------------------+
+   | Name    | CBOR Type      | Value      | Description       |
+   |         |                | Registry   |                   |
+   +---------+----------------+------------+-------------------+
+   | kdf_id  | uint           | HPKE KDF   | Identifiers for   |
+   |         |                | IDs        | KDF IDs           |
+   |         |                |            |                   |
+   | aead_id | uint           | HPKE AEAD  | Identifiers for   |
+   |         |                | IDs        | AEAD IDs          |
+   |         |                |            |                   |
+   | enc     | bstr           |            | Encapsulated key  |
+   |         |                |            | defined by HPKE   |
+   |         |                |            |                   |
+   | kem_id  | uint           | HPKE       | Identifiers for   |
+   |         |                | KEM IDs    | the Key           |
+   |         |                | Registry   | Encapsulation     |
+   |         |                |            | Mechanisms        |
+   |         |                |            |                   |
+   +---------+----------------+------------+-------------------+
 ~~~
 {: #table-hpke-sender title="COSE_HPKE_Sender Labels"}
 
-   kem id:  This parameter is used to identify the Key Encapsulation
-       Mechanisms (KEM). The registry for KEMs has been established
-       with RFC 9180. This parameter is optional since the kid may be
-       used to determine the KEM.
-
-   kdf id: This parameter contains the Key Derivation Functions (KDF)
+   kdf_id: This parameter contains the Key Derivation Functions (KDF)
       identifier. The registry containing the KDF ids has been established 
       with RFC 9180. The cipher id parameter MUST be present in the 
       COSE_HPKE_Sender structure.
 
-   aead id: This parameter contains the Authenticated Encryption with
+   aead_id: This parameter contains the Authenticated Encryption with
       Associated Data (AEAD) identifiers. The registry containing the 
       AEAD ids has been established with RFC 9180. The cipher id 
       parameter MUST be present in the COSE_HPKE_Sender structure.
@@ -157,6 +152,11 @@ The CDDL grammar describing COSE_HPKE_Sender is:
    enc: This parameter contains the encapsulated key, which is output
       of the HPKE KEM. The enc parameter MUST be present in the 
       COSE_HPKE_Sender structure.
+
+ kem_id:  This parameter is used to identify the Key Encapsulation
+       Mechanisms (KEM). The registry for KEMs has been established
+       with RFC 9180. This parameter is optional since the kid may be
+       used to determine the KEM.
 
 ### One Layer Structure {#one-layer}
 
