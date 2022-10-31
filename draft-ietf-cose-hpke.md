@@ -94,8 +94,8 @@ This specification supports two uses of HPKE in COSE, namely
 HPKE in "base" mode requires little information to be exchanged between 
 a sender and a recipient, namely
 
-* algorithm information, 
-* the ephemeral public key, and 
+* algorithm information (KDF id, AEAD id, and KEM id), 
+* the encapsulated key structure, and 
 * an identifier of the static recipient key.
 
 In the subsections below we explain how this information is carried
@@ -105,6 +105,9 @@ two layer structure, respectively.
 In both cases a new structure is used to convey information about the HPKE
 sender, namely the HPKE Sender Information structure (COSE_HPKE_Sender).
 
+When the alg value is set to HPKE, the encapsulated key MUST be present in 
+the unprotected header parameter and its value MUST be of type COSE_HPKE_Sender.
+  
 The CDDL grammar describing COSE_HPKE_Sender is:
 
 ~~~
@@ -141,17 +144,14 @@ The CDDL grammar describing COSE_HPKE_Sender is:
 
    kdf_id: This parameter contains the Key Derivation Functions (KDF)
       identifier. The registry containing the KDF ids has been established 
-      with RFC 9180. The cipher id parameter MUST be present in the 
-      COSE_HPKE_Sender structure.
+      with RFC 9180.
 
    aead_id: This parameter contains the Authenticated Encryption with
       Associated Data (AEAD) identifiers. The registry containing the 
-      AEAD ids has been established with RFC 9180. The cipher id 
-      parameter MUST be present in the COSE_HPKE_Sender structure.
+      AEAD ids has been established with RFC 9180.
 
    enc: This parameter contains the encapsulated key, which is output
-      of the HPKE KEM. The enc parameter MUST be present in the 
-      COSE_HPKE_Sender structure.
+      of the HPKE KEM.
 
  kem_id:  This parameter is used to identify the Key Encapsulation
        Mechanisms (KEM). The registry for KEMs has been established
