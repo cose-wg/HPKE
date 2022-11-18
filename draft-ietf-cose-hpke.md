@@ -141,8 +141,8 @@ The CDDL grammar describing COSE_HPKE_Sender is:
 
    kem id:  This parameter is used to identify the Key Encapsulation
        Mechanisms (KEM). The registry for KEMs has been established
-       with RFC 9180. This parameter is optional since the kid may be
-       used to determine the KEM.
+       with RFC 9180. This parameter is optional since the key identifier
+       (kid) may be used to discover the KEM.
 
    kdf id: This parameter contains the Key Derivation Functions (KDF)
       identifier. The registry containing the KDF ids has been established 
