@@ -103,15 +103,15 @@ inside the COSE_Encrypt0 and the COSE_Encrypt for the one layer and the
 two layer structure, respectively.
 
 In both cases a new structure is used to convey information about the HPKE
-sender, namely the HPKE Sender Information structure (COSE_HPKE_Sender).
+sender, namely the HPKE encapsulated key structure (encapsulated_key).
 
 When the alg value is set to HPKE, the encapsulated key MUST be present in 
-the unprotected header parameter and its value MUST be of type COSE_HPKE_Sender.
+the unprotected header parameter and its value MUST be of type encapsulated_key.
   
-The CDDL grammar describing COSE_HPKE_Sender is:
+The CDDL grammar describing the encapsulated_key structure is:
 
 ~~~
-   COSE_HPKE_Sender = [
+   encapsulated_key = [
        kdf_id : uint,           ; kdf id
        aead_id : uint,          ; aead id
        enc : bstr,              ; enc
@@ -140,7 +140,7 @@ The CDDL grammar describing COSE_HPKE_Sender is:
    |         |                |            |                   |
    +---------+----------------+------------+-------------------+
 ~~~
-{: #table-hpke-sender title="COSE_HPKE_Sender Labels"}
+{: #table-hpke-sender title="encapsulated_key structure"}
 
    kdf_id: This parameter contains the Key Derivation Functions (KDF)
       identifier. The registry containing the KDF ids has been established 
@@ -169,7 +169,7 @@ may be included in the COSE_Encrypt0 or may be detached.
 A sender MUST set the alg parameter in the protected header, which
 indicates the use of HPKE. 
 
-The sender MUST place the kid and the HPKE sender information structure
+The sender MUST place the kid and the encapsulated_key structure
 into the unprotected header. 
 
 {{cddl-hpke-one-layer}} shows the COSE_Encrypt0 CDDL structure.
@@ -202,8 +202,8 @@ it is included in the COSE_Encrypt structure.
 
 - Layer 1 (corresponding to a recipient structure) contains parameters needed for 
 HPKE to generate a shared secret used to encrypt the CEK. This layer conveys the 
-encrypted CEK in the encCEK structure. The protected header MUST contain the algorithm
-information and the unprotected header MUST contain the HPKE sender information structure
+encrypted CEK in the encCEK structure. The protected header MUST contain the HPKE 
+algorithm id and the unprotected header MUST contain the encapsulated_key structure
 and the key id (kid) of the static recipient public key.
 
 This two-layer structure is used to encrypt content that can also be shared with
@@ -346,8 +346,8 @@ key encapsulation mechanism DHKEM(P-256, HKDF-SHA256) with AES-128-GCM
     h'a10101',  // A128GCM (1)
     {
         4: h'3031', // kid
-        -4: [       // HPKE sender information
-            1,	    // kdf = HKDF-SHA256
+        -4: [       // encapsulated_key
+            1,	     // kdf = HKDF-SHA256
             1,      // aead = AES-128-GCM
             h'048c6f75e463a773082f3cb0d3a701348a578c67
                  80aba658646682a9af7291dfc277ec93c3d58707
@@ -385,13 +385,13 @@ by the alg parameters (see {{IANA}}).
 96_0([
     h'a10120',  // alg = HPKE  (-1 #TBD)
     {5: h'67303696a1cc2b6a64867096'},  // iv
-    h'',        // detached plaintext
+    h'',        // detached ciphertext
     [
         [
             h'a10120',  // alg = HPKE
             {
                 4: h'3031', // kid
-                -4: [       // HPKE sender information
+                -4: [       // encapsulated_key
                     1,      // kdf = HKDF-SHA256
                     1,      // aead = AES-128-GCM
                     / enc output /
