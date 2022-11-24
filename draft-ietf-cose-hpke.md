@@ -343,18 +343,18 @@ key encapsulation mechanism DHKEM(P-256, HKDF-SHA256) with AES-128-GCM
 // payload: "This is the content", aad: ""
 // 
 16([
-    h'a10120',  // alg = HPKE (-1)
+    h'a10101',  // A128GCM (1)
     {
         4: h'3031', // kid
-        -4: {       // HPKE sender information
-            1: 16,  // kem = DHKEM(P-256, HKDF-SHA256)
-            5: 1,   // kdf = HKDF-SHA256
-            2: 1,   // aead = AES-128-GCM
-            3: h'048c6f75e463a773082f3cb0d3a701348a578c67
+        -4: [       // HPKE sender information
+            1,	    // kdf = HKDF-SHA256
+            1,      // aead = AES-128-GCM
+            h'048c6f75e463a773082f3cb0d3a701348a578c67
                  80aba658646682a9af7291dfc277ec93c3d58707
                  818286c1097825457338dc3dcaff367e2951342e
                  9db30dc0e7',  // enc
-        },
+            16,     // kem = DHKEM(P-256, HKDF-SHA256)
+        ],
     },
     / encrypted plaintext /
     h'ee22206308e478c279b94bb071f3a5fbbac412a6effe34195f7
@@ -370,7 +370,8 @@ shown in {{hpke-example-two}}. Line breaks and comments have been inserted
 for better readability. It uses the following algorithm
 combination: 
 
-- At layer 0 AES-GCM-128 is used for encryption of the detached ciphertext.
+- At layer 0 AES-128-GCM is used for encryption of the detached plaintext
+  "This is the content.".
 - At the recipient structure at layer 1, the key encapsulation mechanism 
   DHKEM(P-256, HKDF-SHA256) with AES-128-GCM (as the AEAD) and HKDF-SHA256
   as the KDF is used.
@@ -390,22 +391,22 @@ by the alg parameters (see {{IANA}}).
             h'a10120',  // alg = HPKE
             {
                 4: h'3031', // kid
-                -4: {       // HPKE sender information
-                    1: 16,  // kem = DHKEM(P-256, HKDF-SHA256)
-                    5: 1,   // kdf = HKDF-SHA256
-                    2: 1,   // aead = AES-128-GCM
+                -4: [       // HPKE sender information
+                    1,      // kdf = HKDF-SHA256
+                    1,      // aead = AES-128-GCM
                     / enc output /
-                    3: h'0421ccd1b00dd958d77e10399c
+                    h'0421ccd1b00dd958d77e10399c
                          97530fcbb91a1dc71cb3bf41d9
                          9fd39f22918505c973816ecbca
                          6de507c4073d05cceff73e0d35
                          f60e2373e09a9433be9e95e53c',
-                },
+                    16,     // kem = DHKEM(P-256, HKDF-SHA256)
+                ],
             },
             // ciphertext containing encrypted CEK
             h'bb2f1433546c55fb38d6f23f5cd95e1d72eb4
               c129b99a165cd5a28bd75859c10939b7e4d',
-        ],
+        ]
     ],
 ])
 ~~~
