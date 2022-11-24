@@ -383,8 +383,8 @@ by the alg parameters (see {{IANA}}).
 // Example of COSE-HPKE (Encrypt)
 // plaintext: "This is the content.", aad: ""
 96_0([
-    h'a10120',  // alg = HPKE  (-1 #T.B.D.)
-    {},         // protected header
+    h'a10120',  // alg = HPKE  (-1 #TBD)
+    {5: h'67303696a1cc2b6a64867096'},  // iv
     h'',        // detached plaintext
     [
         [
