@@ -370,7 +370,9 @@ shown in {{hpke-example-two}}. Line breaks and comments have been inserted
 for better readability. It uses the following algorithm
 combination: 
 
-- At layer 0 AES-GCM-128 is used for encryption of the detached ciphertext.
+- At layer 0 AES-128-GCM is used for encryption of plaintext
+  "This is the content.", which is not included in the structure (i.e.
+  transmitted in detached form).
 - At the recipient structure at layer 1, the key encapsulation mechanism 
   DHKEM(P-256, HKDF-SHA256) with AES-128-GCM (as the AEAD) and HKDF-SHA256
   as the KDF is used.
@@ -382,29 +384,26 @@ by the alg parameters (see {{IANA}}).
 // Example of COSE-HPKE (Encrypt)
 // plaintext: "This is the content.", aad: ""
 96_0([
-    h'a10120',  // alg = HPKE  (-1 #T.B.D.)
-    {},         // protected header
-    h'',        // detached plaintext
-    [
+    h'a10101',  // A128GCM (1)
+    {5: h'67303696a1cc2b6a64867096'},  // iv
+    h'', // detached ciphertext
+   [
         [
-            h'a10120',  // alg = HPKE
+            h'a10120',  // HPKE (-1)
             {
-                4: h'3031', // kid
-                -4: {       // HPKE sender information
-                    1: 16,  // kem = DHKEM(P-256, HKDF-SHA256)
-                    5: 1,   // kdf = HKDF-SHA256
-                    2: 1,   // aead = AES-128-GCM
-                    / enc output /
-                    3: h'0421ccd1b00dd958d77e10399c
-                         97530fcbb91a1dc71cb3bf41d9
-                         9fd39f22918505c973816ecbca
-                         6de507c4073d05cceff73e0d35
-                         f60e2373e09a9433be9e95e53c',
+                4: h'3031',  // kid = b"01"
+                -4: {
+                    1: 16,
+                    2: 1,
+                    3: 1,
+                    4: h'04bcc7294fd440450406067d9ec7cf06d70
+                         3a2a5688a59aa57b432941a03b8a0febb31
+                         b5365476c84bb358f20e435954ed777dac6
+                         6a606ebdd0988ca8b7e85ae98',
                 },
             },
-            // ciphertext containing encrypted CEK
-            h'bb2f1433546c55fb38d6f23f5cd95e1d72eb4
-              c129b99a165cd5a28bd75859c10939b7e4d',
+            h'f033bf10e66869645a848843dce4c2d72
+              c4e46f0767bff003b6ea5603cb3490f',
         ],
     ],
 ])
