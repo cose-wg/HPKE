@@ -47,6 +47,9 @@ key derivation function (KDF), and authenticated encryption with
 additional data (AEAD) encryption function. Authentication for HPKE in COSE is
 provided by COSE-native security mechanisms.
 
+This document defines the use of the HPKE base mode with COSE. Other modes are
+supported by HPKE but those are not supported by this specification.
+
 --- middle
 
 #  Introduction
@@ -339,11 +342,10 @@ key encapsulation mechanism DHKEM(P-256, HKDF-SHA256) with AES-128-GCM
 (as the AEAD) and HKDF-SHA256 as the KDF is used.
 
 ~~~
-// Example of COSE-HPKE (Encrypt0)
 // payload: "This is the content", aad: ""
 // 
 16([
-    h'a10101',  // A128GCM (1)
+    h'a10120',  // alg = HPKE-v1-BASE
     {
         4: h'3031', // kid
         -4: [       // encapsulated_key
@@ -380,15 +382,14 @@ The algorithm selection is based on the registry of the values offered
 by the alg parameters (see {{IANA}}).
 
 ~~~
-// Example of COSE-HPKE (Encrypt)
 // plaintext: "This is the content.", aad: ""
 96_0([
-    h'a10120',  // alg = HPKE  (-1 #TBD)
+    h'a10101',  // alg = AES-128-GCM (1)
     {5: h'67303696a1cc2b6a64867096'},  // iv
     h'',        // detached ciphertext
     [
         [
-            h'a10120',  // alg = HPKE
+            h'a10120',  // alg = HPKE-v1-BASE (-1 #TBD)
             {
                 4: h'3031', // kid
                 -4: [       // encapsulated_key
@@ -465,9 +466,9 @@ and to the COSE Header Algorithm Parameters registry, defined in {{RFC8152}}
 
 ## COSE Algorithms Registry
 
--  Name: HPKE
+-  Name: HPKE-v1-BASE
 -  Value: TBD1 (Assumed: -1)
--  Description: HPKE for use with COSE
+-  Description: HPKE-v1 in base mode for use with COSE
 -  Capabilities: [kty]
 -  Change Controller: IESG
 -  Reference:  [[TBD: This RFC]]
@@ -486,8 +487,8 @@ and to the COSE Header Algorithm Parameters registry, defined in {{RFC8152}}
 # Contributors
 
 We would like thank the following individuals for their contributions
-to the design of embedding the HPKE output into the COSE structure following 
-a long and lively mailing list discussion. 
+to the design of embedding the HPKE output into the COSE structure 
+following a long and lively mailing list discussion. 
 
 - Daisuke Ajitomi
 - Ilari Liusvaara
@@ -498,4 +499,5 @@ the draft as a co-author of initial versions of the draft.
 
 # Acknowledgements
 
-We would like to thank Goeran Selander, Orie Steele, Mike Prorock, Michael Richardson, and John Mattsson for their review feedback.
+We would like to thank Goeran Selander, Orie Steele, Mike Prorock, 
+Michael Richardson, and John Mattsson for their review feedback.
