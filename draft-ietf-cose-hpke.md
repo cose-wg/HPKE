@@ -48,7 +48,7 @@ additional data (AEAD) encryption function. Authentication for HPKE in COSE is
 provided by COSE-native security mechanisms.
 
 This document defines the use of the HPKE base mode with COSE. Other modes are
-supported by HPKE but those are not supported by this specification.
+supported by HPKE but not by this specification.
 
 --- middle
 
