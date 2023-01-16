@@ -314,23 +314,6 @@ this specification the COSE_KDF_Context structure is repeated in {{cddl-cose-kdf
 ~~~
 {: #cddl-cose-kdf title="COSE_KDF_Context Data Structure for info parameter"}
 
-The fields in {{cddl-cose-kdf}} are populated as follows:
-
-- PartyUInfo.identity corresponds to the kid found in the
-COSE_Sign_Tagged or COSE_Sign1_Tagged structure (when a digital
-signature is used). When utilizing a MAC, then the kid is found in
-the COSE_Mac_Tagged or COSE_Mac0_Tagged structure.
-
-- PartyVInfo.identity corresponds to the kid used for the respective
-recipient from the inner-most recipients array.
-
-- The value in the AlgorithmID field corresponds to the alg parameter
-in the unprotected header structure of the recipient structure.
-
-- keyDataLength is set to the number of bits of the desired output value.
-
-- protected refers to the protected structure of the inner-most array.
-
 # Examples
 
 ## One Layer {#one-layer-example}
