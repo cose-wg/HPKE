@@ -97,7 +97,7 @@ This specification supports two uses of HPKE in COSE, namely
 HPKE in "base" mode requires little information to be exchanged between 
 a sender and a recipient, namely
 
-* algorithm information (KDF id, AEAD id, and KEM id), 
+* algorithm information (KEM id, KDF id, and AEAD id), 
 * the encapsulated key structure, and 
 * an identifier of the static recipient key.
 
@@ -115,10 +115,10 @@ The CDDL grammar describing the encapsulated_key structure is:
 
 ~~~
    encapsulated_key = [
-       kdf_id : uint,           ; kdf id
-       aead_id : uint,          ; aead id
-       enc : bstr,              ; enc
-       ? kem_id : uint,         ; kem id
+       kem_id : uint,         ; kem id
+       kdf_id : uint,         ; kdf id
+       aead_id : uint,        ; aead id
+       enc : bstr,            ; enc
    ]
 ~~~
 
@@ -127,6 +127,11 @@ The CDDL grammar describing the encapsulated_key structure is:
    | Name    | CBOR Type      | Value      | Description       |
    |         |                | Registry   |                   |
    +---------+----------------+------------+-------------------+
+   | kem_id  | uint           | HPKE       | Identifiers for   |
+   |         |                | KEM IDs    | the Key           |
+   |         |                | Registry   | Encapsulation     |
+   |         |                |            | Mechanisms        |
+   |         |                |            |                   |
    | kdf_id  | uint           | HPKE KDF   | Identifiers for   |
    |         |                | IDs        | KDF IDs           |
    |         |                |            |                   |
@@ -135,15 +140,14 @@ The CDDL grammar describing the encapsulated_key structure is:
    |         |                |            |                   |
    | enc     | bstr           |            | Encapsulated key  |
    |         |                |            | defined by HPKE   |
-   |         |                |            |                   |
-   | kem_id  | uint           | HPKE       | Identifiers for   |
-   |         |                | KEM IDs    | the Key           |
-   |         |                | Registry   | Encapsulation     |
-   |         |                |            | Mechanisms        |
-   |         |                |            |                   |
    +---------+----------------+------------+-------------------+
 ~~~
 {: #table-hpke-sender title="encapsulated_key structure"}
+
+  kem_id: This parameter is used to identify the Key Encapsulation
+       Mechanisms (KEM). The registry for KEMs has been established
+       with RFC 9180. This parameter is optional since the kid may be
+       used to determine the KEM.
 
    kdf_id: This parameter contains the Key Derivation Functions (KDF)
       identifier. The registry containing the KDF ids has been established 
@@ -155,11 +159,6 @@ The CDDL grammar describing the encapsulated_key structure is:
 
    enc: This parameter contains the encapsulated key, which is output
       of the HPKE KEM.
-
- kem_id:  This parameter is used to identify the Key Encapsulation
-       Mechanisms (KEM). The registry for KEMs has been established
-       with RFC 9180. This parameter is optional since the kid may be
-       used to determine the KEM.
 
 ### One Layer Structure {#one-layer}
 
@@ -332,13 +331,13 @@ key encapsulation mechanism DHKEM(P-256, HKDF-SHA256) with AES-128-GCM
     {
         4: h'3031', // kid
         -4: [       // encapsulated_key
+            16,     // kem = DHKEM(P-256, HKDF-SHA256)
             1,	     // kdf = HKDF-SHA256
             1,      // aead = AES-128-GCM
             h'048c6f75e463a773082f3cb0d3a701348a578c67
                  80aba658646682a9af7291dfc277ec93c3d58707
                  818286c1097825457338dc3dcaff367e2951342e
                  9db30dc0e7',  // enc
-            16,     // kem = DHKEM(P-256, HKDF-SHA256)
         ],
     },
     / encrypted plaintext /
@@ -376,6 +375,7 @@ by the alg parameters (see {{IANA}}).
             {
                 4: h'3031', // kid
                 -4: [       // encapsulated_key
+                    16,     // kem = DHKEM(P-256, HKDF-SHA256)
                     1,      // kdf = HKDF-SHA256
                     1,      // aead = AES-128-GCM
                     / enc output /
@@ -384,7 +384,6 @@ by the alg parameters (see {{IANA}}).
                          9fd39f22918505c973816ecbca
                          6de507c4073d05cceff73e0d35
                          f60e2373e09a9433be9e95e53c',
-                    16,     // kem = DHKEM(P-256, HKDF-SHA256)
                 ],
             },
             // ciphertext containing encrypted CEK
@@ -461,7 +460,7 @@ and to the COSE Header Algorithm Parameters registry, defined in {{RFC8152}}
 
 -  Name: encapsulated_key
 -  Label: TBD2 (Assumed: -4)
--  Value type: bstr / [*any] / {* any => any }
+-  Value type: encapsulated_key
 -  Value Registry: N/A
 -  Description: Encapsulated key for KEM-like algorithms
 
@@ -478,9 +477,9 @@ following a long and lively mailing list discussion.
 - Richard Barnes
 
 Finally, we would like to thank Russ Housley for his contributions to
-the draft as a co-author of initial versions of the draft.
+the draft as a co-author of initial versions.
 
 # Acknowledgements
 
-We would like to thank Goeran Selander, Orie Steele, Mike Prorock, 
-Michael Richardson, and John Mattsson for their review feedback.
+We would like to thank John Mattsson, Mike Prorock, Michael Richardson,
+Goeran Selander, and Orie Steele for their review feedback.
