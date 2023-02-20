@@ -482,4 +482,4 @@ the draft as a co-author of initial versions.
 # Acknowledgements
 
 We would like to thank John Mattsson, Mike Prorock, Michael Richardson,
-Goeran Selander, and Orie Steele for their review feedback.
+Goeran Selander, Laurence Lundblade and Orie Steele for their review feedback.
