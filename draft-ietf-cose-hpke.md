@@ -16,8 +16,8 @@ author:
  -
        ins: H. Tschofenig
        name: Hannes Tschofenig
-       organization: Arm Limited
-       email: hannes.tschofenig@arm.com
+       organization: 
+       email: hannes.tschofenig@gmx.net
 
  -
       ins: B. Moran
@@ -46,6 +46,9 @@ HPKE works for any combination of an asymmetric key encapsulation mechanism (KEM
 key derivation function (KDF), and authenticated encryption with
 additional data (AEAD) encryption function. Authentication for HPKE in COSE is
 provided by COSE-native security mechanisms.
+
+This document defines the use of the HPKE base mode with COSE. Other modes are
+supported by HPKE but not by this specification.
 
 --- middle
 
@@ -94,8 +97,8 @@ This specification supports two uses of HPKE in COSE, namely
 HPKE in "base" mode requires little information to be exchanged between 
 a sender and a recipient, namely
 
-* algorithm information, 
-* the ephemeral public key, and 
+* algorithm information (KEM id, KDF id, and AEAD id), 
+* the encapsulated key structure, and 
 * an identifier of the static recipient key.
 
 In the subsections below we explain how this information is carried
@@ -103,60 +106,59 @@ inside the COSE_Encrypt0 and the COSE_Encrypt for the one layer and the
 two layer structure, respectively.
 
 In both cases a new structure is used to convey information about the HPKE
-sender, namely the HPKE Sender Information structure (COSE_HPKE_Sender).
+sender, namely the HPKE encapsulated key structure (encapsulated_key).
 
-The CDDL grammar describing COSE_HPKE_Sender is:
-
-~~~
-   COSE_HPKE_Sender = {
-       ? 1 => uint,         ; kem id
-       2 => uint,           ; kdf id
-       3 => uint,           ; aead id
-       4 => bstr,           ; enc
-   }
-~~~
+When the alg value is set to HPKE, the encapsulated key MUST be present in 
+the unprotected header parameter and its value MUST be of type encapsulated_key.
+  
+The CDDL grammar describing the encapsulated_key structure is:
 
 ~~~
-   +---------+-------+----------------+------------+-------------------+
-   | Name    | Label | CBOR Type      | Value      | Description       |
-   |         |       |                | Registry   |                   |
-   +---------+-------+----------------+------------+-------------------+
-   | kem id  | 1     | int            | HPKE       | Identifiers for   |
-   |         |       |                | KEM IDs    | the Key           |
-   |         |       |                | Registry   | Encapsulation     |
-   |         |       |                |            | Mechanisms        |
-   |         |       |                |            |                   |
-   | kdf id  | 2     | int            | HPKE KDF   | Identifiers for   |
-   |         |       |                | IDs        | KDF IDs           |
-   |         |       |                |            |                   |
-   | aead id | 3     | int            | HPKE AEAD  | Identifiers for   |
-   |         |       |                | IDs        | AEAD IDs          |
-   |         |       |                |            |                   |
-   | enc     | 4     | bstr           |            | Encapsulated key  |
-   |         |       |                |            | defined by HPKE   |
-   |         |       |                |            |                   |
-   +---------+-------+----------------+------------+-------------------+
+   encapsulated_key = [
+       kem_id : uint,         ; kem id
+       kdf_id : uint,         ; kdf id
+       aead_id : uint,        ; aead id
+       enc : bstr,            ; enc
+   ]
 ~~~
-{: #table-hpke-sender title="COSE_HPKE_Sender Labels"}
 
-   kem id:  This parameter is used to identify the Key Encapsulation
+~~~
+   +---------+----------------+------------+-------------------+
+   | Name    | CBOR Type      | Value      | Description       |
+   |         |                | Registry   |                   |
+   +---------+----------------+------------+-------------------+
+   | kem_id  | uint           | HPKE       | Identifiers for   |
+   |         |                | KEM IDs    | the Key           |
+   |         |                | Registry   | Encapsulation     |
+   |         |                |            | Mechanisms        |
+   |         |                |            |                   |
+   | kdf_id  | uint           | HPKE KDF   | Identifiers for   |
+   |         |                | IDs        | KDF IDs           |
+   |         |                |            |                   |
+   | aead_id | uint           | HPKE AEAD  | Identifiers for   |
+   |         |                | IDs        | AEAD IDs          |
+   |         |                |            |                   |
+   | enc     | bstr           |            | Encapsulated key  |
+   |         |                |            | defined by HPKE   |
+   +---------+----------------+------------+-------------------+
+~~~
+{: #table-hpke-sender title="encapsulated_key structure"}
+
+  kem_id: This parameter is used to identify the Key Encapsulation
        Mechanisms (KEM). The registry for KEMs has been established
        with RFC 9180. This parameter is optional since the key identifier
        (kid) may be used to discover the KEM.
 
-   kdf id: This parameter contains the Key Derivation Functions (KDF)
+   kdf_id: This parameter contains the Key Derivation Functions (KDF)
       identifier. The registry containing the KDF ids has been established 
-      with RFC 9180. The cipher id parameter MUST be present in the 
-      COSE_HPKE_Sender structure.
+      with RFC 9180.
 
-   aead id: This parameter contains the Authenticated Encryption with
+   aead_id: This parameter contains the Authenticated Encryption with
       Associated Data (AEAD) identifiers. The registry containing the 
-      AEAD ids has been established with RFC 9180. The cipher id 
-      parameter MUST be present in the COSE_HPKE_Sender structure.
+      AEAD ids has been established with RFC 9180.
 
    enc: This parameter contains the encapsulated key, which is output
-      of the HPKE KEM. The enc parameter MUST be present in the 
-      COSE_HPKE_Sender structure.
+      of the HPKE KEM.
 
 ### One Layer Structure {#one-layer}
 
@@ -169,7 +171,7 @@ may be included in the COSE_Encrypt0 or may be detached.
 A sender MUST set the alg parameter in the protected header, which
 indicates the use of HPKE. 
 
-The sender MUST place the kid and the HPKE sender information structure
+The sender MUST place the kid and the encapsulated_key structure
 into the unprotected header. 
 
 {{cddl-hpke-one-layer}} shows the COSE_Encrypt0 CDDL structure.
@@ -202,8 +204,8 @@ it is included in the COSE_Encrypt structure.
 
 - Layer 1 (corresponding to a recipient structure) contains parameters needed for 
 HPKE to generate a shared secret used to encrypt the CEK. This layer conveys the 
-encrypted CEK in the encCEK structure. The protected header MUST contain the algorithm
-information and the unprotected header MUST contain the HPKE sender information structure
+encrypted CEK in the encCEK structure. The protected header MUST contain the HPKE 
+algorithm id and the unprotected header MUST contain the encapsulated_key structure
 and the key id (kid) of the static recipient public key.
 
 This two-layer structure is used to encrypt content that can also be shared with
@@ -311,23 +313,6 @@ this specification the COSE_KDF_Context structure is repeated in {{cddl-cose-kdf
 ~~~
 {: #cddl-cose-kdf title="COSE_KDF_Context Data Structure for info parameter"}
 
-The fields in {{cddl-cose-kdf}} are populated as follows:
-
-- PartyUInfo.identity corresponds to the kid found in the
-COSE_Sign_Tagged or COSE_Sign1_Tagged structure (when a digital
-signature is used). When utilizing a MAC, then the kid is found in
-the COSE_Mac_Tagged or COSE_Mac0_Tagged structure.
-
-- PartyVInfo.identity corresponds to the kid used for the respective
-recipient from the inner-most recipients array.
-
-- The value in the AlgorithmID field corresponds to the alg parameter
-in the unprotected header structure of the recipient structure.
-
-- keyDataLength is set to the number of bits of the desired output value.
-
-- protected refers to the protected structure of the inner-most array.
-
 # Examples
 
 ## One Layer {#one-layer-example}
@@ -339,22 +324,21 @@ key encapsulation mechanism DHKEM(P-256, HKDF-SHA256) with AES-128-GCM
 (as the AEAD) and HKDF-SHA256 as the KDF is used.
 
 ~~~
-// Example of COSE-HPKE (Encrypt0)
 // payload: "This is the content", aad: ""
 // 
 16([
-    h'a10120',  // alg = HPKE (-1)
+    h'a10120',  // alg = HPKE-v1-BASE
     {
         4: h'3031', // kid
-        -4: {       // HPKE sender information
-            1: 16,  // kem = DHKEM(P-256, HKDF-SHA256)
-            5: 1,   // kdf = HKDF-SHA256
-            2: 1,   // aead = AES-128-GCM
-            3: h'048c6f75e463a773082f3cb0d3a701348a578c67
+        -4: [       // encapsulated_key
+            16,     // kem = DHKEM(P-256, HKDF-SHA256)
+            1,	     // kdf = HKDF-SHA256
+            1,      // aead = AES-128-GCM
+            h'048c6f75e463a773082f3cb0d3a701348a578c67
                  80aba658646682a9af7291dfc277ec93c3d58707
                  818286c1097825457338dc3dcaff367e2951342e
                  9db30dc0e7',  // enc
-        },
+        ],
     },
     / encrypted plaintext /
     h'ee22206308e478c279b94bb071f3a5fbbac412a6effe34195f7
@@ -370,9 +354,8 @@ shown in {{hpke-example-two}}. Line breaks and comments have been inserted
 for better readability. It uses the following algorithm
 combination: 
 
-- At layer 0 AES-128-GCM is used for encryption of plaintext
-  "This is the content.", which is not included in the structure (i.e.
-  transmitted in detached form).
+- At layer 0 AES-128-GCM is used for encryption of the detached plaintext
+  "This is the content.".
 - At the recipient structure at layer 1, the key encapsulation mechanism 
   DHKEM(P-256, HKDF-SHA256) with AES-128-GCM (as the AEAD) and HKDF-SHA256
   as the KDF is used.
@@ -381,30 +364,32 @@ The algorithm selection is based on the registry of the values offered
 by the alg parameters (see {{IANA}}).
 
 ~~~
-// Example of COSE-HPKE (Encrypt)
 // plaintext: "This is the content.", aad: ""
 96_0([
-    h'a10101',  // A128GCM (1)
+    h'a10101',  // alg = AES-128-GCM (1)
     {5: h'67303696a1cc2b6a64867096'},  // iv
-    h'', // detached ciphertext
-   [
+    h'',        // detached ciphertext
+    [
         [
-            h'a10120',  // HPKE (-1)
+            h'a10120',  // alg = HPKE-v1-BASE (-1 #TBD)
             {
-                4: h'3031',  // kid = b"01"
-                -4: {
-                    1: 16,
-                    2: 1,
-                    3: 1,
-                    4: h'04bcc7294fd440450406067d9ec7cf06d70
-                         3a2a5688a59aa57b432941a03b8a0febb31
-                         b5365476c84bb358f20e435954ed777dac6
-                         6a606ebdd0988ca8b7e85ae98',
-                },
+                4: h'3031', // kid
+                -4: [       // encapsulated_key
+                    16,     // kem = DHKEM(P-256, HKDF-SHA256)
+                    1,      // kdf = HKDF-SHA256
+                    1,      // aead = AES-128-GCM
+                    / enc output /
+                    h'0421ccd1b00dd958d77e10399c
+                         97530fcbb91a1dc71cb3bf41d9
+                         9fd39f22918505c973816ecbca
+                         6de507c4073d05cceff73e0d35
+                         f60e2373e09a9433be9e95e53c',
+                ],
             },
-            h'f033bf10e66869645a848843dce4c2d72
-              c4e46f0767bff003b6ea5603cb3490f',
-        ],
+            // ciphertext containing encrypted CEK
+            h'bb2f1433546c55fb38d6f23f5cd95e1d72eb4
+              c129b99a165cd5a28bd75859c10939b7e4d',
+        ]
     ],
 ])
 ~~~
@@ -458,83 +443,43 @@ but may not be guaranteed by non-AEAD ciphers.
 #  IANA Considerations {#IANA}
 
 This document requests IANA to add new values to the COSE Algorithms registry
-and to the Common Header Parameters registry, defined in {{RFC8152}} (in the Standards 
-Action With Expert Review category). Additionally, IANA is asked to create a new
-registry called 'HPKE Sender Registry'. 
+and to the COSE Header Algorithm Parameters registry, defined in {{RFC8152}} 
+(in the Standards Action With Expert Review category).
 
 ## COSE Algorithms Registry
 
--  Name: HPKE
+-  Name: HPKE-v1-BASE
 -  Value: TBD1 (Assumed: -1)
--  Description: HPKE for use with COSE
+-  Description: HPKE-v1 in base mode for use with COSE
 -  Capabilities: [kty]
 -  Change Controller: IESG
 -  Reference:  [[TBD: This RFC]]
 -  Recommended: Yes
 
-## Common Header Parameters
+## COSE Header Algorithm Parameters
 
--  Name: hpke_sender
+-  Name: encapsulated_key
 -  Label: TBD2 (Assumed: -4)
--  Value Type: COSE_HPKE_Sender 
--  Value Registry: COSE HPKE Sender Registry
--  Description: HPKE sender information structure
-
-## COSE HPKE Sender Parameter Registry
-
-IANA is asked to create a new registry titled "COSE HPKE Sender Parameters".
-The registry has been created to use the "Expert Review Required"
-registration procedure.  Guidelines for the experts are provided in
-Section 16.11 of RFC 8152.  It should be noted that, in addition to the expert
-review, some portions of the registry require a specification,
-potentially a Standards Track RFC, be supplied as well.
-
-The columns of the registry are:
-
-   Name:  This is a descriptive name that enables easier reference to
-      the item.  It is not used in the encoding.
-
-   Label:  The value to be used to identify this algorithm.  Key map
-      labels MUST be unique.  The label can be a positive integer, a
-      negative integer, or a string.  Integer values between 0 and 255
-      and strings of length 1 are designated as "Standards Action".
-      Integer values from 256 to 65535 and strings of length 2 are
-      designated as "Specification Required".  Integer values of greater
-      than 65535 and strings of length greater than 2 are designated as
-      "Expert Review".  Integer values in the range -65536 to -1 are
-      are also designated as "Expert Review".    Integer values less
-      than -65536 are marked as private use.
-
-   CBOR Type:  This field contains the CBOR type for the field.
-
-   Value Registry:  This field denotes the registry that values come
-      from, if one exists.
-
-   Description:  This field contains a brief description for the field.
-
-   Reference:  This contains a pointer to the public specification for
-      the field if one exists.
-
-   This registry has been initially populated by the values in {{table-hpke-sender}}
-   All of the entries in the "References" column of this registry point
-   to this document.
-
+-  Value type: encapsulated_key
+-  Value Registry: N/A
+-  Description: Encapsulated key for KEM-like algorithms
 
 --- back
 
 # Contributors
 
 We would like thank the following individuals for their contributions
-to the design of embedding the HPKE output into the COSE structure following 
-a long and lively mailing list discussion. 
+to the design of embedding the HPKE output into the COSE structure 
+following a long and lively mailing list discussion. 
 
 - Daisuke Ajitomi
 - Ilari Liusvaara
 - Richard Barnes
 
 Finally, we would like to thank Russ Housley for his contributions to
-the draft as a co-author of initial versions of the draft.
+the draft as a co-author of initial versions.
 
 # Acknowledgements
 
-We would like to thank Goeran Selander, Orie Steele, Mike Prorock, Michael Richardson, and John Mattsson for their review feedback.
+We would like to thank John Mattsson, Mike Prorock, Michael Richardson,
+Goeran Selander, Laurence Lundblade and Orie Steele for their review feedback.
