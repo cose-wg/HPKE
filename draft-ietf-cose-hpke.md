@@ -44,7 +44,7 @@ public-key encryption of arbitrary-sized plaintexts for a recipient public key.
 
 HPKE works for any combination of an asymmetric key encapsulation mechanism (KEM),
 key derivation function (KDF), and authenticated encryption with
-additional data (AEAD) encryption function. Authentication for HPKE in COSE is
+additional data (AEAD) function. Authentication for HPKE in COSE is
 provided by COSE-native security mechanisms.
 
 This document defines the use of the HPKE base mode with COSE. Other modes are
@@ -79,6 +79,9 @@ This specification uses the following abbreviations and terms:
 - Hybrid Public Key Encryption (HPKE) is defined in {{RFC9180}}.
 - pkR is the public key of the recipient, as defined in {{RFC9180}}.
 - skR is the private key of the recipient, as defined in {{RFC9180}}.
+- Key Encapsulation Mechanism (KEM), see {{RFC9180}}.
+- Key Derivation Function (KDF), see {{RFC9180}}.
+- Authenticated Encryption with Associated Data (AEAD), see {{RFC9180}}.
 
 # HPKE for COSE
 
@@ -86,18 +89,20 @@ This specification uses the following abbreviations and terms:
 
 This specification supports two uses of HPKE in COSE, namely 
 
-* HPKE in a single sender - single recipient setup.
-  This use cases uses a one layer structure for efficiency. 
+* HPKE in a single recipient setup.
+  This use cases uses a one layer COSE structure. 
   {{one-layer}} provides the details.
 
-* HPKE in a single sender - multiple recipient setup. 
-  This use case requires a two layer structure.  {{two-layer}} 
-  provides the details.
+* HPKE in a multiple recipient setup. 
+  This use case requires a two layer COSE structure.  {{two-layer}} 
+  provides the details. While it is possible to support the single 
+  recipient use case with a two layer structure, the single 
+  layer setup is more efficient.
 
 HPKE in "base" mode requires little information to be exchanged between 
 a sender and a recipient, namely
 
-* algorithm information (KEM id, KDF id, and AEAD id), 
+* algorithm information (KEM, KDF, and AEAD identifiers), 
 * the encapsulated key structure, and 
 * an identifier of the static recipient key.
 
@@ -115,10 +120,10 @@ The CDDL grammar describing the encapsulated_key structure is:
 
 ~~~
    encapsulated_key = [
-       kem_id : uint,         ; kem id
-       kdf_id : uint,         ; kdf id
-       aead_id : uint,        ; aead id
-       enc : bstr,            ; enc
+       kem_id : uint,         ; kem identifier
+       kdf_id : uint,         ; kdf identifier
+       aead_id : uint,        ; aead identifier
+       enc : bstr,            ; encapsulated key
    ]
 ~~~
 
@@ -127,16 +132,15 @@ The CDDL grammar describing the encapsulated_key structure is:
    | Name    | CBOR Type      | Value      | Description       |
    |         |                | Registry   |                   |
    +---------+----------------+------------+-------------------+
-   | kem_id  | uint           | HPKE       | Identifiers for   |
-   |         |                | KEM IDs    | the Key           |
-   |         |                | Registry   | Encapsulation     |
-   |         |                |            | Mechanisms        |
+   | kem_id  | uint           | HPKE       | Identifier for    |
+   |         |                | KEM IDs    | the KEM           |
+   |         |                | Registry   |                   |
    |         |                |            |                   |
-   | kdf_id  | uint           | HPKE KDF   | Identifiers for   |
-   |         |                | IDs        | KDF IDs           |
+   | kdf_id  | uint           | HPKE KDF   | Identifier for    |
+   |         |                | IDs        | the KDF ID        |
    |         |                |            |                   |
-   | aead_id | uint           | HPKE AEAD  | Identifiers for   |
-   |         |                | IDs        | AEAD IDs          |
+   | aead_id | uint           | HPKE AEAD  | Identifier for    |
+   |         |                | IDs        | the AEAD ID       |
    |         |                |            |                   |
    | enc     | bstr           |            | Encapsulated key  |
    |         |                |            | defined by HPKE   |
@@ -144,23 +148,19 @@ The CDDL grammar describing the encapsulated_key structure is:
 ~~~
 {: #table-hpke-sender title="encapsulated_key structure"}
 
-  kem_id: This parameter is used to identify the Key Encapsulation
-       Mechanisms (KEM). The registry for KEMs has been established
-       with RFC 9180. This parameter is optional since the key identifier
-       (kid) may be used to discover the KEM.
+  kem_id: This parameter is used to identify the KEM. The registry
+       for KEM ids has been established with RFC 9180.
 
-   kdf_id: This parameter contains the Key Derivation Functions (KDF)
-      identifier. The registry containing the KDF ids has been established 
-      with RFC 9180.
+   kdf_id: This parameter contains the KDF identifier. 
+   The registry containing the KDF ids has been established with RFC 9180.
 
-   aead_id: This parameter contains the Authenticated Encryption with
-      Associated Data (AEAD) identifiers. The registry containing the 
-      AEAD ids has been established with RFC 9180.
+   aead_id: This parameter contains the AEAD identifier. The registry 
+   containing the AEAD ids has been established with RFC 9180.
 
    enc: This parameter contains the encapsulated key, which is output
       of the HPKE KEM.
 
-### One Layer Structure {#one-layer}
+### Single Recipient / One Layer Structure {#one-layer}
 
 With the one layer structure the information carried inside the 
 COSE_recipient structure is embedded inside the COSE_Encrypt0. 
@@ -168,11 +168,13 @@ COSE_recipient structure is embedded inside the COSE_Encrypt0.
 HPKE is used to directly encrypt the plaintext. The resulting ciphertext
 may be included in the COSE_Encrypt0 or may be detached.
 
-A sender MUST set the alg parameter in the protected header, which
+The sender MUST set the alg parameter in the protected header, which
 indicates the use of HPKE. 
 
-The sender MUST place the kid and the encapsulated_key structure
-into the unprotected header. 
+The sender MUST place the kid parameter and the encapsulated_key structure
+into the unprotected header. The kid identifies the static recipient
+public key used by the sender. The recipient uses the kid to determine
+the appropriate private key.
 
 {{cddl-hpke-one-layer}} shows the COSE_Encrypt0 CDDL structure.
 
@@ -191,31 +193,32 @@ The COSE_Encrypt0 MAY be tagged or untagged.
 
 An example is shown in {{one-layer-example}}.
 
-### Two Layer Structure {#two-layer}
+### Multiple Recipients / Two Layer Structure {#two-layer}
 
-With the two layer structure the HPKE information is conveyed in the COSE_recipient structure, i.e. one
-COSE_recipient structure per recipient. 
+With the two layer structure the HPKE information is conveyed in the COSE_recipient 
+structure, i.e. one COSE_recipient structure per recipient.
 
 In this approach the following layers are involved: 
 
-- Layer 0 (corresponding to the COSE_Encrypt structure) contains content (plaintext)
-encrypted with the CEK. This ciphertext may be detached. If not detached, then
+- Layer 0 (corresponding to the COSE_Encrypt structure) contains the content (plaintext)
+encrypted with the CEK. This ciphertext MAY be detached. If not detached, then
 it is included in the COSE_Encrypt structure.
 
 - Layer 1 (corresponding to a recipient structure) contains parameters needed for 
 HPKE to generate a shared secret used to encrypt the CEK. This layer conveys the 
 encrypted CEK in the encCEK structure. The protected header MUST contain the HPKE 
-algorithm id and the unprotected header MUST contain the encapsulated_key structure
-and the key id (kid) of the static recipient public key.
+alg parameter and the unprotected header MUST contain the encapsulated_key structure
+as well as the kid parameter to identify the static recipient public key the sender
+has been using with HPKE.
 
 This two-layer structure is used to encrypt content that can also be shared with
 multiple parties at the expense of a single additional encryption operation.
 As stated above, the specification uses a CEK to encrypt the content at layer 0.
-For example, the content encrypted at layer 0 is a firmware image.  The
-same ciphertext firmware image is processed by all of the recipients;
+For example, the content encrypted at layer 0 may be a firmware image.  The
+same encrypted firmware image may need to be sent to many recipients;
 however, each recipient uses their own private key to obtain the CEK.
 
-The COSE_recipient structure shown in {{cddl-hpke}} is repeated for each
+The COSE_recipient structure, shown in {{cddl-hpke}}, is repeated for each
 recipient.
 
 ~~~
@@ -261,7 +264,8 @@ therefore be 16 bytes long. In case of COSE_Encrypt0, the plaintext
 The "info" parameter can be used to influence the generation of keys and the
 "aad" parameter provides additional authenticated data to the AEAD algorithm
 in use. This specification does not mandate the use of the info and the aad
-parameters.
+parameters. Application-specific profiles of this specification MAY mandate
+the use of the info and the aad parameters.
 
 If SealBase() is successful, it will output a ciphertext "ct" and an encapsulated
 key "enc".
@@ -272,19 +276,19 @@ which is detailed in {{cddl-cose-kdf}}.
 ## HPKE Decryption with OpenBase
 
 The recipient will use the OpenBase(enc, skR, info, aad, ct) function with the enc and
-ct parameters received from the sender. The "aad" and the "info" parameters are obtained
-via the context of the usage.
+ct parameters received from the sender. The "aad" and the "info" parameters are used 
+as mandated by an application-specific profile of this specification.
 
 The OpenBase function will, if successful, decrypt "ct". When decrypted, the result
 will be either the CEK (if using COSE_Encrypt), or the raw plaintext (if using 
 COSE_Encrypt0). The CEK is the symmetric key used to decrypt the ciphertext in 
-layer 0 of the COSE_Encrypt structure.
+layer 0.
 
 ## Info Structure
 
 This section provides a suggestion for constructing the info structure, when used with
 SealBase() and OpenBase(). Note that the use of the aad and the info structures for these
-two functions is optional. Profiles of this specification may require their use and may
+two functions is optional. Profiles of this specification MAY require their use and may
 define different info structure.
 
 This specification re-uses the context information structure defined in
@@ -315,13 +319,19 @@ this specification the COSE_KDF_Context structure is repeated in {{cddl-cose-kdf
 
 # Examples
 
-## One Layer {#one-layer-example}
+## Single Recipient / One Layer Example {#one-layer-example}
+
+This example assumes that a sender wants to communicate an
+encrypted payload to a single recipient in the most efficient way.
 
 An example of the COSE_Encrypt0 structure using the HPKE scheme is
 shown in {{hpke-example-one}}. Line breaks and comments have been inserted
-for better readability. It uses the following algorithm combination: The
-key encapsulation mechanism DHKEM(P-256, HKDF-SHA256) with AES-128-GCM 
-(as the AEAD) and HKDF-SHA256 as the KDF is used.
+for better readability. 
+
+It uses the following algorithm combination: 
+- KEM: DHKEM(P-256, HKDF-SHA256)
+- KDF: HKDF-SHA256
+- AEAD: AES-128-GCM 
 
 ~~~
 // payload: "This is the content", aad: ""
@@ -347,18 +357,24 @@ key encapsulation mechanism DHKEM(P-256, HKDF-SHA256) with AES-128-GCM
 ~~~
 {: #hpke-example-one title="COSE_Encrypt0 Example for HPKE"}
 
-## Two Layer {#two-layer-example}
+## Multiple Recipients / Two Layer {#two-layer-example}
+
+In this example we assume that a sender wants to transmit a
+payload to two recipients using the two-layer structure.
+Note that it is possible to send two single-layer payloads, 
+although it will be less efficient.
 
 An example of the COSE_Encrypt structure using the HPKE scheme is
 shown in {{hpke-example-two}}. Line breaks and comments have been inserted
-for better readability. It uses the following algorithm
-combination: 
+for better readability. 
+
+It uses the following algorithm combination: 
 
 - At layer 0 AES-128-GCM is used for encryption of the detached plaintext
   "This is the content.".
-- At the recipient structure at layer 1, the key encapsulation mechanism 
-  DHKEM(P-256, HKDF-SHA256) with AES-128-GCM (as the AEAD) and HKDF-SHA256
-  as the KDF is used.
+- At the recipient structure at layer 1, DHKEM(P-256, HKDF-SHA256)
+  (as the KEM), with AES-128-GCM (as the AEAD) and HKDF-SHA256
+  (as the KDF) is used.
 
 The algorithm selection is based on the registry of the values offered
 by the alg parameters (see {{IANA}}).
@@ -389,7 +405,28 @@ by the alg parameters (see {{IANA}}).
             // ciphertext containing encrypted CEK
             h'bb2f1433546c55fb38d6f23f5cd95e1d72eb4
               c129b99a165cd5a28bd75859c10939b7e4d',
-        ]
+        ],
+
+        [
+            h'a10120',  // alg = HPKE-v1-BASE (-1 #TBD)
+            {
+                4: h'313233', // kid
+                -4: [       // encapsulated_key
+                    16,     // kem = DHKEM(P-256, HKDF-SHA256)
+                    1,      // kdf = HKDF-SHA256
+                    1,      // aead = AES-128-GCM
+                    / enc output /
+                       h'6de507c4073d05cceff73e0d35
+                         f60e2373e09a9433be9e95e53c
+                         9fd39f22918505c973816ecbca
+                         6de507c4073d05cceff73e0d35
+                         f60e2373e09a9433be9e95e53c',
+                ],
+            },
+            // ciphertext containing encrypted CEK
+            h'c4169d7d8e81666d8be13bb2f1433546c55fb
+              c129b99a165cd5a28bd75859c10939b7e4d',
+        ]        
     ],
 ])
 ~~~
