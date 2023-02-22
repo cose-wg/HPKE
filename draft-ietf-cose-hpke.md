@@ -30,7 +30,8 @@ normative:
   RFC2119:
   RFC8174:
   RFC9180:
-  RFC8152:
+  RFC9052:
+  RFC9053:
   
 informative:
   RFC8937:
@@ -62,7 +63,7 @@ standardizing a public key encryption scheme is explained in the introduction
 of {{RFC9180}}.
 
 The HPKE specification defines several features for use with public key encryption
-and a subset of those features is applied to COSE {{RFC8152}}. Since COSE provides
+and a subset of those features is applied to COSE ({{RFC9052}}, {{RFC9053}}). Since COSE provides
 constructs for authentication, those are not re-used from the HPKE specification.
 This specification uses the "base" mode, as it is called in HPKE specification
 language.
@@ -113,7 +114,7 @@ two layer structure, respectively.
 In both cases a new structure is used to convey information about the HPKE
 sender, namely the HPKE encapsulated key structure (encapsulated_key).
 
-When the alg value is set to HPKE, the encapsulated key MUST be present in 
+When the alg value is set to 'HPKE-v1-BASE', the encapsulated key MUST be present in 
 the unprotected header parameter and its value MUST be of type encapsulated_key.
   
 The CDDL grammar describing the encapsulated_key structure is:
@@ -292,7 +293,7 @@ two functions is optional. Profiles of this specification MAY require their use 
 define different info structure.
 
 This specification re-uses the context information structure defined in
-{{RFC8152}} as a foundation for the info structure. This payload becomes the content
+{{RFC9053}} as a foundation for the info structure. This payload becomes the content
 of the info parameter for the HPKE functions, when utilized. For better readability of
 this specification the COSE_KDF_Context structure is repeated in {{cddl-cose-kdf}}.
 
@@ -479,15 +480,15 @@ but may not be guaranteed by non-AEAD ciphers.
 
 #  IANA Considerations {#IANA}
 
-This document requests IANA to add new values to the COSE Algorithms registry
-and to the COSE Header Algorithm Parameters registry, defined in {{RFC8152}} 
-(in the Standards Action With Expert Review category).
+This document requests IANA to add new values to the 'COSE Algorithms' and to 
+the 'COSE Header Algorithm Parameters' registries in the 'Standards Action 
+With Expert Review category.
 
 ## COSE Algorithms Registry
 
 -  Name: HPKE-v1-BASE
 -  Value: TBD1 (Assumed: -1)
--  Description: HPKE-v1 in base mode for use with COSE
+-  Description: HPKE in version 1 in base mode for use with COSE
 -  Capabilities: [kty]
 -  Change Controller: IESG
 -  Reference:  [[TBD: This RFC]]
@@ -510,8 +511,8 @@ to the design of embedding the HPKE output into the COSE structure
 following a long and lively mailing list discussion. 
 
 - Daisuke Ajitomi
-- Ilari Liusvaara
 - Richard Barnes
+- Ilari Liusvaara
 
 Finally, we would like to thank Russ Housley for his contributions to
 the draft as a co-author of initial versions.
