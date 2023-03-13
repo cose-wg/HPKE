@@ -161,7 +161,8 @@ The fields have the following meaning:
   aead_id: This parameter contains the AEAD identifier. The registry
            containing the AEAD ids has been established with RFC 9180.
 
-  enc: This parameter contains the output of the HPKE KEM.
+  enc: This parameter contains the encapsulated key, which is output
+       of the HPKE KEM.
 
 ### Single Recipient / One Layer Structure {#one-layer}
 
