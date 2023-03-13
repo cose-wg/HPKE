@@ -354,7 +354,7 @@ is not supplied, it defaults to a zero-length byte string.
 The construction of AAD is defined in Section 5.3 of {{RFC9052}} (see Enc_structure
 structure).
 
-## Info Parameter {{#info}}
+## Info Parameter {#info}
 
 The HPKE specification defines the "info" parameter as a context information
 structure that is used to ensure that the derived keying material is "bound" to
