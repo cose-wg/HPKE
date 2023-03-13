@@ -83,6 +83,7 @@ This specification uses the following abbreviations and terms:
 - Key Encapsulation Mechanism (KEM), see {{RFC9180}}.
 - Key Derivation Function (KDF), see {{RFC9180}}.
 - Authenticated Encryption with Associated Data (AEAD), see {{RFC9180}}.
+- Additional Authenticated Data (AAD), see {{RFC9180}}.
 
 # HPKE for COSE
 
@@ -256,47 +257,115 @@ The COSE_Encrypt MAY be tagged or untagged.
 
 An example is shown in {{two-layer-example}}.
 
+# HPKE Encryption and Decryption
+
 ## HPKE Encryption with SealBase
 
 The SealBase(pkR, info, aad, pt) function is used to encrypt a plaintext pt to
 a recipient's public key (pkR).
 
-IMPORTANT: For use in COSE_Encrypt, the plaintext "pt" passed into the 
+Two cases of plaintext need to be distinguished:
+
+- For use in COSE_Encrypt, the plaintext "pt" passed into  
 SealBase is the CEK. The CEK is a random byte sequence of length 
 appropriate for the encryption algorithm selected in layer 0. For 
 example, AES-128-GCM requires a 16 byte key and the CEK would 
-therefore be 16 bytes long. In case of COSE_Encrypt0, the plaintext 
-"pt" passed into the SealBase is the raw plaintext.
+therefore be 16 bytes long. 
 
-The "info" parameter can be used to influence the generation of keys and the
-"aad" parameter provides additional authenticated data to the AEAD algorithm
-in use. This specification does not mandate the use of the info and the aad
-parameters. Application-specific profiles of this specification MAY mandate
-the use of the info and the aad parameters.
+- In case of COSE_Encrypt0, the plaintext "pt" passed into 
+SealBase is the content to be encrypted. Hence, there is no 
+intermediate layer utilizing a CEK.
+
+The "aad" and the "info" parameters are described in {{aad}} and {{info}}, 
+respectively. 
 
 If SealBase() is successful, it will output a ciphertext "ct" and an encapsulated
 key "enc".
 
-The content of the info parameter is based on the 'COSE_KDF_Context' structure,
-which is detailed in {{cddl-cose-kdf}}.
-
 ## HPKE Decryption with OpenBase
 
-The recipient will use the OpenBase(enc, skR, info, aad, ct) function with the enc and
-ct parameters received from the sender. The "aad" and the "info" parameters are used 
-as mandated by an application-specific profile of this specification.
+The recipient will use the OpenBase(enc, skR, info, aad, ct) function with the "enc" and
+the "ct" parameters received from the sender. The "aad" and the "info" parameters are
+assumed to be constructed from the context and described
+in {{aad}} and {{info}}, respectively. 
 
 The OpenBase function will, if successful, decrypt "ct". When decrypted, the result
-will be either the CEK (if using COSE_Encrypt), or the raw plaintext (if using 
-COSE_Encrypt0). The CEK is the symmetric key used to decrypt the ciphertext in 
+will be either the CEK (when COSE_Encrypt is used), or the content (if 
+COSE_Encrypt0 is used). The CEK is the symmetric key used to decrypt the ciphertext at 
 layer 0.
 
-## Info Structure
+## AAD Parameter {#aad}
+
+HPKE requires an "aad" parameter to be provided to the SealBase and OpenBase functions.
+Note that there are three types of additional authenticated data used by this specification:
+
+- AAD provided to HPKE for COSE_Encrypt0.
+- AAD provided to HPKE for COSE_Encrypt at the recipient layer.
+- AAD provided to the AEAD cipher used for content encryption at layer 0 by COSE_Encrypt.
+
+We describe the three variants in the subsections below.
+
+### AAD provided to HPKE for COSE_Encrypt0
+
+When COSE_Encrypt0 is used then there is no separate AEAD function at the content 
+encryption layer provided by COSE natively and HPKE offers this functionality.
+
+The "aad" parameter of provided to the SealBase and OpenBase functions is constructed
+as follows (again intentionally aligned with COSE by re-using the Enc_structure):
+
+~~~
+Enc_structure = [
+    context : "Encrypt0",
+    protected : empty_or_serialized_map,
+    external_aad : bstr
+]
+~~~
+
+The protected field in the Enc_structure contains the protected attributes 
+from the COSE_Encrypt0 structure at layer 0, encoded in a bstr type.
+
+The external_aad field in the Enc_structure is populated with the API caller
+provided AAD information. If this field is not supplied, it defaults to a 
+zero-length byte string. 
+
+### AAD provided to HPKE for COSE_Encrypt at the Recipient Layer
+
+The AAD used at the recipient layer re-uses Enc_structure 
+from {{RFC9052}} and populates it with the following content:
+
+~~~
+Enc_structure = [
+    context : "Enc_Recipient",
+    protected : empty_or_serialized_map,
+    external_aad : bstr
+]
+~~~
+
+The protected field in the Enc_structure contains the protected attributes 
+from the COSE_recipient structure at layer 1, encoded in a bstr type.
+
+The external_aad field in the Enc_structure is populated with the API caller
+provided AAD information. In the COSE_Encrypt case this AAD information is also
+input to the AAD at layer 0, if an AEAD cipher is used at layer 0. If this field 
+is not supplied, it defaults to a zero-length byte string. 
+
+### AAD provided to the AEAD cipher used for Content Encryption at Layer 0 by COSE_Encrypt
+
+The construction of AAD is defined in Section 5.3 of {{RFC9052}} (see Enc_structure
+structure).
+
+## Info Parameter {{#info}}
+
+The HPKE specification defines the "info" parameter as a context information
+structure that is used to ensure that the derived keying material is "bound" to
+the context of the transaction. 
 
 This section provides a suggestion for constructing the info structure, when used with
-SealBase() and OpenBase(). Note that the use of the aad and the info structures for these
-two functions is optional. Profiles of this specification MAY require their use and may
-define different info structure.
+SealBase() and OpenBase(). HPKE leaves the info parameter for these two functions as
+optional. Application profiles of this specification MAY populate the fields of the 
+COSE_KDF_Context structure or MAY use a different structure as input to the "info"
+parameter. If no content for the "info" parameter is not supplied, it defaults to 
+a zero-length byte string.
 
 This specification re-uses the context information structure defined in
 {{RFC9053}} as a foundation for the info structure. This payload becomes the content
@@ -322,7 +391,7 @@ this specification the COSE_KDF_Context structure is repeated in {{cddl-cose-kdf
        ? SuppPrivInfo : bstr
    ]
 ~~~
-{: #cddl-cose-kdf title="COSE_KDF_Context Data Structure for info parameter"}
+{: #cddl-cose-kdf title="COSE_KDF_Context Data Structure as 'info' Parameter for HPKE"}
 
 # Examples
 
