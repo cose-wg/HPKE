@@ -506,7 +506,7 @@ With Expert Review category.
 -  Label: TBD2 (Assumed: -4)
 -  Value type: sender_info
 -  Value Registry: N/A
--  Description: HPKE Sender Information structure for KEM-like algorithms
+-  Description: HPKE Sender Information structure for the Base mode.
 
 --- back
 
