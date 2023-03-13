@@ -100,7 +100,7 @@ This specification supports two uses of HPKE in COSE, namely
   recipient use case with a two layer structure, the single 
   layer setup is more efficient.
 
-HPKE in "base" mode requires little information to be provided by
+HPKE in Base mode requires little information to be provided by
 the sender, namely
 
 * algorithm information (KEM, KDF, and AEAD identifiers),
