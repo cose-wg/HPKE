@@ -11,7 +11,7 @@ Expires: 14 September 2023                                   Arm Limited
 
 Use of Hybrid Public-Key Encryption (HPKE) with CBOR Object Signing and
                            Encryption (COSE)
-                        draft-ietf-cose-hpke-03
+                        draft-ietf-cose-hpke-04
 
 Abstract
 
