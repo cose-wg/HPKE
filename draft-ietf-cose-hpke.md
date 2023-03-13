@@ -361,9 +361,11 @@ structure that is used to ensure that the derived keying material is "bound" to
 the context of the transaction. 
 
 This section provides a suggestion for constructing the info structure, when used with
-SealBase() and OpenBase(). HPKE defines the info structure for these two functions as
-optional. Profiles of this specification MAY require their use and may
-define different info structure.
+SealBase() and OpenBase(). HPKE leaves the info parameter for these two functions as
+optional. Application profiles of this specification MAY populate the fields of the 
+COSE_KDF_Context structure or MAY use a different structure as input to the "info"
+parameter. If no content for the "info" parameter is not supplied, it defaults to 
+a zero-length byte string.
 
 This specification re-uses the context information structure defined in
 {{RFC9053}} as a foundation for the info structure. This payload becomes the content
