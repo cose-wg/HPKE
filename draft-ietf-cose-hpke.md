@@ -113,15 +113,15 @@ inside the COSE_Encrypt0 and the COSE_Encrypt for the one layer and the
 two layer structure, respectively.
 
 In both cases a new structure is used to convey information about the HPKE
-sender, namely the HPKE sender information structure (sender_info).
+sender, namely the HPKE sender information structure (HPKE_sender_info).
 
-When the alg value is set to 'HPKE-v1-BASE', the sender_info structure MUST
+When the alg value is set to 'HPKE-v1-BASE', the HPKE_sender_info structure MUST
 be present in the unprotected header parameter.
   
-The CDDL grammar describing the sender_info structure is:
+The CDDL grammar describing the HPKE_sender_info structure is:
 
 ~~~
-   sender_info = [
+   HPKE_sender_info = [
        kem_id : uint,         ; kem identifier
        kdf_id : uint,         ; kdf identifier
        aead_id : uint,        ; aead identifier
@@ -150,7 +150,7 @@ The fields have the following meaning:
    |         |                |            | defined by HPKE   |
    +---------+----------------+------------+-------------------+
 ~~~
-{: #table-hpke-sender title="sender_info structure"}
+{: #table-hpke-sender title="HPKE_sender_info structure"}
 
   kem_id: This parameter is used to identify the KEM. The registry
           for KEM ids has been established with RFC 9180.
@@ -179,7 +179,7 @@ of {{RFC9052}} for a description of detached payloads.
 The sender MUST set the alg parameter in the protected header, which
 indicates the use of HPKE. 
 
-The sender MUST place the sender_info structure into the unprotected
+The sender MUST place the HPKE_sender_info structure into the unprotected
 header. Although the use of the kid parameter in COSE_Encrypt0 is
 discouraged by RFC 9052, this specification allows profiles of this
 specification to use the kid parameter (or other parameters) to
@@ -218,7 +218,7 @@ it is included in the COSE_Encrypt structure.
 - Layer 1 (corresponding to a recipient structure) contains parameters needed for 
 HPKE to generate a shared secret used to encrypt the CEK. This layer conveys the 
 encrypted CEK in the encCEK structure. The protected header MUST contain the HPKE 
-alg parameter and the unprotected header MUST contain the sender_info structure.
+alg parameter and the unprotected header MUST contain the HPKE_sender_info structure.
 The unprotected header MAY contain the kid parameter to identify the static recipient
 public key the sender has been using with HPKE.
 
@@ -419,7 +419,7 @@ It uses the following algorithm combination:
     h'a10120',  // alg = HPKE-v1-BASE
     {
         4: h'3031', // kid
-        -4: [       // sender_info
+        -4: [       // HPKE_sender_info
             16,     // kem = DHKEM(P-256, HKDF-SHA256)
             1,      // kdf = HKDF-SHA256
             1,      // aead = AES-128-GCM
@@ -469,7 +469,7 @@ by the alg parameters (see {{IANA}}).
             h'a10120',  // alg = HPKE-v1-BASE (-1 #TBD)
             {
                 4: h'3031', // kid
-                -4: [       // sender_info
+                -4: [       // HPKE_sender_info
                     16,     // kem = DHKEM(P-256, HKDF-SHA256)
                     1,      // kdf = HKDF-SHA256
                     1,      // aead = AES-128-GCM
@@ -490,7 +490,7 @@ by the alg parameters (see {{IANA}}).
             h'a10120',  // alg = HPKE-v1-BASE (-1 #TBD)
             {
                 4: h'313233', // kid
-                -4: [       // sender_info
+                -4: [       // HPKE_sender_info
                     16,     // kem = DHKEM(P-256, HKDF-SHA256)
                     1,      // kdf = HKDF-SHA256
                     1,      // aead = AES-128-GCM
@@ -574,9 +574,9 @@ With Expert Review category.
 
 ## COSE Header Algorithm Parameters
 
--  Name: sender_info
+-  Name: HPKE_sender_info
 -  Label: TBD2 (Assumed: -4)
--  Value type: sender_info
+-  Value type: HPKE_sender_info
 -  Value Registry: N/A
 -  Description: HPKE Sender Information structure for the Base mode.
 
