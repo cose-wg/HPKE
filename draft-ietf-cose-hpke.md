@@ -449,8 +449,8 @@ for better readability.
 
 It uses the following algorithm combination: 
 
-- At layer 0 AES-128-GCM is used for encryption of the detached plaintext
-  "This is the content.".
+- At layer 0 AES-128-GCM is used for encryption of the plaintext
+  "This is the content.". In our example, the ciphertext is detached.
 - At the recipient structure at layer 1, DHKEM(P-256, HKDF-SHA256)
   (as the KEM), with AES-128-GCM (as the AEAD) and HKDF-SHA256
   (as the KDF) is used.
