@@ -76,6 +76,7 @@ document are to be interpreted as described in BCP&nbsp;14 {{RFC2119}} {{RFC8174
 when, and only when, they appear in all capitals, as shown here.
 
 This specification uses the following abbreviations and terms:
+
 - Content-encryption key (CEK), a term defined in CMS {{RFC2630}}.
 - Hybrid Public Key Encryption (HPKE) is defined in {{RFC9180}}.
 - pkR is the public key of the recipient, as defined in {{RFC9180}}.
