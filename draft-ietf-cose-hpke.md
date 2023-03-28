@@ -180,10 +180,13 @@ of {{RFC9052}} for a description of detached payloads.
 The sender MUST set the alg parameter in the protected header, which
 indicates the use of HPKE. 
 
-The sender MUST place the kid parameter and the sender_info structure
-into the unprotected header. The kid identifies the static recipient
-public key used by the sender. The recipient uses the kid to determine
-the appropriate private key.
+The sender MUST place the sender_info structure into the unprotected
+header. Although the use of the kid parameter in COSE_Encrypt0 is
+discouraged by RFC 9052, this specification allows profiles of this
+specification to use the kid parameter (or other parameters) to
+identify the static recipient public key used by the sender. If the
+COSE_Encrypt0 contains the kid then the recipient may use it to
+select the appropriate private key.
 
 {{cddl-hpke-one-layer}} shows the COSE_Encrypt0 CDDL structure.
 
@@ -216,9 +219,9 @@ it is included in the COSE_Encrypt structure.
 - Layer 1 (corresponding to a recipient structure) contains parameters needed for 
 HPKE to generate a shared secret used to encrypt the CEK. This layer conveys the 
 encrypted CEK in the encCEK structure. The protected header MUST contain the HPKE 
-alg parameter and the unprotected header MUST contain the sender_info structure
-as well as the kid parameter to identify the static recipient public key the sender
-has been using with HPKE.
+alg parameter and the unprotected header MUST contain the sender_info structure.
+The unprotected header MAY contain the kid parameter to identify the static recipient
+public key the sender has been using with HPKE.
 
 This two-layer structure is used to encrypt content that can also be shared with
 multiple parties at the expense of a single additional encryption operation.
