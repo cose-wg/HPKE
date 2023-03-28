@@ -314,8 +314,8 @@ We describe the three variants in the subsections below.
 When COSE_Encrypt0 is used then there is no separate AEAD function at the content 
 encryption layer provided by COSE natively and HPKE offers this functionality.
 
-The "aad" parameter of provided to the SealBase and OpenBase functions is constructed
-as follows (again intentionally aligned with COSE by re-using the Enc_structure):
+The "aad" parameter provided to the SealBase and OpenBase functions is constructed
+as follows:
 
 ~~~
 Enc_structure = [
@@ -328,9 +328,9 @@ Enc_structure = [
 The protected field in the Enc_structure contains the protected attributes 
 from the COSE_Encrypt0 structure at layer 0, encoded in a bstr type.
 
-The external_aad field in the Enc_structure is populated with the API caller
-provided AAD information. If this field is not supplied, it defaults to a 
-zero-length byte string. 
+The external_aad field in the Enc_structure contains the Externally Supplied
+Data described in Section 4.3 and Section 5.3 in RFC 9052. If this field is
+not supplied, it defaults to a zero-length byte string. 
 
 ### AAD provided to HPKE for COSE_Encrypt at the Recipient Layer
 
@@ -348,10 +348,11 @@ Enc_structure = [
 The protected field in the Enc_structure contains the protected attributes 
 from the COSE_recipient structure at layer 1, encoded in a bstr type.
 
-The external_aad field in the Enc_structure is populated with the API caller
-provided AAD information. In the COSE_Encrypt case this AAD information is also
-input to the AAD at layer 0, if an AEAD cipher is used at layer 0. If this field 
-is not supplied, it defaults to a zero-length byte string. 
+The external_aad field in the Enc_structure contains the Externally Supplied
+Data described in Section 4.3 and Section 5.3 in RFC 9052. In the COSE_Encrypt
+case this AAD information is also input to the AAD at layer 0, if an AEAD
+cipher is used at layer 0. If this field is not supplied, it defaults to a
+zero-length byte string. 
 
 ### AAD provided to the AEAD cipher used for Content Encryption at Layer 0 by COSE_Encrypt
 
