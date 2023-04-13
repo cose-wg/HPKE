@@ -76,6 +76,7 @@ document are to be interpreted as described in BCP&nbsp;14 {{RFC2119}} {{RFC8174
 when, and only when, they appear in all capitals, as shown here.
 
 This specification uses the following abbreviations and terms:
+
 - Content-encryption key (CEK), a term defined in CMS {{RFC2630}}.
 - Hybrid Public Key Encryption (HPKE) is defined in {{RFC9180}}.
 - pkR is the public key of the recipient, as defined in {{RFC9180}}.
@@ -113,15 +114,15 @@ inside the COSE_Encrypt0 and the COSE_Encrypt for the one layer and the
 two layer structure, respectively.
 
 In both cases a new structure is used to convey information about the HPKE
-sender, namely the HPKE sender information structure (sender_info).
+sender, namely the HPKE sender information structure (HPKE_sender_info).
 
-When the alg value is set to 'HPKE-v1-BASE', the sender_info structure MUST
+When the alg value is set to 'HPKE-v1-BASE', the HPKE_sender_info structure MUST
 be present in the unprotected header parameter.
   
-The CDDL grammar describing the sender_info structure is:
+The CDDL grammar describing the HPKE_sender_info structure is:
 
 ~~~
-   sender_info = [
+   HPKE_sender_info = [
        kem_id : uint,         ; kem identifier
        kdf_id : uint,         ; kdf identifier
        aead_id : uint,        ; aead identifier
@@ -150,7 +151,7 @@ The fields have the following meaning:
    |         |                |            | defined by HPKE   |
    +---------+----------------+------------+-------------------+
 ~~~
-{: #table-hpke-sender title="sender_info structure"}
+{: #table-hpke-sender title="HPKE_sender_info structure"}
 
   kem_id: This parameter is used to identify the KEM. The registry
           for KEM ids has been established with RFC 9180.
@@ -179,10 +180,13 @@ of {{RFC9052}} for a description of detached payloads.
 The sender MUST set the alg parameter in the protected header, which
 indicates the use of HPKE. 
 
-The sender MUST place the kid parameter and the sender_info structure
-into the unprotected header. The kid identifies the static recipient
-public key used by the sender. The recipient uses the kid to determine
-the appropriate private key.
+The sender MUST place the HPKE_sender_info structure into the unprotected
+header. Although the use of the kid parameter in COSE_Encrypt0 is
+discouraged by RFC 9052, this specification allows profiles of this
+specification to use the kid parameter (or other parameters) to
+identify the static recipient public key used by the sender. If the
+COSE_Encrypt0 contains the kid then the recipient may use it to
+select the appropriate private key.
 
 {{cddl-hpke-one-layer}} shows the COSE_Encrypt0 CDDL structure.
 
@@ -215,9 +219,9 @@ it is included in the COSE_Encrypt structure.
 - Layer 1 (corresponding to a recipient structure) contains parameters needed for 
 HPKE to generate a shared secret used to encrypt the CEK. This layer conveys the 
 encrypted CEK in the encCEK structure. The protected header MUST contain the HPKE 
-alg parameter and the unprotected header MUST contain the sender_info structure
-as well as the kid parameter to identify the static recipient public key the sender
-has been using with HPKE.
+alg parameter and the unprotected header MUST contain the HPKE_sender_info structure.
+The unprotected header MAY contain the kid parameter to identify the static recipient
+public key the sender has been using with HPKE.
 
 This two-layer structure is used to encrypt content that can also be shared with
 multiple parties at the expense of a single additional encryption operation.
@@ -310,8 +314,8 @@ We describe the three variants in the subsections below.
 When COSE_Encrypt0 is used then there is no separate AEAD function at the content 
 encryption layer provided by COSE natively and HPKE offers this functionality.
 
-The "aad" parameter of provided to the SealBase and OpenBase functions is constructed
-as follows (again intentionally aligned with COSE by re-using the Enc_structure):
+The "aad" parameter provided to the SealBase and OpenBase functions is constructed
+as follows:
 
 ~~~
 Enc_structure = [
@@ -324,9 +328,9 @@ Enc_structure = [
 The protected field in the Enc_structure contains the protected attributes 
 from the COSE_Encrypt0 structure at layer 0, encoded in a bstr type.
 
-The external_aad field in the Enc_structure is populated with the API caller
-provided AAD information. If this field is not supplied, it defaults to a 
-zero-length byte string. 
+The external_aad field in the Enc_structure contains the Externally Supplied
+Data described in Section 4.3 and Section 5.3 in RFC 9052. If this field is
+not supplied, it defaults to a zero-length byte string. 
 
 ### AAD provided to HPKE for COSE_Encrypt at the Recipient Layer
 
@@ -344,10 +348,11 @@ Enc_structure = [
 The protected field in the Enc_structure contains the protected attributes 
 from the COSE_recipient structure at layer 1, encoded in a bstr type.
 
-The external_aad field in the Enc_structure is populated with the API caller
-provided AAD information. In the COSE_Encrypt case this AAD information is also
-input to the AAD at layer 0, if an AEAD cipher is used at layer 0. If this field 
-is not supplied, it defaults to a zero-length byte string. 
+The external_aad field in the Enc_structure contains the Externally Supplied
+Data described in Section 4.3 and Section 5.3 in RFC 9052. In the COSE_Encrypt
+case this AAD information is also input to the AAD at layer 0, if an AEAD
+cipher is used at layer 0. If this field is not supplied, it defaults to a
+zero-length byte string. 
 
 ### AAD provided to the AEAD cipher used for Content Encryption at Layer 0 by COSE_Encrypt
 
@@ -416,7 +421,7 @@ It uses the following algorithm combination:
     h'a10120',  // alg = HPKE-v1-BASE
     {
         4: h'3031', // kid
-        -4: [       // sender_info
+        -4: [       // HPKE_sender_info
             16,     // kem = DHKEM(P-256, HKDF-SHA256)
             1,      // kdf = HKDF-SHA256
             1,      // aead = AES-128-GCM
@@ -446,8 +451,8 @@ for better readability.
 
 It uses the following algorithm combination: 
 
-- At layer 0 AES-128-GCM is used for encryption of the detached plaintext
-  "This is the content.".
+- At layer 0 AES-128-GCM is used for encryption of the plaintext
+  "This is the content.". In our example, the ciphertext is detached.
 - At the recipient structure at layer 1, DHKEM(P-256, HKDF-SHA256)
   (as the KEM), with AES-128-GCM (as the AEAD) and HKDF-SHA256
   (as the KDF) is used.
@@ -466,7 +471,7 @@ by the alg parameters (see {{IANA}}).
             h'a10120',  // alg = HPKE-v1-BASE (-1 #TBD)
             {
                 4: h'3031', // kid
-                -4: [       // sender_info
+                -4: [       // HPKE_sender_info
                     16,     // kem = DHKEM(P-256, HKDF-SHA256)
                     1,      // kdf = HKDF-SHA256
                     1,      // aead = AES-128-GCM
@@ -487,7 +492,7 @@ by the alg parameters (see {{IANA}}).
             h'a10120',  // alg = HPKE-v1-BASE (-1 #TBD)
             {
                 4: h'313233', // kid
-                -4: [       // sender_info
+                -4: [       // HPKE_sender_info
                     16,     // kem = DHKEM(P-256, HKDF-SHA256)
                     1,      // kdf = HKDF-SHA256
                     1,      // aead = AES-128-GCM
@@ -571,9 +576,9 @@ With Expert Review category.
 
 ## COSE Header Algorithm Parameters
 
--  Name: sender_info
+-  Name: HPKE_sender_info
 -  Label: TBD2 (Assumed: -4)
--  Value type: sender_info
+-  Value type: HPKE_sender_info
 -  Value Registry: N/A
 -  Description: HPKE Sender Information structure for the Base mode.
 
