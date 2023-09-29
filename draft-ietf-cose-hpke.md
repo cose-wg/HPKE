@@ -1,7 +1,7 @@
 ---
 title: Use of Hybrid Public-Key Encryption (HPKE) with CBOR Object Signing and Encryption (COSE)
 abbrev: COSE HPKE
-docname: draft-ietf-cose-hpke-05
+docname: draft-ietf-cose-hpke-06
 category: std
 
 ipr: pre5378Trust200902
@@ -13,18 +13,31 @@ stand_alone: yes
 pi: [toc, sortrefs, symrefs]
 
 author:
- -
-       ins: H. Tschofenig
-       name: Hannes Tschofenig
-       organization: 
-       email: hannes.tschofenig@gmx.net
-
- -
-      ins: B. Moran
-      name: Brendan Moran
-      organization: Arm Limited
-      email: Brendan.Moran@arm.com
-
+-
+  ins: H. Tschofenig
+  name: Hannes Tschofenig
+  organization:
+  email: hannes.tschofenig@gmx.net
+  country: Austria
+-
+  ins: O. Steele
+  name: Orie Steele
+  role: editor
+  organization: Transmute
+  email: orie@transmute.industries
+  country: United States
+-
+  ins: D. Ajitomi
+  name: Daisuke Ajitomi
+  organization:
+  email: dajiaji@gmail.com
+  country: Japan
+-
+  ins: L. Lundblade
+  name: Laurence Lundblade
+  organization: Security Theory LLC
+  email: lgl@securitytheory.com
+  country: United States
 
 normative:
   RFC2119:
@@ -590,14 +603,13 @@ We would like thank the following individuals for their contributions
 to the design of embedding the HPKE output into the COSE structure 
 following a long and lively mailing list discussion. 
 
-- Daisuke Ajitomi
 - Richard Barnes
 - Ilari Liusvaara
 
-Finally, we would like to thank Russ Housley for his contributions to
-the draft as a co-author of initial versions.
+Finally, we would like to thank Russ Housley and Brendan Moran for their
+contributions to the draft as co-authors of initial versions.
 
 # Acknowledgements
 
 We would like to thank John Mattsson, Mike Prorock, Michael Richardson,
-Goeran Selander, Laurence Lundblade and Orie Steele for their review feedback.
+and Goeran Selander for their review feedback.
