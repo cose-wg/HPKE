@@ -365,7 +365,7 @@ mechanism is assumed to exist.
 
 HPKE relies on a source of randomness to be available on the device. Additionally, 
 with the two layer structure the CEK is randomly generated and the it MUST be
-ensured that the guidelines for random number generations are followed. 
+ensured that the guidelines in {{RFC8937}} for random number generations are followed. 
 
 HPKE in Base mode does not offer authentication as part of the HPKE KEM. In this
 case COSE constructs like COSE_Sign, COSE_Sign1, COSE_MAC, or COSE_MAC0 can be

@@ -4,14 +4,18 @@
 
 COSE                                                       H. Tschofenig
 Internet-Draft                                                          
-Intended status: Standards Track                                B. Moran
-Expires: 15 October 2023                                     Arm Limited
-                                                           13 April 2023
+Intended status: Standards Track                          O. Steele, Ed.
+Expires: 2 April 2024                                          Transmute
+                                                              D. Ajitomi
+                                                                        
+                                                            L. Lundblade
+                                                     Security Theory LLC
+                                                       30 September 2023
 
 
 Use of Hybrid Public-Key Encryption (HPKE) with CBOR Object Signing and
                            Encryption (COSE)
-                        draft-ietf-cose-hpke-05
+                        draft-ietf-cose-hpke-06
 
 Abstract
 
@@ -25,8 +29,7 @@ Abstract
    encryption with additional data (AEAD) function.  Authentication for
    HPKE in COSE is provided by COSE-native security mechanisms.
 
-   This document defines the use of the HPKE base mode with COSE.  Other
-   modes are supported by HPKE but not by this specification.
+   This document defines the use of the HPKE with COSE.
 
 Status of This Memo
 
@@ -43,20 +46,22 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 15 October 2023.
+   This Internet-Draft will expire on 2 April 2024.
+
+
+
+
+
+
+Tschofenig, et al.        Expires 2 April 2024                  [Page 1]
+
+Internet-Draft                  COSE HPKE                 September 2023
+
 
 Copyright Notice
 
    Copyright (c) 2023 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
-
-
-
-
-Tschofenig & Moran       Expires 15 October 2023                [Page 1]
-
-Internet-Draft                  COSE HPKE                     April 2023
-
 
    This document is subject to BCP 78 and the IETF Trust's Legal
    Provisions Relating to IETF Documents (https://trustee.ietf.org/
@@ -85,39 +90,29 @@ Table of Contents
    2.  Conventions and Terminology . . . . . . . . . . . . . . . . .   3
    3.  HPKE for COSE . . . . . . . . . . . . . . . . . . . . . . . .   4
      3.1.  Overview  . . . . . . . . . . . . . . . . . . . . . . . .   4
-       3.1.1.  Single Recipient / One Layer Structure  . . . . . . .   5
-       3.1.2.  Multiple Recipients / Two Layer Structure . . . . . .   6
-   4.  HPKE Encryption and Decryption  . . . . . . . . . . . . . . .   7
-     4.1.  HPKE Encryption with SealBase . . . . . . . . . . . . . .   7
-     4.2.  HPKE Decryption with OpenBase . . . . . . . . . . . . . .   8
-     4.3.  AAD Parameter . . . . . . . . . . . . . . . . . . . . . .   8
-       4.3.1.  AAD provided to HPKE for COSE_Encrypt0  . . . . . . .   9
-       4.3.2.  AAD provided to HPKE for COSE_Encrypt at the Recipient
-               Layer . . . . . . . . . . . . . . . . . . . . . . . .   9
-       4.3.3.  AAD provided to the AEAD cipher used for Content
-               Encryption at Layer 0 by COSE_Encrypt . . . . . . . .  10
-     4.4.  Info Parameter  . . . . . . . . . . . . . . . . . . . . .  10
-   5.  Examples  . . . . . . . . . . . . . . . . . . . . . . . . . .  11
-     5.1.  Single Recipient / One Layer Example  . . . . . . . . . .  11
-     5.2.  Multiple Recipients / Two Layer . . . . . . . . . . . . .  11
-   6.  Security Considerations . . . . . . . . . . . . . . . . . . .  13
-   7.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  14
-     7.1.  COSE Algorithms Registry  . . . . . . . . . . . . . . . .  14
-     7.2.  COSE Header Algorithm Parameters  . . . . . . . . . . . .  14
-   8.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  15
-     8.1.  Normative References  . . . . . . . . . . . . . . . . . .  15
+       3.1.1.  Single Recipient / One Layer Structure  . . . . . . .   4
+       3.1.2.  Multiple Recipients / Two Layer Structure . . . . . .   5
+   4.  Examples  . . . . . . . . . . . . . . . . . . . . . . . . . .   6
+     4.1.  Single Recipient / One Layer Example  . . . . . . . . . .   6
+     4.2.  Multiple Recipients / Two Layer . . . . . . . . . . . . .   7
+   5.  Security Considerations . . . . . . . . . . . . . . . . . . .   9
+   6.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  10
+     6.1.  COSE Algorithms Registry  . . . . . . . . . . . . . . . .  10
+     6.2.  COSE Header Parameters  . . . . . . . . . . . . . . . . .  11
+   7.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  11
+     7.1.  Normative References  . . . . . . . . . . . . . . . . . .  11
+     7.2.  Informative References  . . . . . . . . . . . . . . . . .  12
+   Appendix A.  Contributors . . . . . . . . . . . . . . . . . . . .  12
+   Appendix B.  Acknowledgements . . . . . . . . . . . . . . . . . .  12
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  12
 
 
 
-Tschofenig & Moran       Expires 15 October 2023                [Page 2]
+
+Tschofenig, et al.        Expires 2 April 2024                  [Page 2]
 
-Internet-Draft                  COSE HPKE                     April 2023
+Internet-Draft                  COSE HPKE                 September 2023
 
-
-     8.2.  Informative References  . . . . . . . . . . . . . . . . .  15
-   Appendix A.  Contributors . . . . . . . . . . . . . . . . . . . .  15
-   Appendix B.  Acknowledgements . . . . . . . . . . . . . . . . . .  16
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  16
 
 1.  Introduction
 
@@ -165,9 +160,14 @@ Internet-Draft                  COSE HPKE                     April 2023
 
 
 
-Tschofenig & Moran       Expires 15 October 2023                [Page 3]
+
+
+
+
+
+Tschofenig, et al.        Expires 2 April 2024                  [Page 3]
 
-Internet-Draft                  COSE HPKE                     April 2023
+Internet-Draft                  COSE HPKE                 September 2023
 
 
 3.  HPKE for COSE
@@ -176,87 +176,24 @@ Internet-Draft                  COSE HPKE                     April 2023
 
    This specification supports two uses of HPKE in COSE, namely
 
-   *  HPKE in a single recipient setup.  This use cases uses a one layer
-      COSE structure.  Section 3.1.1 provides the details.
+   *  HPKE in a single recipient setup.  This use case utilizes a one
+      layer COSE structure.  Section 3.1.1 provides the details.
 
    *  HPKE in a multiple recipient setup.  This use case requires a two
       layer COSE structure.  Section 3.1.2 provides the details.  While
       it is possible to support the single recipient use case with a two
       layer structure, the single layer setup is more efficient.
 
-   HPKE in Base mode requires little information to be provided by the
-   sender, namely
+   In both cases a new COSE header parameter, called 'encapsulated_key',
+   is used to convey the content of the enc structure defined in the
+   HPKE specification.  "Enc" represents the serialized public key.
 
-   *  algorithm information (KEM, KDF, and AEAD identifiers),
+   When the alg value is set to any of algorithms registered by this
+   specification then the 'encapsulated_key' header parameter MUST be
+   present in the unprotected header parameter.
 
-   *  an encapsulated key generated by the sender, and
-
-   *  an identifier of the static recipient key.
-
-   In the subsections below we explain how this information is carried
-   inside the COSE_Encrypt0 and the COSE_Encrypt for the one layer and
-   the two layer structure, respectively.
-
-   In both cases a new structure is used to convey information about the
-   HPKE sender, namely the HPKE sender information structure
-   (HPKE_sender_info).
-
-   When the alg value is set to 'HPKE-v1-BASE', the HPKE_sender_info
-   structure MUST be present in the unprotected header parameter.
-
-   The CDDL grammar describing the HPKE_sender_info structure is:
-
-      HPKE_sender_info = [
-          kem_id : uint,         ; kem identifier
-          kdf_id : uint,         ; kdf identifier
-          aead_id : uint,        ; aead identifier
-          enc : bstr,            ; encapsulated key
-      ]
-
-   The fields have the following meaning:
-
-
-
-
-
-
-
-Tschofenig & Moran       Expires 15 October 2023                [Page 4]
-
-Internet-Draft                  COSE HPKE                     April 2023
-
-
-      +---------+----------------+------------+-------------------+
-      | Name    | CBOR Type      | Value      | Description       |
-      |         |                | Registry   |                   |
-      +---------+----------------+------------+-------------------+
-      | kem_id  | uint           | HPKE       | Identifier for    |
-      |         |                | KEM IDs    | the KEM           |
-      |         |                | Registry   |                   |
-      |         |                |            |                   |
-      | kdf_id  | uint           | HPKE KDF   | Identifier for    |
-      |         |                | IDs        | the KDF ID        |
-      |         |                |            |                   |
-      | aead_id | uint           | HPKE AEAD  | Identifier for    |
-      |         |                | IDs        | the AEAD ID       |
-      |         |                |            |                   |
-      | enc     | bstr           |            | Encapsulated key  |
-      |         |                |            | defined by HPKE   |
-      +---------+----------------+------------+-------------------+
-
-                    Figure 1: HPKE_sender_info structure
-
-   kem_id: This parameter is used to identify the KEM.  The registry for
-   KEM ids has been established with RFC 9180.
-
-   kdf_id: This parameter contains the KDF identifier.  The registry
-   containing the KDF ids has been established with RFC 9180.
-
-   aead_id: This parameter contains the AEAD identifier.  The registry
-   containing the AEAD ids has been established with RFC 9180.
-
-   enc: This parameter contains the encapsulated key, which is output of
-   the HPKE KEM.
+   The 'encapsulated_key' parameter contains the encapsulated key, which
+   is output of the HPKE KEM, and is a bstr.
 
 3.1.1.  Single Recipient / One Layer Structure
 
@@ -264,7 +201,7 @@ Internet-Draft                  COSE HPKE                     April 2023
    COSE_recipient structure is embedded inside the COSE_Encrypt0.
 
    HPKE is used to directly encrypt the plaintext.  The resulting
-   ciphertext may be included in the COSE_Encrypt0 or may be detached.
+   ciphertext MAY be included in the COSE_Encrypt0 or MAY be detached.
    If a payload is transported separately then it is called "detached
    content".  A nil CBOR object is placed in the location of the
    ciphertext.  See Section 5 of [RFC9052] for a description of detached
@@ -273,16 +210,7 @@ Internet-Draft                  COSE HPKE                     April 2023
    The sender MUST set the alg parameter in the protected header, which
    indicates the use of HPKE.
 
-
-
-
-
-Tschofenig & Moran       Expires 15 October 2023                [Page 5]
-
-Internet-Draft                  COSE HPKE                     April 2023
-
-
-   The sender MUST place the HPKE_sender_info structure into the
+   The sender MUST place the 'encapsulated_key' parameter into the
    unprotected header.  Although the use of the kid parameter in
    COSE_Encrypt0 is discouraged by RFC 9052, this specification allows
    profiles of this specification to use the kid parameter (or other
@@ -290,7 +218,15 @@ Internet-Draft                  COSE HPKE                     April 2023
    sender.  If the COSE_Encrypt0 contains the kid then the recipient may
    use it to select the appropriate private key.
 
-   Figure 2 shows the COSE_Encrypt0 CDDL structure.
+
+
+
+Tschofenig, et al.        Expires 2 April 2024                  [Page 4]
+
+Internet-Draft                  COSE HPKE                 September 2023
+
+
+   Figure 1 shows the COSE_Encrypt0 CDDL structure.
 
    COSE_Encrypt0_Tagged = #6.16(COSE_Encrypt0)
 
@@ -300,11 +236,11 @@ Internet-Draft                  COSE HPKE                     April 2023
        ciphertext : bstr / nil,
    ]
 
-           Figure 2: CDDL for HPKE-based COSE_Encrypt0 Structure
+           Figure 1: CDDL for HPKE-based COSE_Encrypt0 Structure
 
    The COSE_Encrypt0 MAY be tagged or untagged.
 
-   An example is shown in Section 5.1.
+   An example is shown in Section 4.1.
 
 3.1.2.  Multiple Recipients / Two Layer Structure
 
@@ -324,30 +260,27 @@ Internet-Draft                  COSE HPKE                     April 2023
       encrypt the CEK.  This layer conveys the encrypted CEK in the
       encCEK structure.  The protected header MUST contain the HPKE alg
       parameter and the unprotected header MUST contain the
-      HPKE_sender_info structure.  The unprotected header MAY contain
+      'encapsulated_key' parameter.  The unprotected header MAY contain
       the kid parameter to identify the static recipient public key the
       sender has been using with HPKE.
-
-
-
-
-
-
-Tschofenig & Moran       Expires 15 October 2023                [Page 6]
-
-Internet-Draft                  COSE HPKE                     April 2023
-
 
    This two-layer structure is used to encrypt content that can also be
    shared with multiple parties at the expense of a single additional
    encryption operation.  As stated above, the specification uses a CEK
-   to encrypt the content at layer 0.  For example, the content
-   encrypted at layer 0 may be a firmware image.  The same encrypted
-   firmware image may need to be sent to many recipients; however, each
-   recipient uses their own private key to obtain the CEK.
+   to encrypt the content at layer 0.
 
-   The COSE_recipient structure, shown in Figure 3, is repeated for each
+   The COSE_recipient structure, shown in Figure 2, is repeated for each
    recipient.
+
+
+
+
+
+
+Tschofenig, et al.        Expires 2 April 2024                  [Page 5]
+
+Internet-Draft                  COSE HPKE                 September 2023
+
 
    COSE_Encrypt_Tagged = #6.96(COSE_Encrypt)
 
@@ -370,236 +303,67 @@ Internet-Draft                  COSE HPKE                     April 2023
      * label => values,
    }
 
-            Figure 3: CDDL for HPKE-based COSE_Encrypt Structure
+            Figure 2: CDDL for HPKE-based COSE_Encrypt Structure
 
    The COSE_Encrypt MAY be tagged or untagged.
 
-   An example is shown in Section 5.2.
+   An example is shown in Section 4.2.
 
-4.  HPKE Encryption and Decryption
+4.  Examples
 
-4.1.  HPKE Encryption with SealBase
-
-   The SealBase(pkR, info, aad, pt) function is used to encrypt a
-   plaintext pt to a recipient's public key (pkR).
-
-   Two cases of plaintext need to be distinguished:
-
-
-
-
-
-Tschofenig & Moran       Expires 15 October 2023                [Page 7]
-
-Internet-Draft                  COSE HPKE                     April 2023
-
-
-   *  For use in COSE_Encrypt, the plaintext "pt" passed into
-      SealBase is the CEK.  The CEK is a random byte sequence of length
-      appropriate for the encryption algorithm selected in layer 0.  For
-      example, AES-128-GCM requires a 16 byte key and the CEK would
-      therefore be 16 bytes long.
-
-   *  In case of COSE_Encrypt0, the plaintext "pt" passed into SealBase
-      is the content to be encrypted.  Hence, there is no intermediate
-      layer utilizing a CEK.
-
-   The "aad" and the "info" parameters are described in Section 4.3 and
-   Section 4.4, respectively.
-
-   If SealBase() is successful, it will output a ciphertext "ct" and an
-   encapsulated key "enc".
-
-4.2.  HPKE Decryption with OpenBase
-
-   The recipient will use the OpenBase(enc, skR, info, aad, ct) function
-   with the "enc" and the "ct" parameters received from the sender.  The
-   "aad" and the "info" parameters are assumed to be constructed from
-   the context and described in Section 4.3 and Section 4.4,
-   respectively.
-
-   The OpenBase function will, if successful, decrypt "ct".  When
-   decrypted, the result will be either the CEK (when COSE_Encrypt is
-   used), or the content (if COSE_Encrypt0 is used).  The CEK is the
-   symmetric key used to decrypt the ciphertext at layer 0.
-
-4.3.  AAD Parameter
-
-   HPKE requires an "aad" parameter to be provided to the SealBase and
-   OpenBase functions.  Note that there are three types of additional
-   authenticated data used by this specification:
-
-   *  AAD provided to HPKE for COSE_Encrypt0.
-
-   *  AAD provided to HPKE for COSE_Encrypt at the recipient layer.
-
-   *  AAD provided to the AEAD cipher used for content encryption at
-      layer 0 by COSE_Encrypt.
-
-   We describe the three variants in the subsections below.
-
-
-
-
-
-
-
-
-Tschofenig & Moran       Expires 15 October 2023                [Page 8]
-
-Internet-Draft                  COSE HPKE                     April 2023
-
-
-4.3.1.  AAD provided to HPKE for COSE_Encrypt0
-
-   When COSE_Encrypt0 is used then there is no separate AEAD function at
-   the content encryption layer provided by COSE natively and HPKE
-   offers this functionality.
-
-   The "aad" parameter provided to the SealBase and OpenBase functions
-   is constructed as follows:
-
-   Enc_structure = [
-       context : "Encrypt0",
-       protected : empty_or_serialized_map,
-       external_aad : bstr
-   ]
-
-   The protected field in the Enc_structure contains the protected
-   attributes from the COSE_Encrypt0 structure at layer 0, encoded in a
-   bstr type.
-
-   The external_aad field in the Enc_structure contains the Externally
-   Supplied Data described in Section 4.3 and Section 5.3 in RFC 9052.
-   If this field is not supplied, it defaults to a zero-length byte
-   string.
-
-4.3.2.  AAD provided to HPKE for COSE_Encrypt at the Recipient Layer
-
-   The AAD used at the recipient layer re-uses Enc_structure from
-   [RFC9052] and populates it with the following content:
-
-   Enc_structure = [
-       context : "Enc_Recipient",
-       protected : empty_or_serialized_map,
-       external_aad : bstr
-   ]
-
-   The protected field in the Enc_structure contains the protected
-   attributes from the COSE_recipient structure at layer 1, encoded in a
-   bstr type.
-
-   The external_aad field in the Enc_structure contains the Externally
-   Supplied Data described in Section 4.3 and Section 5.3 in RFC 9052.
-   In the COSE_Encrypt case this AAD information is also input to the
-   AAD at layer 0, if an AEAD cipher is used at layer 0.  If this field
-   is not supplied, it defaults to a zero-length byte string.
-
-
-
-
-
-
-
-Tschofenig & Moran       Expires 15 October 2023                [Page 9]
-
-Internet-Draft                  COSE HPKE                     April 2023
-
-
-4.3.3.  AAD provided to the AEAD cipher used for Content Encryption at
-        Layer 0 by COSE_Encrypt
-
-   The construction of AAD is defined in Section 5.3 of [RFC9052] (see
-   Enc_structure structure).
-
-4.4.  Info Parameter
-
-   The HPKE specification defines the "info" parameter as a context
-   information structure that is used to ensure that the derived keying
-   material is "bound" to the context of the transaction.
-
-   This section provides a suggestion for constructing the info
-   structure, when used with SealBase() and OpenBase().  HPKE leaves the
-   info parameter for these two functions as optional.  Application
-   profiles of this specification MAY populate the fields of the
-   COSE_KDF_Context structure or MAY use a different structure as input
-   to the "info" parameter.  If no content for the "info" parameter is
-   not supplied, it defaults to a zero-length byte string.
-
-   This specification re-uses the context information structure defined
-   in [RFC9053] as a foundation for the info structure.  This payload
-   becomes the content of the info parameter for the HPKE functions,
-   when utilized.  For better readability of this specification the
-   COSE_KDF_Context structure is repeated in Figure 4.
-
-      PartyInfo = (
-          identity : bstr / nil,
-          nonce : bstr / int / nil,
-          other : bstr / nil
-      )
-
-      COSE_KDF_Context = [
-          AlgorithmID : int / tstr,
-          PartyUInfo : [ PartyInfo ],
-          PartyVInfo : [ PartyInfo ],
-          SuppPubInfo : [
-              keyDataLength : uint,
-              protected : empty_or_serialized_map,
-              ? other : bstr
-          ],
-          ? SuppPrivInfo : bstr
-      ]
-
-     Figure 4: COSE_KDF_Context Data Structure as 'info' Parameter for
-                                    HPKE
-
-
-
-
-
-Tschofenig & Moran       Expires 15 October 2023               [Page 10]
-
-Internet-Draft                  COSE HPKE                     April 2023
-
-
-5.  Examples
-
-5.1.  Single Recipient / One Layer Example
+4.1.  Single Recipient / One Layer Example
 
    This example assumes that a sender wants to communicate an encrypted
    payload to a single recipient in the most efficient way.
 
    An example of the COSE_Encrypt0 structure using the HPKE scheme is
-   shown in Figure 5.  Line breaks and comments have been inserted for
+   shown in Figure 3.  Line breaks and comments have been inserted for
    better readability.
 
-   It uses the following algorithm combination: - KEM: DHKEM(P-256,
-   HKDF-SHA256) - KDF: HKDF-SHA256 - AEAD: AES-128-GCM
+   This example uses HPKE-v1-Base-P256-SHA256-AES128GCM as the
+   algorithm, which correspond to the following HPKE algorithm
+   combination:
 
-   // payload: "This is the content", aad: ""
-   //
+   *  KEM: DHKEM(P-256, HKDF-SHA256)
+
+   *  KDF: HKDF-SHA256
+
+   *  AEAD: AES-128-GCM
+
+
+
+
+Tschofenig, et al.        Expires 2 April 2024                  [Page 6]
+
+Internet-Draft                  COSE HPKE                 September 2023
+
+
+   *  Mode: Base
+
+   *  payload: "This is the content"
+
+   *  aad: ""
+
    16([
-       h'a10120',  // alg = HPKE-v1-BASE
+       / alg = HPKE-v1-Base-P256-SHA256-AES128GCM /
+       h'a1011823',
        {
-           4: h'3031', // kid
-           -4: [       // HPKE_sender_info
-               16,     // kem = DHKEM(P-256, HKDF-SHA256)
-               1,      // kdf = HKDF-SHA256
-               1,      // aead = AES-128-GCM
-               h'048c6f75e463a773082f3cb0d3a701348a578c67
+           / kid /
+           4: h'3031',
+           / encapsulated_key /
+           36: h'048c6f75e463a773082f3cb0d3a701348a578c67
                  80aba658646682a9af7291dfc277ec93c3d58707
                  818286c1097825457338dc3dcaff367e2951342e
-                 9db30dc0e7',  // enc
-           ],
+                 9db30dc0e7',
        },
        / encrypted plaintext /
        h'ee22206308e478c279b94bb071f3a5fbbac412a6effe34195f7
          c4169d7d8e81666d8be13',
    ])
 
-                  Figure 5: COSE_Encrypt0 Example for HPKE
+                  Figure 3: COSE_Encrypt0 Example for HPKE
 
-5.2.  Multiple Recipients / Two Layer
+4.2.  Multiple Recipients / Two Layer
 
    In this example we assume that a sender wants to transmit a payload
    to two recipients using the two-layer structure.  Note that it is
@@ -607,93 +371,90 @@ Internet-Draft                  COSE HPKE                     April 2023
    efficient.
 
    An example of the COSE_Encrypt structure using the HPKE scheme is
-   shown in Figure 6.  Line breaks and comments have been inserted for
+   shown in Figure 4.  Line breaks and comments have been inserted for
    better readability.
 
+   This example uses AES-128-GCM for encryption of the plaintext "This
+   is the content." with aad="" at layer 0.  The ciphertext is detached.
+
+   At the recipient structure at layer 1, this example uses HPKE-v1-
+   Base-P256-SHA256-AES128GCM as the algorithm, which correspond to the
+   following HPKE algorithm combination:
+
+   *  KEM: DHKEM(P-256, HKDF-SHA256)
+
+   *  KDF: HKDF-SHA256
+
+   *  AEAD: AES-128-GCM
 
 
 
-Tschofenig & Moran       Expires 15 October 2023               [Page 11]
+Tschofenig, et al.        Expires 2 April 2024                  [Page 7]
 
-Internet-Draft                  COSE HPKE                     April 2023
+Internet-Draft                  COSE HPKE                 September 2023
 
 
-   It uses the following algorithm combination:
+   *  Mode: Base
 
-   *  At layer 0 AES-128-GCM is used for encryption of the plaintext
-      "This is the content.".  In our example, the ciphertext is
-      detached.
-
-   *  At the recipient structure at layer 1, DHKEM(P-256, HKDF-SHA256)
-      (as the KEM), with AES-128-GCM (as the AEAD) and HKDF-SHA256 (as
-      the KDF) is used.
-
-   The algorithm selection is based on the registry of the values
-   offered by the alg parameters (see Section 7).
-
-   // plaintext: "This is the content.", aad: ""
    96_0([
-       h'a10101',  // alg = AES-128-GCM (1)
-       {5: h'67303696a1cc2b6a64867096'},  // iv
-       h'',        // detached ciphertext
+       / alg = AES-128-GCM (1) /
+       h'a10101',
+       {
+         / iv /
+         5: h'67303696a1cc2b6a64867096'
+       },
+       / detached ciphertext /
+       h'',
        [
            [
-               h'a10120',  // alg = HPKE-v1-BASE (-1 #TBD)
+               / alg = HPKE-v1-Base-P256-SHA256-AES128GCM /
+               h'a1011823',
                {
-                   4: h'3031', // kid
-                   -4: [       // HPKE_sender_info
-                       16,     // kem = DHKEM(P-256, HKDF-SHA256)
-                       1,      // kdf = HKDF-SHA256
-                       1,      // aead = AES-128-GCM
-                       / enc output /
-                       h'0421ccd1b00dd958d77e10399c
-                            97530fcbb91a1dc71cb3bf41d9
-                            9fd39f22918505c973816ecbca
-                            6de507c4073d05cceff73e0d35
-                            f60e2373e09a9433be9e95e53c',
-                   ],
+                   / kid /
+                   4: h'3031',
+                   / encapsulated_key /
+                   36: h'0421ccd1b00dd958d77e10399c
+                         97530fcbb91a1dc71cb3bf41d9
+                         9fd39f22918505c973816ecbca
+                         6de507c4073d05cceff73e0d35
+                         f60e2373e09a9433be9e95e53c',
                },
-               // ciphertext containing encrypted CEK
+               / ciphertext containing encrypted CEK /
                h'bb2f1433546c55fb38d6f23f5cd95e1d72eb4
                  c129b99a165cd5a28bd75859c10939b7e4d',
            ],
-
            [
-               h'a10120',  // alg = HPKE-v1-BASE (-1 #TBD)
+               / alg = HPKE-v1-Base-P256-SHA256-AES128GCM /
+               h'a1011823',
                {
+                   / kid /
                    4: h'313233', // kid
-                   -4: [       // HPKE_sender_info
-                       16,     // kem = DHKEM(P-256, HKDF-SHA256)
-                       1,      // kdf = HKDF-SHA256
-                       1,      // aead = AES-128-GCM
-
-
-
-Tschofenig & Moran       Expires 15 October 2023               [Page 12]
-
-Internet-Draft                  COSE HPKE                     April 2023
-
-
-                       / enc output /
-                          h'6de507c4073d05cceff73e0d35
-                            f60e2373e09a9433be9e95e53c
-                            9fd39f22918505c973816ecbca
-                            6de507c4073d05cceff73e0d35
-                            f60e2373e09a9433be9e95e53c',
-                   ],
+                   / encapsulated_key /
+                   36: h'6de507c4073d05cceff73e0d35
+                         f60e2373e09a9433be9e95e53c
+                         9fd39f22918505c973816ecbca
+                         6de507c4073d05cceff73e0d35
+                         f60e2373e09a9433be9e95e53c',
                },
-               // ciphertext containing encrypted CEK
+               / ciphertext containing encrypted CEK /
                h'c4169d7d8e81666d8be13bb2f1433546c55fb
                  c129b99a165cd5a28bd75859c10939b7e4d',
            ]
        ],
    ])
 
-                  Figure 6: COSE_Encrypt Example for HPKE
 
-   To offer authentication of the sender the payload in Figure 6 is
-   signed with a COSE_Sign1 wrapper, which is shown in Figure 7.  The
-   payload in Figure 7 corresponds to the content shown in Figure 6.
+
+Tschofenig, et al.        Expires 2 April 2024                  [Page 8]
+
+Internet-Draft                  COSE HPKE                 September 2023
+
+
+                  Figure 4: COSE_Encrypt Example for HPKE
+
+   To offer authentication of the sender the payload in Figure 4 is
+   signed with a COSE_Sign1 wrapper, which is outlined in Figure 5.  The
+   payload in Figure 5 is meant to contain the content of Figure 4.
 
    18(
      [
@@ -708,9 +469,9 @@ Internet-Draft                  COSE HPKE                     April 2023
      ]
    )
 
-                  Figure 7: COSE_Encrypt Example for HPKE
+                  Figure 5: COSE_Encrypt Example for HPKE
 
-6.  Security Considerations
+5.  Security Considerations
 
    This specification is based on HPKE and the security considerations
    of HPKE [RFC9180] are therefore applicable also to this
@@ -720,25 +481,17 @@ Internet-Draft                  COSE HPKE                     April 2023
    recipient and HPKE COSE makes the same assumptions.  Hence, some form
    of public key distribution mechanism is assumed to exist.
 
-
-
-
-
-
-Tschofenig & Moran       Expires 15 October 2023               [Page 13]
-
-Internet-Draft                  COSE HPKE                     April 2023
-
-
    HPKE relies on a source of randomness to be available on the device.
    Additionally, with the two layer structure the CEK is randomly
-   generated and the it MUST be ensured that the guidelines for random
-   number generations are followed.
+   generated and the it MUST be ensured that the guidelines in [RFC8937]
+   for random number generations are followed.
 
-   The COSE_Encrypt structure MUST be authenticated using COSE
-   constructs like COSE_Sign, COSE_Sign1, COSE_MAC, or COSE_MAC0.
+   HPKE in Base mode does not offer authentication as part of the HPKE
+   KEM.  In this case COSE constructs like COSE_Sign, COSE_Sign1,
+   COSE_MAC, or COSE_MAC0 can be used.  HPKE also offers modes that
+   offer authentication.
 
-   When COSE_Encrypt or COSE_Encrypt0 is used with a detached ciphertext
+   If COSE_Encrypt or COSE_Encrypt0 is used with a detached ciphertext
    then the subsequently applied integrity protection via COSE_Sign,
    COSE_Sign1, COSE_MAC, or COSE_MAC0 does not cover this detached
    ciphertext.  Implementers MUST ensure that the detached ciphertext
@@ -746,19 +499,28 @@ Internet-Draft                  COSE HPKE                     April 2023
    case when an AEAD cipher is used to produce the detached ciphertext
    but may not be guaranteed by non-AEAD ciphers.
 
-7.  IANA Considerations
+
+
+Tschofenig, et al.        Expires 2 April 2024                  [Page 9]
+
+Internet-Draft                  COSE HPKE                 September 2023
+
+
+6.  IANA Considerations
 
    This document requests IANA to add new values to the 'COSE
-   Algorithms' and to the 'COSE Header Algorithm Parameters' registries
-   in the 'Standards Action With Expert Review category.
+   Algorithms' and to the 'COSE Header Parameters' registries in the
+   'Standards Action With Expert Review category.
 
-7.1.  COSE Algorithms Registry
+6.1.  COSE Algorithms Registry
 
-   *  Name: HPKE-v1-BASE
+   *  Name: HPKE-v1-Base-P256-SHA256-AES128GCM
 
-   *  Value: TBD1 (Assumed: -1)
+   *  Value: TBD1 (Assumed: 35)
 
-   *  Description: HPKE in version 1 in base mode for use with COSE
+   *  Description: Cipher suite for COSE-HPKE version 1 in Base Mode
+      that uses the DHKEM(P-256, HKDF-SHA256) KEM, the HKDF-SHA256 KDF
+      and the AES-128-GCM AEAD.
 
    *  Capabilities: [kty]
 
@@ -768,34 +530,93 @@ Internet-Draft                  COSE HPKE                     April 2023
 
    *  Recommended: Yes
 
-7.2.  COSE Header Algorithm Parameters
+   *  Name: HPKE-v1-Base-X25519_SHA256_ChaCha20Poly1305
 
-   *  Name: HPKE_sender_info
+   *  Value: TBD2 (Assumed: 36)
 
-   *  Label: TBD2 (Assumed: -4)
+   *  Description: Cipher suite for COSE-HPKE version 1 in Base Mode
+      that uses the DHKEM(X25519, HKDF-SHA256) KEM, the HKDF-SHA256 KDF,
+      and the ChaCha20Poly1305 AEAD.
 
-   *  Value type: HPKE_sender_info
+   *  Capabilities: [kty]
+
+   *  Change Controller: IESG
+
+   *  Reference: [[TBD: This RFC]]
+
+   *  Recommended: Yes
+
+   *  Name: HPKE-v1-Base-P384-SHA384_AES256GCM
+
+   *  Value: TBD3 (Assumed: 37)
+
+   *  Description: Cipher suite for COSE-HPKE version 1 in Base Mode
+      that uses the DHKEM(P-384, HKDF-SHA384) KEM, the HKDF-SHA384 KDF,
+      and the AES-256-GCM AEAD.
+
+
+
+
+Tschofenig, et al.        Expires 2 April 2024                 [Page 10]
+
+Internet-Draft                  COSE HPKE                 September 2023
+
+
+   *  Capabilities: [kty]
+
+   *  Change Controller: IESG
+
+   *  Reference: [[TBD: This RFC]]
+
+   *  Recommended: Yes
+
+   *  Name: HPKE-v1-Base-P521_SHA512_AES256GCM
+
+   *  Value: TBD4 (Assumed: 38)
+
+   *  Description: Cipher suite for COSE-HPKE version 1 in Base Mode
+      that uses the DHKEM(P-521, HKDF-SHA512) KEM, the HKDF-SHA512 KDF,
+      and the AES-256-GCM AEAD.
+
+   *  Capabilities: [kty]
+
+   *  Change Controller: IESG
+
+   *  Reference: [[TBD: This RFC]]
+
+   *  Recommended: Yes
+
+6.2.  COSE Header Parameters
+
+   *  Name: encapsulated_key
+
+   *  Label: TBDX (Assumed: 36)
+
+   *  Value type: bstr
 
    *  Value Registry: N/A
 
+   *  Description: HPKE encapsulated key
 
+   *  Reference: [[This specification]]
 
+7.  References
 
-Tschofenig & Moran       Expires 15 October 2023               [Page 14]
-
-Internet-Draft                  COSE HPKE                     April 2023
-
-
-   *  Description: HPKE Sender Information structure for the Base mode.
-
-8.  References
-
-8.1.  Normative References
+7.1.  Normative References
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
               DOI 10.17487/RFC2119, March 1997,
               <https://www.rfc-editor.org/rfc/rfc2119>.
+
+
+
+
+
+Tschofenig, et al.        Expires 2 April 2024                 [Page 11]
+
+Internet-Draft                  COSE HPKE                 September 2023
+
 
    [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
               2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
@@ -814,7 +635,7 @@ Internet-Draft                  COSE HPKE                     April 2023
               Public Key Encryption", RFC 9180, DOI 10.17487/RFC9180,
               February 2022, <https://www.rfc-editor.org/rfc/rfc9180>.
 
-8.2.  Informative References
+7.2.  Informative References
 
    [RFC2630]  Housley, R., "Cryptographic Message Syntax", RFC 2630,
               DOI 10.17487/RFC2630, June 1999,
@@ -831,37 +652,48 @@ Appendix A.  Contributors
    to the design of embedding the HPKE output into the COSE structure
    following a long and lively mailing list discussion.
 
-   *  Daisuke Ajitomi
-
    *  Richard Barnes
-
-
-
-Tschofenig & Moran       Expires 15 October 2023               [Page 15]
-
-Internet-Draft                  COSE HPKE                     April 2023
-
 
    *  Ilari Liusvaara
 
-   Finally, we would like to thank Russ Housley for his contributions to
-   the draft as a co-author of initial versions.
+   Finally, we would like to thank Russ Housley and Brendan Moran for
+   their contributions to the draft as co-authors of initial versions.
 
 Appendix B.  Acknowledgements
 
    We would like to thank John Mattsson, Mike Prorock, Michael
-   Richardson, Goeran Selander, Laurence Lundblade and Orie Steele for
-   their review feedback.
+   Richardson, and Goeran Selander for their review feedback.
 
 Authors' Addresses
 
+
+
+
+Tschofenig, et al.        Expires 2 April 2024                 [Page 12]
+
+Internet-Draft                  COSE HPKE                 September 2023
+
+
    Hannes Tschofenig
+   Austria
    Email: hannes.tschofenig@gmx.net
 
 
-   Brendan Moran
-   Arm Limited
-   Email: Brendan.Moran@arm.com
+   Orie Steele (editor)
+   Transmute
+   United States
+   Email: orie@transmute.industries
+
+
+   Daisuke Ajitomi
+   Japan
+   Email: dajiaji@gmail.com
+
+
+   Laurence Lundblade
+   Security Theory LLC
+   United States
+   Email: lgl@securitytheory.com
 
 
 
@@ -893,4 +725,4 @@ Authors' Addresses
 
 
 
-Tschofenig & Moran       Expires 15 October 2023               [Page 16]
+Tschofenig, et al.        Expires 2 April 2024                 [Page 13]
