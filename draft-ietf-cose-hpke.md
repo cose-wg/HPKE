@@ -246,7 +246,7 @@ which correspond to the following HPKE algorithm combination:
         / kid /
         4: h'3031',
         / encapsulated_key /
-        36: h'048c6f75e463a773082f3cb0d3a701348a578c67
+        -4: h'048c6f75e463a773082f3cb0d3a701348a578c67
               80aba658646682a9af7291dfc277ec93c3d58707
               818286c1097825457338dc3dcaff367e2951342e
               9db30dc0e7',
@@ -317,7 +317,7 @@ correspond to the following HPKE algorithm combination:
                 / kid /
                 4: h'313233', // kid
                 / encapsulated_key /
-                36: h'6de507c4073d05cceff73e0d35
+                -4: h'6de507c4073d05cceff73e0d35
                       f60e2373e09a9433be9e95e53c
                       9fd39f22918505c973816ecbca
                       6de507c4073d05cceff73e0d35
@@ -421,7 +421,7 @@ With Expert Review category.
 ## COSE Header Parameters
 
 -  Name: encapsulated_key
--  Label: TBDX (Assumed: 36)
+-  Label: TBDX (Assumed: -4)
 -  Value type: bstr
 -  Value Registry: N/A
 -  Description: HPKE encapsulated key

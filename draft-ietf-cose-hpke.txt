@@ -5,12 +5,12 @@
 COSE                                                       H. Tschofenig
 Internet-Draft                                                          
 Intended status: Standards Track                          O. Steele, Ed.
-Expires: 2 April 2024                                          Transmute
+Expires: 4 April 2024                                          Transmute
                                                               D. Ajitomi
                                                                         
                                                             L. Lundblade
                                                      Security Theory LLC
-                                                       30 September 2023
+                                                          2 October 2023
 
 
 Use of Hybrid Public-Key Encryption (HPKE) with CBOR Object Signing and
@@ -46,16 +46,16 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 2 April 2024.
+   This Internet-Draft will expire on 4 April 2024.
 
 
 
 
 
 
-Tschofenig, et al.        Expires 2 April 2024                  [Page 1]
+Tschofenig, et al.        Expires 4 April 2024                  [Page 1]
 
-Internet-Draft                  COSE HPKE                 September 2023
+Internet-Draft                  COSE HPKE                   October 2023
 
 
 Copyright Notice
@@ -109,9 +109,9 @@ Table of Contents
 
 
 
-Tschofenig, et al.        Expires 2 April 2024                  [Page 2]
+Tschofenig, et al.        Expires 4 April 2024                  [Page 2]
 
-Internet-Draft                  COSE HPKE                 September 2023
+Internet-Draft                  COSE HPKE                   October 2023
 
 
 1.  Introduction
@@ -165,9 +165,9 @@ Internet-Draft                  COSE HPKE                 September 2023
 
 
 
-Tschofenig, et al.        Expires 2 April 2024                  [Page 3]
+Tschofenig, et al.        Expires 4 April 2024                  [Page 3]
 
-Internet-Draft                  COSE HPKE                 September 2023
+Internet-Draft                  COSE HPKE                   October 2023
 
 
 3.  HPKE for COSE
@@ -221,9 +221,9 @@ Internet-Draft                  COSE HPKE                 September 2023
 
 
 
-Tschofenig, et al.        Expires 2 April 2024                  [Page 4]
+Tschofenig, et al.        Expires 4 April 2024                  [Page 4]
 
-Internet-Draft                  COSE HPKE                 September 2023
+Internet-Draft                  COSE HPKE                   October 2023
 
 
    Figure 1 shows the COSE_Encrypt0 CDDL structure.
@@ -277,9 +277,9 @@ Internet-Draft                  COSE HPKE                 September 2023
 
 
 
-Tschofenig, et al.        Expires 2 April 2024                  [Page 5]
+Tschofenig, et al.        Expires 4 April 2024                  [Page 5]
 
-Internet-Draft                  COSE HPKE                 September 2023
+Internet-Draft                  COSE HPKE                   October 2023
 
 
    COSE_Encrypt_Tagged = #6.96(COSE_Encrypt)
@@ -333,9 +333,9 @@ Internet-Draft                  COSE HPKE                 September 2023
 
 
 
-Tschofenig, et al.        Expires 2 April 2024                  [Page 6]
+Tschofenig, et al.        Expires 4 April 2024                  [Page 6]
 
-Internet-Draft                  COSE HPKE                 September 2023
+Internet-Draft                  COSE HPKE                   October 2023
 
 
    *  Mode: Base
@@ -351,7 +351,7 @@ Internet-Draft                  COSE HPKE                 September 2023
            / kid /
            4: h'3031',
            / encapsulated_key /
-           36: h'048c6f75e463a773082f3cb0d3a701348a578c67
+           -4: h'048c6f75e463a773082f3cb0d3a701348a578c67
                  80aba658646682a9af7291dfc277ec93c3d58707
                  818286c1097825457338dc3dcaff367e2951342e
                  9db30dc0e7',
@@ -389,9 +389,9 @@ Internet-Draft                  COSE HPKE                 September 2023
 
 
 
-Tschofenig, et al.        Expires 2 April 2024                  [Page 7]
+Tschofenig, et al.        Expires 4 April 2024                  [Page 7]
 
-Internet-Draft                  COSE HPKE                 September 2023
+Internet-Draft                  COSE HPKE                   October 2023
 
 
    *  Mode: Base
@@ -430,7 +430,7 @@ Internet-Draft                  COSE HPKE                 September 2023
                    / kid /
                    4: h'313233', // kid
                    / encapsulated_key /
-                   36: h'6de507c4073d05cceff73e0d35
+                   -4: h'6de507c4073d05cceff73e0d35
                          f60e2373e09a9433be9e95e53c
                          9fd39f22918505c973816ecbca
                          6de507c4073d05cceff73e0d35
@@ -445,9 +445,9 @@ Internet-Draft                  COSE HPKE                 September 2023
 
 
 
-Tschofenig, et al.        Expires 2 April 2024                  [Page 8]
+Tschofenig, et al.        Expires 4 April 2024                  [Page 8]
 
-Internet-Draft                  COSE HPKE                 September 2023
+Internet-Draft                  COSE HPKE                   October 2023
 
 
                   Figure 4: COSE_Encrypt Example for HPKE
@@ -501,9 +501,9 @@ Internet-Draft                  COSE HPKE                 September 2023
 
 
 
-Tschofenig, et al.        Expires 2 April 2024                  [Page 9]
+Tschofenig, et al.        Expires 4 April 2024                  [Page 9]
 
-Internet-Draft                  COSE HPKE                 September 2023
+Internet-Draft                  COSE HPKE                   October 2023
 
 
 6.  IANA Considerations
@@ -557,9 +557,9 @@ Internet-Draft                  COSE HPKE                 September 2023
 
 
 
-Tschofenig, et al.        Expires 2 April 2024                 [Page 10]
+Tschofenig, et al.        Expires 4 April 2024                 [Page 10]
 
-Internet-Draft                  COSE HPKE                 September 2023
+Internet-Draft                  COSE HPKE                   October 2023
 
 
    *  Capabilities: [kty]
@@ -590,7 +590,7 @@ Internet-Draft                  COSE HPKE                 September 2023
 
    *  Name: encapsulated_key
 
-   *  Label: TBDX (Assumed: 36)
+   *  Label: TBDX (Assumed: -4)
 
    *  Value type: bstr
 
@@ -613,9 +613,9 @@ Internet-Draft                  COSE HPKE                 September 2023
 
 
 
-Tschofenig, et al.        Expires 2 April 2024                 [Page 11]
+Tschofenig, et al.        Expires 4 April 2024                 [Page 11]
 
-Internet-Draft                  COSE HPKE                 September 2023
+Internet-Draft                  COSE HPKE                   October 2023
 
 
    [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
@@ -669,9 +669,9 @@ Authors' Addresses
 
 
 
-Tschofenig, et al.        Expires 2 April 2024                 [Page 12]
+Tschofenig, et al.        Expires 4 April 2024                 [Page 12]
 
-Internet-Draft                  COSE HPKE                 September 2023
+Internet-Draft                  COSE HPKE                   October 2023
 
 
    Hannes Tschofenig
@@ -725,4 +725,4 @@ Internet-Draft                  COSE HPKE                 September 2023
 
 
 
-Tschofenig, et al.        Expires 2 April 2024                 [Page 13]
+Tschofenig, et al.        Expires 4 April 2024                 [Page 13]
