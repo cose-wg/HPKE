@@ -53,7 +53,7 @@
       </address>
     </author>
 
-    <date year="2023" month="October" day="02"/>
+    <date year="2023" month="October" day="03"/>
 
     <area>Security</area>
     <workgroup>COSE</workgroup>
@@ -248,6 +248,28 @@ header_map = {
 </section>
 </section>
 </section>
+<section anchor="ciphersuite-registration"><name>Ciphersuite Registration</name>
+
+<t>This specification registers a number of ciphersuites for use with HPKE.
+A ciphersuite is thereby a combination of several algorithm configurations:</t>
+
+<t><list style="symbols">
+  <t>HPKE Mode</t>
+  <t>KEM algorithm</t>
+  <t>KDF algorithm</t>
+  <t>AEAD algorithm</t>
+</list></t>
+
+<t>For better readability of the algorithm combination ciphersuites labels are
+build according to the following scheme:</t>
+
+<figure><artwork><![CDATA[
+HPKE-<Version>-<Mode>-<KEM>-<KDF>-<AEAD>
+]]></artwork></figure>
+
+<t>For a list of ciphersuite registrations, please see <xref target="IANA"/>.</t>
+
+</section>
 <section anchor="examples"><name>Examples</name>
 
 <section anchor="one-layer-example"><name>Single Recipient / One Layer Example</name>
@@ -390,20 +412,20 @@ The payload in <xref target="hpke-example-sign"/> is meant to contain the conten
 </section>
 <section anchor="sec-cons"><name>Security Considerations</name>
 
-<t>This specification is based on HPKE and the security considerations of HPKE
+<t>This specification is based on HPKE and the security considerations of
 <xref target="RFC9180"/> are therefore applicable also to this specification.</t>
 
 <t>HPKE assumes the sender is in possession of the public key of the recipient and
 HPKE COSE makes the same assumptions. Hence, some form of public key distribution
-mechanism is assumed to exist.</t>
+mechanism is assumed to exist but outside the scope of this document.</t>
 
 <t>HPKE relies on a source of randomness to be available on the device. Additionally, 
-with the two layer structure the CEK is randomly generated and the it MUST be
+with the two layer structure the CEK is randomly generated and it MUST be
 ensured that the guidelines in <xref target="RFC8937"/> for random number generations are followed.</t>
 
 <t>HPKE in Base mode does not offer authentication as part of the HPKE KEM. In this
 case COSE constructs like COSE_Sign, COSE_Sign1, COSE_MAC, or COSE_MAC0 can be
-used. HPKE also offers modes that offer authentication.</t>
+used to add authentication. HPKE also offers modes that offer authentication.</t>
 
 <t>If COSE_Encrypt or COSE_Encrypt0 is used with a detached ciphertext then the
 subsequently applied integrity protection via COSE_Sign, COSE_Sign1, COSE_MAC, 
@@ -429,27 +451,83 @@ With Expert Review category.</t>
   <t>Change Controller: IESG</t>
   <t>Reference:  [[TBD: This RFC]]</t>
   <t>Recommended: Yes</t>
-  <t>Name: HPKE-v1-Base-X25519_SHA256_ChaCha20Poly1305</t>
+  <t>Name: HPKE-v1-Base-P256-SHA256-ChaCha20Poly1305</t>
   <t>Value: TBD2 (Assumed: 36)</t>
-  <t>Description: Cipher suite for COSE-HPKE version 1 in Base Mode that uses the DHKEM(X25519, HKDF-SHA256) KEM, the HKDF-SHA256 KDF, and the ChaCha20Poly1305 AEAD.</t>
+  <t>Description: Cipher suite for COSE-HPKE version 1 in Base Mode that uses the DHKEM(P-256, HKDF-SHA256) KEM, the HKDF-SHA256 KDF and the ChaCha20Poly1305 AEAD.</t>
   <t>Capabilities: [kty]</t>
   <t>Change Controller: IESG</t>
   <t>Reference:  [[TBD: This RFC]]</t>
   <t>Recommended: Yes</t>
-  <t>Name: HPKE-v1-Base-P384-SHA384_AES256GCM</t>
+  <t>Name: HPKE-v1-Base-P384-SHA384-AES256GCM</t>
   <t>Value: TBD3 (Assumed: 37)</t>
   <t>Description: Cipher suite for COSE-HPKE version 1 in Base Mode that uses the DHKEM(P-384, HKDF-SHA384) KEM, the HKDF-SHA384 KDF, and the AES-256-GCM AEAD.</t>
   <t>Capabilities: [kty]</t>
   <t>Change Controller: IESG</t>
   <t>Reference:  [[TBD: This RFC]]</t>
   <t>Recommended: Yes</t>
-  <t>Name: HPKE-v1-Base-P521_SHA512_AES256GCM</t>
+  <t>Name: HPKE-v1-Base-P384-SHA384-ChaCha20Poly1305</t>
   <t>Value: TBD4 (Assumed: 38)</t>
+  <t>Description: Cipher suite for COSE-HPKE version 1 in Base Mode that uses the DHKEM(P-384, HKDF-SHA384) KEM, the HKDF-SHA384 KDF, and the ChaCha20Poly1305 AEAD.</t>
+  <t>Capabilities: [kty]</t>
+  <t>Change Controller: IESG</t>
+  <t>Reference:  [[TBD: This RFC]]</t>
+  <t>Recommended: Yes</t>
+  <t>Name: HPKE-v1-Base-P521-SHA512-AES256GCM</t>
+  <t>Value: TBD5 (Assumed: 39)</t>
   <t>Description: Cipher suite for COSE-HPKE version 1 in Base Mode that uses the DHKEM(P-521, HKDF-SHA512) KEM, the HKDF-SHA512 KDF, and the AES-256-GCM AEAD.</t>
   <t>Capabilities: [kty]</t>
   <t>Change Controller: IESG</t>
   <t>Reference:  [[TBD: This RFC]]</t>
   <t>Recommended: Yes</t>
+  <t>Name: HPKE-v1-Base-P521-SHA512-ChaCha20Poly1305</t>
+  <t>Value: TBD6 (Assumed: 40)</t>
+  <t>Description: Cipher suite for COSE-HPKE version 1 in Base Mode that uses the DHKEM(P-521, HKDF-SHA512) KEM, the HKDF-SHA512 KDF, and the ChaCha20Poly1305 AEAD.</t>
+  <t>Capabilities: [kty]</t>
+  <t>Change Controller: IESG</t>
+  <t>Reference:  [[TBD: This RFC]]</t>
+  <t>Recommended: Yes</t>
+  <t>Name: HPKE-v1-Base-X25519-SHA256-AES128GCM</t>
+  <t>Value: TBD7 (Assumed: 41)</t>
+  <t>Description: Cipher suite for COSE-HPKE version 1 in Base Mode that uses the DHKEM(X25519, HKDF-SHA256) KEM, the HKDF-SHA256 KDF, and the AES-128-GCM AEAD.</t>
+  <t>Capabilities: [kty]</t>
+  <t>Change Controller: IESG</t>
+  <t>Reference:  [[TBD: This RFC]]</t>
+  <t>Recommended: Yes</t>
+  <t>Name: HPKE-v1-Base-X25519-SHA256-ChaCha20Poly1305</t>
+  <t>Value: TBD8 (Assumed: 42)</t>
+  <t>Description: Cipher suite for COSE-HPKE version 1 in Base Mode that uses the DHKEM(X25519, HKDF-SHA256) KEM, the HKDF-SHA256 KDF, and the ChaCha20Poly1305 AEAD.</t>
+  <t>Capabilities: [kty]</t>
+  <t>Change Controller: IESG</t>
+  <t>Reference:  [[TBD: This RFC]]</t>
+  <t>Recommended: Yes</t>
+  <t>Name: HPKE-v1-Base-X448-SHA512-AES256GCM</t>
+  <t>Value: TBD9 (Assumed: 43)</t>
+  <t>Description: Cipher suite for COSE-HPKE version 1 in Base Mode that uses the DHKEM(X448, HKDF-SHA512) KEM, the HKDF-SHA512 KDF, and the AES-256-GCM AEAD.</t>
+  <t>Capabilities: [kty]</t>
+  <t>Change Controller: IESG</t>
+  <t>Reference:  [[TBD: This RFC]]</t>
+  <t>Recommended: Yes</t>
+  <t>Name: HPKE-v1-Base-X448-SHA512-ChaCha20Poly1305</t>
+  <t>Value: TBD10 (Assumed: 44)</t>
+  <t>Description: Cipher suite for COSE-HPKE version 1 in Base Mode that uses the DHKEM(X448, HKDF-SHA512) KEM, the HKDF-SHA512 KDF, and the ChaCha20Poly1305 AEAD.</t>
+  <t>Capabilities: [kty]</t>
+  <t>Change Controller: IESG</t>
+  <t>Reference:  [[TBD: This RFC]]</t>
+  <t>Recommended: Yes</t>
+  <t>Name: HPKE-v1-Base-X25519Kyber768-SHA256-AES256GCM</t>
+  <t>Value: TBD11 (Assumed: 250)</t>
+  <t>Description: Cipher suite for COSE-HPKE version 1 in Base Mode that uses the X25519Kyber768Draft00 KEM, the HKDF-SHA256 KDF, and the AES-256-GCM AEAD.</t>
+  <t>Capabilities: [kty]</t>
+  <t>Change Controller: IESG</t>
+  <t>Reference:  [[TBD: This RFC]]</t>
+  <t>Recommended: No</t>
+  <t>Name: HPKE-v1-Base-X25519Kyber768-SHA256-ChaCha20Poly1305</t>
+  <t>Value: TBD12 (Assumed: 251)</t>
+  <t>Description: Cipher suite for COSE-HPKE version 1 in Base Mode that uses the X25519Kyber768Draft00 KEM, the HKDF-SHA256 KDF, and the ChaCha20Poly1305 AEAD.</t>
+  <t>Capabilities: [kty]</t>
+  <t>Change Controller: IESG</t>
+  <t>Reference:  [[TBD: This RFC]]</t>
+  <t>Recommended: No</t>
 </list></t>
 
 </section>
@@ -597,7 +675,7 @@ With Expert Review category.</t>
     </references>
 
 
-<?line 430?>
+<?line 513?>
 
 <section anchor="contributors"><name>Contributors</name>
 
@@ -625,121 +703,129 @@ and Goeran Selander for their review feedback.</t>
   </back>
 
 <!-- ##markdown-source:
-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
+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
+Qns962JHAAA=
 
 -->
 
