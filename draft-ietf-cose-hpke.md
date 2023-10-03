@@ -328,7 +328,7 @@ document and maps them to the values from the HPKE IANA registry.
 ~~~
 +--------------------------------------------------+------------------+
 | COSE-HPKE                                        |      HPKE        |
-| Ciphersuite                                      | KEM | KDF | AEAD |
+| Cipher Suite Label                               | KEM | KDF | AEAD |
 +--------------------------------------------------+-----+-----+------+
 | HPKE-Base-P256-SHA256-AES128GCM                  |0x10 | 0x1 | 0x1  |
 | HPKE-Base-P256-SHA256-ChaCha20Poly1305           |0x10 | 0x1 | 0x3  |
@@ -342,7 +342,7 @@ document and maps them to the values from the HPKE IANA registry.
 | HPKE-Base-X448-SHA512-ChaCha20Poly1305           |0x21 | 0x3 | 0x3  |
 | HPKE-Base-X25519Kyber768-SHA256-AES256GCM        |0x30 | 0x1 | 0x2  |
 | HPKE-Base-X25519Kyber768-SHA256-ChaCha20Poly1305 |0x30 | 0x1 | 0x3  |
-+-----------------------------------------------------+-----+-----+------+
++--------------------------------------------------+-----+-----+------+
 ~~~
 
 As the list indicates, the ciphersuite labels have been abbreviated at least
@@ -357,10 +357,10 @@ encrypted payload to a single recipient in the most efficient way.
 
 An example of the COSE_Encrypt0 structure using the HPKE scheme is
 shown in {{hpke-example-one}}. Line breaks and comments have been inserted
-for better readability. 
+for better readability.
 
-This example uses HPKE-Base-P256-SHA256-AES128GCM as the algorithm,
-which correspond to the following HPKE algorithm combination:
+This example uses HPKE-Base-P256-SHA256-AES128GCM, which corresponds
+to the following HPKE algorithm combination:
 
 - KEM: DHKEM(P-256, HKDF-SHA256)
 - KDF: HKDF-SHA256
@@ -512,8 +512,7 @@ but may not be guaranteed by non-AEAD ciphers.
 #  IANA Considerations {#IANA}
 
 This document requests IANA to add new values to the 'COSE Algorithms' and to 
-the 'COSE Header Parameters' registries in the 'Standards Action 
-With Expert Review category.
+the 'COSE Header Parameters' registries.
 
 ## COSE Algorithms Registry
 
