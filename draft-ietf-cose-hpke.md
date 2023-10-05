@@ -49,6 +49,7 @@ normative:
 informative:
   RFC8937:
   RFC2630:
+  I-D.irtf-cfrg-dnhpke:
   HPKE-IANA:
      author:
         org: IANA
@@ -323,7 +324,7 @@ which authenticates using both a PSK and an asymmetric key.
 
 For a list of ciphersuite registrations, please see {{IANA}}. The following
 table summarizes the relationship between the ciphersuites registered in this
-document and maps them to the values from the HPKE IANA registry.
+document and the values registered in the HPKE IANA registry {{HPKE-IANA}}.
 
 ~~~
 +--------------------------------------------------+------------------+
@@ -342,8 +343,15 @@ document and maps them to the values from the HPKE IANA registry.
 | HPKE-Base-X448-SHA512-ChaCha20Poly1305           |0x21 | 0x3 | 0x3  |
 | HPKE-Base-X25519Kyber768-SHA256-AES256GCM        |0x30 | 0x1 | 0x2  |
 | HPKE-Base-X25519Kyber768-SHA256-ChaCha20Poly1305 |0x30 | 0x1 | 0x3  |
+| HPKE-Base-CP256-SHA256-ChaCha20Poly1305          |0x13 | 0x1 | 0x3  |
+| HPKE-Base-CP256-SHA256-AES128GCM                 |0x13 | 0x1 | 0x1  |
+| HPKE-Base-CP521-SHA512-ChaCha20Poly1305          |0x15 | 0x3 | 0x3  |
+| HPKE-Base-CP521-SHA512-AES256GCM                 |0x15 | 0x3 | 0x2  |
 +--------------------------------------------------+-----+-----+------+
 ~~~
+
+Note that the last four entries in the table refer to the compact encoding
+of the public keys defined in {{I-D.irtf-cfrg-dnhpke}}.
 
 As the list indicates, the ciphersuite labels have been abbreviated at least
 to some extend to maintain the tradeoff between readability and length.
@@ -371,7 +379,7 @@ to the following HPKE algorithm combination:
 
 ~~~
 16([
-    / alg = HPKE-Base-P256-SHA256-AES128GCM /
+    / alg = TBD1 (Assumed: 35) /
     h'a1011823',
     {
         / kid /
@@ -425,7 +433,7 @@ correspond to the following HPKE algorithm combination:
     h'',
     [
         [
-            / alg = HPKE-Base-P256-SHA256-AES128GCM /
+            / alg = TBD1 (Assumed: 35) /
             h'a1011823',
             {
                 / kid /
@@ -442,7 +450,7 @@ correspond to the following HPKE algorithm combination:
               c129b99a165cd5a28bd75859c10939b7e4d',
         ],
         [
-            / alg = HPKE-Base-P256-SHA256-AES128GCM /
+            / alg = TBD1 (Assumed: 35) /
             h'a1011823',
             {
                 / kid /
@@ -612,6 +620,39 @@ the 'COSE Header Parameters' registries.
 -  Reference:  [[TBD: This RFC]]
 -  Recommended: No
 
+-  Name: HPKE-Base-CP256-SHA256-ChaCha20Poly1305
+-  Value: TBD13 (Assumed: 45)
+-  Description: Cipher suite for COSE-HPKE in Base Mode that uses the DHKEM(CP-256, HKDF-SHA256) KEM, the HKDF-SHA256 KDF and the ChaCha20Poly1305 AEAD.
+-  Capabilities: [kty]
+-  Change Controller: IESG
+-  Reference:  [[TBD: This RFC]]
+-  Recommended: Yes
+
+-  Name: HPKE-Base-CP521-SHA512-ChaCha20Poly1305
+-  Value: TBD14 (Assumed: 46)
+-  Description: Cipher suite for COSE-HPKE in Base Mode that uses the DHKEM(CP-521, HKDF-SHA512) KEM, the HKDF-SHA512 KDF, and the ChaCha20Poly1305 AEAD.
+-  Capabilities: [kty]
+-  Change Controller: IESG
+-  Reference:  [[TBD: This RFC]]
+-  Recommended: Yes
+
+
+-  Name: HPKE-Base-CP256-SHA256-AES128GCM
+-  Value: TBD15 (Assumed: 47)
+-  Description: Cipher suite for COSE-HPKE in Base Mode that uses the DHKEM(CP-256, HKDF-SHA256) KEM, the HKDF-SHA256 KDF and the AES128GCM AEAD.
+-  Capabilities: [kty]
+-  Change Controller: IESG
+-  Reference:  [[TBD: This RFC]]
+-  Recommended: Yes
+
+-  Name: HPKE-Base-CP521-SHA512-AES256GCM
+-  Value: TBD16 (Assumed: 47)
+-  Description: Cipher suite for COSE-HPKE in Base Mode that uses the DHKEM(CP-521, HKDF-SHA512) KEM, the HKDF-SHA512 KDF, and the AES256GCM AEAD.
+-  Capabilities: [kty]
+-  Change Controller: IESG
+-  Reference:  [[TBD: This RFC]]
+-  Recommended: Yes
+
 ## COSE Header Parameters
 
 -  Name: encapsulated_key
@@ -627,7 +668,7 @@ the 'COSE Header Parameters' registries.
 
 We would like thank the following individuals for their contributions
 to the design of embedding the HPKE output into the COSE structure 
-following a long and lively mailing list discussion. 
+following a long and lively mailing list discussion:
 
 - Richard Barnes
 - Ilari Liusvaara
