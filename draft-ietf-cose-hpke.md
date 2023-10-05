@@ -161,7 +161,7 @@ COSE_Encrypt0 is used then there is no AEAD function executed by COSE
 natively and HPKE offers this functionality.
 
 The "aad" parameter provided to the HPKE API is constructed
-as follows (and the design has been re-used from the COSE spec):
+as follows (and the design has been re-used from {{RFC9052}}):
 
 ~~~
 Enc_structure = [
@@ -169,6 +169,8 @@ Enc_structure = [
     protected : empty_or_serialized_map,
     external_aad : bstr
 ]
+
+empty_or_serialized_map = bstr .cbor header_map / bstr .size 0
 ~~~
 
 The protected field in the Enc_structure contains the protected attributes 
