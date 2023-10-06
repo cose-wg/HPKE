@@ -49,6 +49,13 @@ normative:
 informative:
   RFC8937:
   RFC2630:
+  I-D.irtf-cfrg-dnhpke:
+  HPKE-IANA:
+     author:
+        org: IANA
+     title: Hybrid Public Key Encryption (HPKE) IANA Registry
+     target: https://www.iana.org/assignments/hpke/hpke.xhtml
+     date: October 2023
   
 --- abstract
 
@@ -59,7 +66,8 @@ public-key encryption of arbitrary-sized plaintexts for a recipient public key.
 HPKE works for any combination of an asymmetric key encapsulation mechanism (KEM),
 key derivation function (KDF), and authenticated encryption with
 additional data (AEAD) function. Authentication for HPKE in COSE is
-provided by COSE-native security mechanisms.
+provided by COSE-native security mechanisms or by one of the authenticated
+variants of HPKE.
 
 This document defines the use of the HPKE with COSE.
 
@@ -74,11 +82,15 @@ Diffie-Hellman exchange to establish a shared secret. The motivation for
 standardizing a public key encryption scheme is explained in the introduction
 of {{RFC9180}}.
 
-The HPKE specification defines several features for use with public key encryption
-and a subset of those features is applied to COSE ({{RFC9052}}, {{RFC9053}}). Since COSE provides
-constructs for authentication, those are not re-used from the HPKE specification.
-This specification uses the "base" mode, as it is called in HPKE specification
-language.
+The HPKE specification provides a variant of public key encryption of
+arbitrary-sized plaintexts for a recipient public key. It also
+includes three authenticated variants, including one that authenticates
+possession of a pre-shared key, one that authenticates possession of
+a key encapsulation mechanism (KEM) private key, and one that
+authenticates possession of both a pre-shared key and a KEM private key.
+
+This specification utilizes HPKE as a foundational building block and
+carries the output to COSE ({{RFC9052}}, {{RFC9053}}).
 
 # Conventions and Terminology
 
@@ -118,34 +130,58 @@ In both cases a new COSE header parameter, called 'encapsulated_key',
 is used to convey the content of the enc structure defined in the HPKE
 specification. "Enc" represents the serialized public key.
 
-When the alg value is set to any of algorithms registered by this
-specification then the 'encapsulated_key' header parameter MUST
-be present in the unprotected header parameter.
-
-The 'encapsulated_key' parameter contains the encapsulated key, which is
-output of the HPKE KEM, and is a bstr.
+For use with HPKE the 'encapsulated_key' header parameter MUST
+be present in the unprotected header parameter and MUST contain
+the encapsulated key, which is output of the HPKE KEM, and it
+is a bstr.
 
 ### Single Recipient / One Layer Structure {#one-layer}
 
 With the one layer structure the information carried inside the 
 COSE_recipient structure is embedded inside the COSE_Encrypt0. 
 
-HPKE is used to directly encrypt the plaintext. The resulting ciphertext
-MAY be included in the COSE_Encrypt0 or MAY be detached. If a payload is
+HPKE is used to directly encrypt the plaintext and the resulting ciphertext
+is either included in the COSE_Encrypt0 or is detached. If a payload is
 transported separately then it is called "detached content". A nil CBOR
 object is placed in the location of the ciphertext. See Section 5
 of {{RFC9052}} for a description of detached payloads.
 
 The sender MUST set the alg parameter in the protected header, which
-indicates the use of HPKE. 
+indicates the use of HPKE.
 
 The sender MUST place the 'encapsulated_key' parameter into the unprotected
-header. Although the use of the kid parameter in COSE_Encrypt0 is
-discouraged by RFC 9052, this specification allows profiles of this
-specification to use the kid parameter (or other parameters) to
-identify the static recipient public key used by the sender. If the
-COSE_Encrypt0 contains the kid then the recipient may use it to
-select the appropriate private key.
+header. Although the use of the 'kid' parameter in COSE_Encrypt0 is
+discouraged by RFC 9052, this profile allows the use of the 'kid' parameter
+(or other parameters) to identify the static recipient public key used by
+the sender. If the COSE_Encrypt0 contains the 'kid' then the recipient may
+use it to select the appropriate private key.
+
+HPKE defines an API and this API uses an "aad" parameter as input. When
+COSE_Encrypt0 is used then there is no AEAD function executed by COSE
+natively and HPKE offers this functionality.
+
+The "aad" parameter provided to the HPKE API is constructed
+as follows (and the design has been re-used from {{RFC9052}}):
+
+~~~
+Enc_structure = [
+    context : "Encrypt0",
+    protected : empty_or_serialized_map,
+    external_aad : bstr
+]
+
+empty_or_serialized_map = bstr .cbor header_map / bstr .size 0
+~~~
+
+The protected field in the Enc_structure contains the protected attributes 
+from the COSE_Encrypt0 structure at layer 0, encoded in a bstr type.
+
+The external_aad field in the Enc_structure contains the Externally Supplied
+Data described in Section 4.3 and Section 5.3 in RFC 9052. If this field is
+not supplied, it defaults to a zero-length byte string.
+
+The HPKE APIs also use an "info" parameter as input and the details are
+provided in {{info}}.
 
 {{cddl-hpke-one-layer}} shows the COSE_Encrypt0 CDDL structure.
 
@@ -217,6 +253,44 @@ The COSE_Encrypt MAY be tagged or untagged.
 
 An example is shown in {{two-layer-example}}.
 
+## Info Parameter {#info}
+
+The HPKE specification defines the "info" parameter as a context information
+structure that is used to ensure that the derived keying material is bound to
+the context of the transaction. 
+
+This section provides a suggestion for constructing the info structure. HPKE leaves
+the info parameter for these two functions as optional. Application profiles of this
+specification MAY populate the fields of the COSE_KDF_Context structure or MAY use
+a different structure as input to the "info" parameter. If no content for the
+"info" parameter is not supplied, it defaults to a zero-length byte string.
+
+This specification re-uses the context information structure defined in
+{{RFC9053}} as a foundation for the info structure. This payload becomes the content
+of the info parameter for the HPKE functions, when utilized. For better readability of
+this specification the COSE_KDF_Context structure is repeated in {{cddl-cose-kdf}}.
+
+~~~
+   PartyInfo = (
+       identity : bstr / nil,
+       nonce : bstr / int / nil,
+       other : bstr / nil
+   )
+
+   COSE_KDF_Context = [
+       AlgorithmID : int / tstr,
+       PartyUInfo : [ PartyInfo ],
+       PartyVInfo : [ PartyInfo ],
+       SuppPubInfo : [
+           keyDataLength : uint,
+           protected : empty_or_serialized_map,
+           ? other : bstr
+       ],
+       ? SuppPrivInfo : bstr
+   ]
+~~~
+{: #cddl-cose-kdf title="COSE_KDF_Context Data Structure as 'info' Parameter for HPKE"}
+
 # Ciphersuite Registration
 
 This specification registers a number of ciphersuites for use with HPKE.
@@ -227,6 +301,10 @@ A ciphersuite is thereby a combination of several algorithm configurations:
 - KDF algorithm
 - AEAD algorithm
 
+The "KEM", "KDF", and "AEAD" values are conceptually taken from the HPKE IANA
+registry {{HPKE-IANA}}. Hence, COSE-HPKE cannot use a algorithm combination
+that is not already available with HPKE.
+
 For better readability of the algorithm combination ciphersuites labels are
 build according to the following scheme: 
 
@@ -234,7 +312,51 @@ build according to the following scheme:
 HPKE-<Version>-<Mode>-<KEM>-<KDF>-<AEAD>
 ~~~
 
-For a list of ciphersuite registrations, please see {{IANA}}.
+The "Mode" indicator may be populated with the following values from
+Table 1 of {{RFC9180}}:
+
+- "Base" refers to "mode_base" described in Section 5.1.1 of {{RFC9180}},
+which only enables encryption to the holder of a given KEM private key.
+- "PSK" refers to "mode_psk", described in Section 5.1.2 of {{RFC9180}},
+which authenticates using a pre-shared key.
+- "Auth" refers to "mode_auth", described in Section 5.1.3 of {{RFC9180}},
+which authenticates using an asymmetric key.
+- "Auth_Psk" refers to "mode_auth_psk", described in Section 5.1.4 of {{RFC9180}},
+which authenticates using both a PSK and an asymmetric key.
+
+For a list of ciphersuite registrations, please see {{IANA}}. The following
+table summarizes the relationship between the ciphersuites registered in this
+document and the values registered in the HPKE IANA registry {{HPKE-IANA}}.
+
+~~~
++--------------------------------------------------+------------------+
+| COSE-HPKE                                        |      HPKE        |
+| Cipher Suite Label                               | KEM | KDF | AEAD |
++--------------------------------------------------+-----+-----+------+
+| HPKE-Base-P256-SHA256-AES128GCM                  |0x10 | 0x1 | 0x1  |
+| HPKE-Base-P256-SHA256-ChaCha20Poly1305           |0x10 | 0x1 | 0x3  |
+| HPKE-Base-P384-SHA384-AES256GCM                  |0x11 | 0x2 | 0x2  |
+| HPKE-Base-P384-SHA384-ChaCha20Poly1305           |0x11 | 0x2 | 0x3  |
+| HPKE-Base-P521-SHA512-AES256GCM                  |0x12 | 0x3 | 0x2  |
+| HPKE-Base-P521-SHA512-ChaCha20Poly1305           |0x12 | 0x3 | 0x3  |
+| HPKE-Base-X25519-SHA256-AES128GCM                |0x20 | 0x1 | 0x1  |
+| HPKE-Base-X25519-SHA256-ChaCha20Poly1305         |0x20 | 0x1 | 0x3  |
+| HPKE-Base-X448-SHA512-AES256GCM                  |0x21 | 0x3 | 0x2  |
+| HPKE-Base-X448-SHA512-ChaCha20Poly1305           |0x21 | 0x3 | 0x3  |
+| HPKE-Base-X25519Kyber768-SHA256-AES256GCM        |0x30 | 0x1 | 0x2  |
+| HPKE-Base-X25519Kyber768-SHA256-ChaCha20Poly1305 |0x30 | 0x1 | 0x3  |
+| HPKE-Base-CP256-SHA256-ChaCha20Poly1305          |0x13 | 0x1 | 0x3  |
+| HPKE-Base-CP256-SHA256-AES128GCM                 |0x13 | 0x1 | 0x1  |
+| HPKE-Base-CP521-SHA512-ChaCha20Poly1305          |0x15 | 0x3 | 0x3  |
+| HPKE-Base-CP521-SHA512-AES256GCM                 |0x15 | 0x3 | 0x2  |
++--------------------------------------------------+-----+-----+------+
+~~~
+
+Note that the last four entries in the table refer to the compact encoding
+of the public keys defined in {{I-D.irtf-cfrg-dnhpke}}.
+
+As the list indicates, the ciphersuite labels have been abbreviated at least
+to some extend to maintain the tradeoff between readability and length.
 
 # Examples
 
@@ -245,10 +367,10 @@ encrypted payload to a single recipient in the most efficient way.
 
 An example of the COSE_Encrypt0 structure using the HPKE scheme is
 shown in {{hpke-example-one}}. Line breaks and comments have been inserted
-for better readability. 
+for better readability.
 
-This example uses HPKE-v1-Base-P256-SHA256-AES128GCM as the algorithm,
-which correspond to the following HPKE algorithm combination:
+This example uses HPKE-Base-P256-SHA256-AES128GCM, which corresponds
+to the following HPKE algorithm combination:
 
 - KEM: DHKEM(P-256, HKDF-SHA256)
 - KDF: HKDF-SHA256
@@ -259,7 +381,7 @@ which correspond to the following HPKE algorithm combination:
 
 ~~~
 16([
-    / alg = HPKE-v1-Base-P256-SHA256-AES128GCM /
+    / alg = TBD1 (Assumed: 35) /
     h'a1011823',
     {
         / kid /
@@ -293,7 +415,7 @@ This example uses AES-128-GCM for encryption of the plaintext
 detached.
 
 At the recipient structure at layer 1, this example uses
-HPKE-v1-Base-P256-SHA256-AES128GCM as the algorithm, which
+HPKE-Base-P256-SHA256-AES128GCM as the algorithm, which
 correspond to the following HPKE algorithm combination:
 
 - KEM: DHKEM(P-256, HKDF-SHA256)
@@ -313,7 +435,7 @@ correspond to the following HPKE algorithm combination:
     h'',
     [
         [
-            / alg = HPKE-v1-Base-P256-SHA256-AES128GCM /
+            / alg = TBD1 (Assumed: 35) /
             h'a1011823',
             {
                 / kid /
@@ -330,7 +452,7 @@ correspond to the following HPKE algorithm combination:
               c129b99a165cd5a28bd75859c10939b7e4d',
         ],
         [
-            / alg = HPKE-v1-Base-P256-SHA256-AES128GCM /
+            / alg = TBD1 (Assumed: 35) /
             h'a1011823',
             {
                 / kid /
@@ -400,106 +522,138 @@ but may not be guaranteed by non-AEAD ciphers.
 #  IANA Considerations {#IANA}
 
 This document requests IANA to add new values to the 'COSE Algorithms' and to 
-the 'COSE Header Parameters' registries in the 'Standards Action 
-With Expert Review category.
+the 'COSE Header Parameters' registries.
 
 ## COSE Algorithms Registry
 
--  Name: HPKE-v1-Base-P256-SHA256-AES128GCM
+-  Name: HPKE-Base-P256-SHA256-AES128GCM
 -  Value: TBD1 (Assumed: 35)
--  Description: Cipher suite for COSE-HPKE version 1 in Base Mode that uses the DHKEM(P-256, HKDF-SHA256) KEM, the HKDF-SHA256 KDF and the AES-128-GCM AEAD.
+-  Description: Cipher suite for COSE-HPKE in Base Mode that uses the DHKEM(P-256, HKDF-SHA256) KEM, the HKDF-SHA256 KDF and the AES-128-GCM AEAD.
 -  Capabilities: [kty]
 -  Change Controller: IESG
 -  Reference:  [[TBD: This RFC]]
 -  Recommended: Yes
 
--  Name: HPKE-v1-Base-P256-SHA256-ChaCha20Poly1305
+-  Name: HPKE-Base-P256-SHA256-ChaCha20Poly1305
 -  Value: TBD2 (Assumed: 36)
--  Description: Cipher suite for COSE-HPKE version 1 in Base Mode that uses the DHKEM(P-256, HKDF-SHA256) KEM, the HKDF-SHA256 KDF and the ChaCha20Poly1305 AEAD.
+-  Description: Cipher suite for COSE-HPKE in Base Mode that uses the DHKEM(P-256, HKDF-SHA256) KEM, the HKDF-SHA256 KDF and the ChaCha20Poly1305 AEAD.
 -  Capabilities: [kty]
 -  Change Controller: IESG
 -  Reference:  [[TBD: This RFC]]
 -  Recommended: Yes
 
--  Name: HPKE-v1-Base-P384-SHA384-AES256GCM
+-  Name: HPKE-Base-P384-SHA384-AES256GCM
 -  Value: TBD3 (Assumed: 37)
--  Description: Cipher suite for COSE-HPKE version 1 in Base Mode that uses the DHKEM(P-384, HKDF-SHA384) KEM, the HKDF-SHA384 KDF, and the AES-256-GCM AEAD.
+-  Description: Cipher suite for COSE-HPKE in Base Mode that uses the DHKEM(P-384, HKDF-SHA384) KEM, the HKDF-SHA384 KDF, and the AES-256-GCM AEAD.
 -  Capabilities: [kty]
 -  Change Controller: IESG
 -  Reference:  [[TBD: This RFC]]
 -  Recommended: Yes
 
--  Name: HPKE-v1-Base-P384-SHA384-ChaCha20Poly1305
+-  Name: HPKE-Base-P384-SHA384-ChaCha20Poly1305
 -  Value: TBD4 (Assumed: 38)
--  Description: Cipher suite for COSE-HPKE version 1 in Base Mode that uses the DHKEM(P-384, HKDF-SHA384) KEM, the HKDF-SHA384 KDF, and the ChaCha20Poly1305 AEAD.
+-  Description: Cipher suite for COSE-HPKE in Base Mode that uses the DHKEM(P-384, HKDF-SHA384) KEM, the HKDF-SHA384 KDF, and the ChaCha20Poly1305 AEAD.
 -  Capabilities: [kty]
 -  Change Controller: IESG
 -  Reference:  [[TBD: This RFC]]
 -  Recommended: Yes
 
--  Name: HPKE-v1-Base-P521-SHA512-AES256GCM
+-  Name: HPKE-Base-P521-SHA512-AES256GCM
 -  Value: TBD5 (Assumed: 39)
--  Description: Cipher suite for COSE-HPKE version 1 in Base Mode that uses the DHKEM(P-521, HKDF-SHA512) KEM, the HKDF-SHA512 KDF, and the AES-256-GCM AEAD.
+-  Description: Cipher suite for COSE-HPKE in Base Mode that uses the DHKEM(P-521, HKDF-SHA512) KEM, the HKDF-SHA512 KDF, and the AES-256-GCM AEAD.
 -  Capabilities: [kty]
 -  Change Controller: IESG
 -  Reference:  [[TBD: This RFC]]
 -  Recommended: Yes
 
--  Name: HPKE-v1-Base-P521-SHA512-ChaCha20Poly1305
+-  Name: HPKE-Base-P521-SHA512-ChaCha20Poly1305
 -  Value: TBD6 (Assumed: 40)
--  Description: Cipher suite for COSE-HPKE version 1 in Base Mode that uses the DHKEM(P-521, HKDF-SHA512) KEM, the HKDF-SHA512 KDF, and the ChaCha20Poly1305 AEAD.
+-  Description: Cipher suite for COSE-HPKE in Base Mode that uses the DHKEM(P-521, HKDF-SHA512) KEM, the HKDF-SHA512 KDF, and the ChaCha20Poly1305 AEAD.
 -  Capabilities: [kty]
 -  Change Controller: IESG
 -  Reference:  [[TBD: This RFC]]
 -  Recommended: Yes
 
--  Name: HPKE-v1-Base-X25519-SHA256-AES128GCM
+-  Name: HPKE-Base-X25519-SHA256-AES128GCM
 -  Value: TBD7 (Assumed: 41)
--  Description: Cipher suite for COSE-HPKE version 1 in Base Mode that uses the DHKEM(X25519, HKDF-SHA256) KEM, the HKDF-SHA256 KDF, and the AES-128-GCM AEAD.
+-  Description: Cipher suite for COSE-HPKE in Base Mode that uses the DHKEM(X25519, HKDF-SHA256) KEM, the HKDF-SHA256 KDF, and the AES-128-GCM AEAD.
 -  Capabilities: [kty]
 -  Change Controller: IESG
 -  Reference:  [[TBD: This RFC]]
 -  Recommended: Yes
 
--  Name: HPKE-v1-Base-X25519-SHA256-ChaCha20Poly1305
+-  Name: HPKE-Base-X25519-SHA256-ChaCha20Poly1305
 -  Value: TBD8 (Assumed: 42)
--  Description: Cipher suite for COSE-HPKE version 1 in Base Mode that uses the DHKEM(X25519, HKDF-SHA256) KEM, the HKDF-SHA256 KDF, and the ChaCha20Poly1305 AEAD.
+-  Description: Cipher suite for COSE-HPKE in Base Mode that uses the DHKEM(X25519, HKDF-SHA256) KEM, the HKDF-SHA256 KDF, and the ChaCha20Poly1305 AEAD.
 -  Capabilities: [kty]
 -  Change Controller: IESG
 -  Reference:  [[TBD: This RFC]]
 -  Recommended: Yes
 
--  Name: HPKE-v1-Base-X448-SHA512-AES256GCM
+-  Name: HPKE-Base-X448-SHA512-AES256GCM
 -  Value: TBD9 (Assumed: 43)
--  Description: Cipher suite for COSE-HPKE version 1 in Base Mode that uses the DHKEM(X448, HKDF-SHA512) KEM, the HKDF-SHA512 KDF, and the AES-256-GCM AEAD.
+-  Description: Cipher suite for COSE-HPKE in Base Mode that uses the DHKEM(X448, HKDF-SHA512) KEM, the HKDF-SHA512 KDF, and the AES-256-GCM AEAD.
 -  Capabilities: [kty]
 -  Change Controller: IESG
 -  Reference:  [[TBD: This RFC]]
 -  Recommended: Yes
 
--  Name: HPKE-v1-Base-X448-SHA512-ChaCha20Poly1305
+-  Name: HPKE-Base-X448-SHA512-ChaCha20Poly1305
 -  Value: TBD10 (Assumed: 44)
--  Description: Cipher suite for COSE-HPKE version 1 in Base Mode that uses the DHKEM(X448, HKDF-SHA512) KEM, the HKDF-SHA512 KDF, and the ChaCha20Poly1305 AEAD.
+-  Description: Cipher suite for COSE-HPKE in Base Mode that uses the DHKEM(X448, HKDF-SHA512) KEM, the HKDF-SHA512 KDF, and the ChaCha20Poly1305 AEAD.
 -  Capabilities: [kty]
 -  Change Controller: IESG
 -  Reference:  [[TBD: This RFC]]
 -  Recommended: Yes
 
--  Name: HPKE-v1-Base-X25519Kyber768-SHA256-AES256GCM
+-  Name: HPKE-Base-X25519Kyber768-SHA256-AES256GCM
 -  Value: TBD11 (Assumed: 250)
--  Description: Cipher suite for COSE-HPKE version 1 in Base Mode that uses the X25519Kyber768Draft00 KEM, the HKDF-SHA256 KDF, and the AES-256-GCM AEAD.
+-  Description: Cipher suite for COSE-HPKE in Base Mode that uses the X25519Kyber768Draft00 KEM, the HKDF-SHA256 KDF, and the AES-256-GCM AEAD.
 -  Capabilities: [kty]
 -  Change Controller: IESG
 -  Reference:  [[TBD: This RFC]]
 -  Recommended: No
 
--  Name: HPKE-v1-Base-X25519Kyber768-SHA256-ChaCha20Poly1305
+-  Name: HPKE-Base-X25519Kyber768-SHA256-ChaCha20Poly1305
 -  Value: TBD12 (Assumed: 251)
--  Description: Cipher suite for COSE-HPKE version 1 in Base Mode that uses the X25519Kyber768Draft00 KEM, the HKDF-SHA256 KDF, and the ChaCha20Poly1305 AEAD.
+-  Description: Cipher suite for COSE-HPKE in Base Mode that uses the X25519Kyber768Draft00 KEM, the HKDF-SHA256 KDF, and the ChaCha20Poly1305 AEAD.
 -  Capabilities: [kty]
 -  Change Controller: IESG
 -  Reference:  [[TBD: This RFC]]
 -  Recommended: No
+
+-  Name: HPKE-Base-CP256-SHA256-ChaCha20Poly1305
+-  Value: TBD13 (Assumed: 45)
+-  Description: Cipher suite for COSE-HPKE in Base Mode that uses the DHKEM(CP-256, HKDF-SHA256) KEM, the HKDF-SHA256 KDF and the ChaCha20Poly1305 AEAD.
+-  Capabilities: [kty]
+-  Change Controller: IESG
+-  Reference:  [[TBD: This RFC]]
+-  Recommended: Yes
+
+-  Name: HPKE-Base-CP521-SHA512-ChaCha20Poly1305
+-  Value: TBD14 (Assumed: 46)
+-  Description: Cipher suite for COSE-HPKE in Base Mode that uses the DHKEM(CP-521, HKDF-SHA512) KEM, the HKDF-SHA512 KDF, and the ChaCha20Poly1305 AEAD.
+-  Capabilities: [kty]
+-  Change Controller: IESG
+-  Reference:  [[TBD: This RFC]]
+-  Recommended: Yes
+
+
+-  Name: HPKE-Base-CP256-SHA256-AES128GCM
+-  Value: TBD15 (Assumed: 47)
+-  Description: Cipher suite for COSE-HPKE in Base Mode that uses the DHKEM(CP-256, HKDF-SHA256) KEM, the HKDF-SHA256 KDF and the AES128GCM AEAD.
+-  Capabilities: [kty]
+-  Change Controller: IESG
+-  Reference:  [[TBD: This RFC]]
+-  Recommended: Yes
+
+-  Name: HPKE-Base-CP521-SHA512-AES256GCM
+-  Value: TBD16 (Assumed: 47)
+-  Description: Cipher suite for COSE-HPKE in Base Mode that uses the DHKEM(CP-521, HKDF-SHA512) KEM, the HKDF-SHA512 KDF, and the AES256GCM AEAD.
+-  Capabilities: [kty]
+-  Change Controller: IESG
+-  Reference:  [[TBD: This RFC]]
+-  Recommended: Yes
 
 ## COSE Header Parameters
 
@@ -516,7 +670,7 @@ With Expert Review category.
 
 We would like thank the following individuals for their contributions
 to the design of embedding the HPKE output into the COSE structure 
-following a long and lively mailing list discussion. 
+following a long and lively mailing list discussion:
 
 - Richard Barnes
 - Ilari Liusvaara
