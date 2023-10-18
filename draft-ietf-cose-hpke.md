@@ -360,6 +360,16 @@ to some extend to maintain the tradeoff between readability and length.
 
 # Examples
 
+This section provides a set of examples that shows all COSE message types
+(COSE_Encrypt0, COSE_Encrypt and COSE_MAC) to which the COSE-HPKE can be
+applied. Each example includes the following information that can be used
+to check the interoperability of COSE-HPKE implementations:
+
+- plaintext: Original data of the encrypted payload.
+- external_aad: Externally supplied AAD.
+- skR: A recipient private key.
+- skE: An ephemeral sender private key paired with the encapsulated_key.
+
 ## Single Recipient / One Layer Example {#one-layer-example}
 
 This example assumes that a sender wants to communicate an
@@ -369,32 +379,30 @@ An example of the COSE_Encrypt0 structure using the HPKE scheme is
 shown in {{hpke-example-one}}. Line breaks and comments have been inserted
 for better readability.
 
-This example uses HPKE-Base-P256-SHA256-AES128GCM, which corresponds
-to the following HPKE algorithm combination:
+This example uses the following:
 
-- KEM: DHKEM(P-256, HKDF-SHA256)
-- KDF: HKDF-SHA256
-- AEAD: AES-128-GCM
-- Mode: Base
-- payload: "This is the content"
-- aad: ""
+- alg: HPKE-Base-P256-SHA256-AES128GCM
+- plaintext: "This is the content."
+- external_aad: "COSE-HPKE app"
+- skR: h'57c92077664146e876760c9520d054aa93c3afb04e306705db6090308507b4d3'
+- skE: h'42dd125eefc409c3b57366e721a40043fb5a58e346d51c133128a77237160218'
 
 ~~~
 16([
-    / alg = TBD1 (Assumed: 35) /
+    / alg = HPKE-Base-P256-SHA256-AES128GCM (Assumed: 35) /
     h'a1011823',
     {
         / kid /
         4: h'3031',
         / encapsulated_key /
-        -4: h'048c6f75e463a773082f3cb0d3a701348a578c67
-              80aba658646682a9af7291dfc277ec93c3d58707
-              818286c1097825457338dc3dcaff367e2951342e
-              9db30dc0e7',
+        -4: h'045df24272faf43849530db6be01f42708b3c3a9
+              df8e268513f0a996ed09ba7840894a3fb946cb28
+              23f609c59463093d8815a7400233b75ca8ecb177
+              54d241973e',
     },
     / encrypted plaintext /
-    h'ee22206308e478c279b94bb071f3a5fbbac412a6effe34195f7
-      c4169d7d8e81666d8be13',
+    h'35aa3d98739289b83751125abe44e3b977e4b9abbf2c8cfaade
+      b15f7681eef76df88f096',
 ])
 ~~~
 {: #hpke-example-one title="COSE_Encrypt0 Example for HPKE"}
@@ -406,77 +414,80 @@ payload to two recipients using the two-layer structure.
 Note that it is possible to send two single-layer payloads, 
 although it will be less efficient.
 
+### COSE_Encrypt
+
 An example of the COSE_Encrypt structure using the HPKE scheme is
-shown in {{hpke-example-two}}. Line breaks and comments have been
+shown in {{hpke-example-cose-encrypt}}. Line breaks and comments have been
 inserted for better readability. 
 
-This example uses AES-128-GCM for encryption of the plaintext
-"This is the content." with aad="" at layer 0. The ciphertext is
-detached.
+This example uses the following:
 
-At the recipient structure at layer 1, this example uses
-HPKE-Base-P256-SHA256-AES128GCM as the algorithm, which
-correspond to the following HPKE algorithm combination:
-
-- KEM: DHKEM(P-256, HKDF-SHA256)
-- KDF: HKDF-SHA256
-- AEAD: AES-128-GCM
-- Mode: Base
+- Encryption alg: AES-128-GCM
+- plaintext: "This is the content."
+- detatched ciphertext: h'cc168c4e148c52a83010a75250935a47ccb8682deebcef8fce5d60c161e849f53a2dc664'
+- kid:"01"
+    - alg: HPKE-Base-P256-SHA256-AES128GCM
+    - external_aad: "COSE-HPKE app"
+    - skR: h'57c92077664146e876760c9520d054aa93c3afb04e306705db6090308507b4d3'
+    - skE: h'97ad883f949f4cdcb1301b9446950efd4eb519e16c4a3d78304eec832692f9f6'
+- kid:"02"
+    - alg: HPKE-Base-X25519-SHA256-CHACHA20POLY1305
+    - external_aad: "COSE-HPKE app"
+    - skR: h'bec275a17e4d362d0819dc0695d89a73be6bf94b66ab726ae0b1afe3c43f41ce'
+    - skE: h'b8ed3f4df56c230e36fa6620a47f24d08856d242ea547c5521ff7bd69af8fd6f'
 
 ~~~
 96_0([
     / alg = AES-128-GCM (1) /
     h'a10101',
     {
-      / iv /
-      5: h'67303696a1cc2b6a64867096'
+        / iv /
+        5: h'b3fb95dde18c6f90a9f0ae55',
     },
     / detached ciphertext /
-    h'',
+    null,
     [
         [
-            / alg = TBD1 (Assumed: 35) /
+            / alg = HPKE-Base-P256-SHA256-AES128GCM (Assumed: 35) /
             h'a1011823',
             {
                 / kid /
                 4: h'3031',
                 / encapsulated_key /
-                36: h'0421ccd1b00dd958d77e10399c
-                      97530fcbb91a1dc71cb3bf41d9
-                      9fd39f22918505c973816ecbca
-                      6de507c4073d05cceff73e0d35
-                      f60e2373e09a9433be9e95e53c',
+                -4: h'04d97b79486fe2e7b98fb1bd43
+                      c4faee316ff38d28609a1cf568
+                      40a809298a91e601f1cc0c2ba4
+                      6cb67b41f4651b769cafd9df78
+                      e58aa7f5771291bd4f0f420ba6',
             },
             / ciphertext containing encrypted CEK /
-            h'bb2f1433546c55fb38d6f23f5cd95e1d72eb4
-              c129b99a165cd5a28bd75859c10939b7e4d',
+            h'24450f54ae93375351467d17aa7a795cfede2
+              c03eced1ad21fcb7e7c2fe64397',
         ],
         [
-            / alg = TBD1 (Assumed: 35) /
-            h'a1011823',
+            / alg = HPKE-Base-X25519-SHA256-CHACHA20POLY1305 (Assumed: 42) /
+            h'a101182a',
             {
                 / kid /
-                4: h'313233', // kid
+                4: h'3032',
                 / encapsulated_key /
-                -4: h'6de507c4073d05cceff73e0d35
-                      f60e2373e09a9433be9e95e53c
-                      9fd39f22918505c973816ecbca
-                      6de507c4073d05cceff73e0d35
-                      f60e2373e09a9433be9e95e53c',
+                -4: h'd1afbdc95b0e735676f6bca34f
+                      be50f2822259ac09bfc3c500f1
+                      4a05de9b2833',
             },
             / ciphertext containing encrypted CEK /
-            h'c4169d7d8e81666d8be13bb2f1433546c55fb
-              c129b99a165cd5a28bd75859c10939b7e4d',
-        ]        
+            h'079b443ec6dfcda6a5f8748aff3875146a8ed
+              40359e1279b545166385d8d9b59',
+        ],
     ],
 ])
 ~~~
-{: #hpke-example-two title="COSE_Encrypt Example for HPKE"}
+{: #hpke-example-cose-encrypt title="COSE_Encrypt Example for HPKE"}
 
-To offer authentication of the sender the payload in {{hpke-example-two}}
+To offer authentication of the sender the payload in {{hpke-example-cose-encrypt}}
 is signed with a COSE_Sign1 wrapper, which is outlined in {{hpke-example-sign}}.
 The payload in {{hpke-example-sign}} is meant to contain the content of
-{{hpke-example-two}}.
+{{hpke-example-cose-encrypt}}.
 
 ~~~
 18(
@@ -493,6 +504,75 @@ The payload in {{hpke-example-sign}} is meant to contain the content of
 )
 ~~~
 {: #hpke-example-sign title="COSE_Encrypt Example for HPKE"}
+
+### COSE_MAC
+
+An example of the COSE_MAC structure using the HPKE scheme is
+shown in {{hpke-example-cose-mac}}.
+
+This example uses the following:
+
+- MAC alg: HMAC 256/256
+- payload: "This is the content."
+- kid:"01"
+    - alg: HPKE-Base-P256-SHA256-AES128GCM
+    - external_aad: "COSE-HPKE app"
+    - skR: h'57c92077664146e876760c9520d054aa93c3afb04e306705db6090308507b4d3'
+    - skE: h'e5dd9472b5807636c95be0ba2575020ba91cbb3561b52be141da89678c664307'
+- kid:"02"
+    - alg: HPKE-Base-X25519-SHA256-CHACHA20POLY1305
+    - external_aad: "COSE-HPKE app"
+    - skR: h'bec275a17e4d362d0819dc0695d89a73be6bf94b66ab726ae0b1afe3c43f41ce'
+    - skE: h'78a49d7af71b5244498e943f361aa0250184afc48b8098a68ae97ccd2cd7e56f'
+
+~~~
+97_0([
+    / alg = HMAC 256/256 (5) /
+    h'a10105',
+    {},
+    / payload = 'This is the content.' /
+    h'546869732069732074686520636f6e74656e742e',
+    / tag /
+    h'5cdcf6055fcbdb53b4001d8fb88b2a46b200ed28e1ed77e16ddf43fb3cac3a98',
+    [
+        [
+            / alg = HPKE-Base-P256-SHA256-AES128GCM (Assumed: 35) /
+            h'a1011823',
+            {
+                / kid = '01' /
+                4: h'3031',
+                / encapsulated_key /
+                -4: h'043ac21632e45e1fbd733f002a
+                      621aa4f3d94737adc395d5a7cb
+                      6e9554bd1ad273aec991493786
+                      d72616d9759bf8526e6e20c1ed
+                      c41ba5739f2b2e441781aa0eb4',
+            },
+            / ciphertext containing encrypted MAC key /
+            h'5cee2b4235a7ff695164f7a8d1e79ccf3ca3d
+              e8b22f3592626020a95b2a8d3fb4d7aa7fe37
+              432426ee70073a368f29d1',
+        ],
+        [
+            / alg = HPKE-Base-X25519-SHA256-CHACHA20POLY1305 (Assumed: 42) /
+            h'a101182a',
+            {
+                / kid = '02' /
+                4: h'3032',
+                / encapsulated_key /
+                -4: h'02cffacc60def3bb3d0a1c3661
+                      227c9de8dc2b1d3939dd2c07d4
+                      49ebb0bba324',
+            },
+            / ciphertext containing encrypted MAC key /
+            h'3f5b8b60271d5234dbea554dc1461d0239e9f
+              4589f6415e8563b061dbcb37795a616111b78
+              2b4c589b534309327ffadc',
+        ],
+    ],
+])
+~~~
+{: #hpke-example-cose-mac title="COSE_MAC Example for HPKE"}
 
 
 # Security Considerations {#sec-cons}
