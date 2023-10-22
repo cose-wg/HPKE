@@ -1,7 +1,7 @@
 ---
 title: Use of Hybrid Public-Key Encryption (HPKE) with CBOR Object Signing and Encryption (COSE)
 abbrev: COSE HPKE
-docname: draft-ietf-cose-hpke-06
+docname: draft-ietf-cose-hpke-07
 category: std
 
 ipr: pre5378Trust200902

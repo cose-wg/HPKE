@@ -15,7 +15,7 @@ Expires: 24 April 2024                                         Transmute
 
 Use of Hybrid Public-Key Encryption (HPKE) with CBOR Object Signing and
                            Encryption (COSE)
-                        draft-ietf-cose-hpke-06
+                        draft-ietf-cose-hpke-07
 
 Abstract
 
