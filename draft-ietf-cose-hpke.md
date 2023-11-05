@@ -29,7 +29,7 @@ author:
 -
   ins: D. Ajitomi
   name: Daisuke Ajitomi
-  organization:
+  organization: bibital
   email: dajiaji@gmail.com
   country: Japan
 -
