@@ -263,6 +263,7 @@ or public keys. When using a COSE_Key for COSE-HPKE, the following checks are ma
   and it MUST be a curve for HPKE KEM.
 * If the "alg" field is present, the key type of its KEM MUST match the "kty" field.
   And if the "kty" field is "OKP" or "EC2", the curve of the KEM MUST match the "crv" field.
+  The valid combinations of the "alg", "kty" and "crv" are shown in {{ciphersuite-kty-crv}}.
 * If the "key_ops" field is present, it MUST include only "derive bits" for the private key.
 * If the "key_ops" field is present, it MUST be empty for the public key.
 
@@ -372,6 +373,30 @@ of the public keys defined in {{I-D.irtf-cfrg-dnhpke}}.
 
 As the list indicates, the ciphersuite labels have been abbreviated at least
 to some extend to maintain the tradeoff between readability and length.
+
+## COSE_Keys for COSE-HPKE Ciphersuites
+
+The COSE-HPKE ciphersuite uniquely determines the type of KEM for which a COSE_Key is used
+as defined in the previous section. The following mapping table shows the valid combinations
+of the COSE-HPKE ciphersuite, COSE_Key type and its curve.
+
+~~~
++---------------------+--------------+
+| COSE-HPKE           | COSE_Key     |
+| Ciphersuite Label   | kty | crv    |
++---------------------+-----+--------+
+| HPKE-Base-P256-\*   | EC2 | P-256  |
+| HPKE-Base-P384-\*   | EC2 | P-384  |
+| HPKE-Base-P521-\*   | EC2 | P-521  |
+| HPKE-Base-X25519-\* | OKP | X25519 |
+| HPKE-Base-X448-\*   | OKP | X448   |
+| HPKE-Base-CP256-\*  | EC2 | P-256  |
+| HPKE-Base-CP384-\*  | EC2 | P-384  |
+| HPKE-Base-CP521-\*  | EC2 | P-521  |
++---------------------+-----+--------+
+~~~
+{: #ciphersuite-kty-crv title="COSE_Key Types and Curves for COSE-HPKE Ciphersuites"}
+
 
 # Examples
 
@@ -638,7 +663,6 @@ Examples of private and public KEM key representation are shown below.
 }
 ~~~
 {: #hpke-example-key-2 title="Key Representation Example for HPKE-Base-X25519-SHA256-CHACHA20POLY1305"}
-
 
 # Security Considerations {#sec-cons}
 
