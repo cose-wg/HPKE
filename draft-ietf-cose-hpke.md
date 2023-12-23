@@ -334,29 +334,29 @@ document and the values registered in the HPKE IANA registry {{HPKE-IANA}}.
 | Cipher Suite Label                               | KEM | KDF | AEAD |
 +--------------------------------------------------+-----+-----+------+
 | HPKE-Base-P256-SHA256-AES128GCM                  |0x10 | 0x1 | 0x1  |
-| HPKE-Base-P256-SHA256-ChaCha20Poly1305           |0x10 | 0x1 | 0x3  |
 | HPKE-Base-P384-SHA384-AES256GCM                  |0x11 | 0x2 | 0x2  |
-| HPKE-Base-P384-SHA384-ChaCha20Poly1305           |0x11 | 0x2 | 0x3  |
 | HPKE-Base-P521-SHA512-AES256GCM                  |0x12 | 0x3 | 0x2  |
-| HPKE-Base-P521-SHA512-ChaCha20Poly1305           |0x12 | 0x3 | 0x3  |
 | HPKE-Base-X25519-SHA256-AES128GCM                |0x20 | 0x1 | 0x1  |
 | HPKE-Base-X25519-SHA256-ChaCha20Poly1305         |0x20 | 0x1 | 0x3  |
 | HPKE-Base-X448-SHA512-AES256GCM                  |0x21 | 0x3 | 0x2  |
 | HPKE-Base-X448-SHA512-ChaCha20Poly1305           |0x21 | 0x3 | 0x3  |
-| HPKE-Base-X25519Kyber768-SHA256-AES256GCM        |0x30 | 0x1 | 0x2  |
-| HPKE-Base-X25519Kyber768-SHA256-ChaCha20Poly1305 |0x30 | 0x1 | 0x3  |
-| HPKE-Base-CP256-SHA256-ChaCha20Poly1305          |0x13 | 0x1 | 0x3  |
-| HPKE-Base-CP256-SHA256-AES128GCM                 |0x13 | 0x1 | 0x1  |
-| HPKE-Base-CP521-SHA512-ChaCha20Poly1305          |0x15 | 0x3 | 0x3  |
-| HPKE-Base-CP521-SHA512-AES256GCM                 |0x15 | 0x3 | 0x2  |
 +--------------------------------------------------+-----+-----+------+
 ~~~
 
-Note that the last four entries in the table refer to the compact encoding
-of the public keys defined in {{I-D.irtf-cfrg-dnhpke}}.
-
 As the list indicates, the ciphersuite labels have been abbreviated at least
 to some extend to maintain the tradeoff between readability and length.
+
+The ciphersuite list above is a minimal starting point. Additional
+ciphersuites can be registered into the already existing registry.
+For example, once post-quantum cryptographic algorithms have been standardized
+it might be beneficial to register ciphersuites for use with COSE-HPKE.
+Additionally, ciphersuites utilizing the compact encoding of the public keys,
+as defined in {{I-D.irtf-cfrg-dnhpke}}, may be standardized for use in
+constrained environments.
+
+As a guideline for ciphersuite submissions to the IANA CoSE algorithm
+registry, the designated experts must only register combinations of 
+(KEM, KDF, AEAD) triple that consitute validate combinations for use with HPKE.
 
 # Examples
 
@@ -614,14 +614,6 @@ the 'COSE Header Parameters' registries.
 -  Reference:  [[TBD: This RFC]]
 -  Recommended: Yes
 
--  Name: HPKE-Base-P256-SHA256-ChaCha20Poly1305
--  Value: TBD2 (Assumed: 36)
--  Description: Cipher suite for COSE-HPKE in Base Mode that uses the DHKEM(P-256, HKDF-SHA256) KEM, the HKDF-SHA256 KDF and the ChaCha20Poly1305 AEAD.
--  Capabilities: [kty]
--  Change Controller: IESG
--  Reference:  [[TBD: This RFC]]
--  Recommended: Yes
-
 -  Name: HPKE-Base-P384-SHA384-AES256GCM
 -  Value: TBD3 (Assumed: 37)
 -  Description: Cipher suite for COSE-HPKE in Base Mode that uses the DHKEM(P-384, HKDF-SHA384) KEM, the HKDF-SHA384 KDF, and the AES-256-GCM AEAD.
@@ -630,25 +622,9 @@ the 'COSE Header Parameters' registries.
 -  Reference:  [[TBD: This RFC]]
 -  Recommended: Yes
 
--  Name: HPKE-Base-P384-SHA384-ChaCha20Poly1305
--  Value: TBD4 (Assumed: 38)
--  Description: Cipher suite for COSE-HPKE in Base Mode that uses the DHKEM(P-384, HKDF-SHA384) KEM, the HKDF-SHA384 KDF, and the ChaCha20Poly1305 AEAD.
--  Capabilities: [kty]
--  Change Controller: IESG
--  Reference:  [[TBD: This RFC]]
--  Recommended: Yes
-
 -  Name: HPKE-Base-P521-SHA512-AES256GCM
 -  Value: TBD5 (Assumed: 39)
 -  Description: Cipher suite for COSE-HPKE in Base Mode that uses the DHKEM(P-521, HKDF-SHA512) KEM, the HKDF-SHA512 KDF, and the AES-256-GCM AEAD.
--  Capabilities: [kty]
--  Change Controller: IESG
--  Reference:  [[TBD: This RFC]]
--  Recommended: Yes
-
--  Name: HPKE-Base-P521-SHA512-ChaCha20Poly1305
--  Value: TBD6 (Assumed: 40)
--  Description: Cipher suite for COSE-HPKE in Base Mode that uses the DHKEM(P-521, HKDF-SHA512) KEM, the HKDF-SHA512 KDF, and the ChaCha20Poly1305 AEAD.
 -  Capabilities: [kty]
 -  Change Controller: IESG
 -  Reference:  [[TBD: This RFC]]
@@ -681,55 +657,6 @@ the 'COSE Header Parameters' registries.
 -  Name: HPKE-Base-X448-SHA512-ChaCha20Poly1305
 -  Value: TBD10 (Assumed: 44)
 -  Description: Cipher suite for COSE-HPKE in Base Mode that uses the DHKEM(X448, HKDF-SHA512) KEM, the HKDF-SHA512 KDF, and the ChaCha20Poly1305 AEAD.
--  Capabilities: [kty]
--  Change Controller: IESG
--  Reference:  [[TBD: This RFC]]
--  Recommended: Yes
-
--  Name: HPKE-Base-X25519Kyber768-SHA256-AES256GCM
--  Value: TBD11 (Assumed: 250)
--  Description: Cipher suite for COSE-HPKE in Base Mode that uses the X25519Kyber768Draft00 KEM, the HKDF-SHA256 KDF, and the AES-256-GCM AEAD.
--  Capabilities: [kty]
--  Change Controller: IESG
--  Reference:  [[TBD: This RFC]]
--  Recommended: No
-
--  Name: HPKE-Base-X25519Kyber768-SHA256-ChaCha20Poly1305
--  Value: TBD12 (Assumed: 251)
--  Description: Cipher suite for COSE-HPKE in Base Mode that uses the X25519Kyber768Draft00 KEM, the HKDF-SHA256 KDF, and the ChaCha20Poly1305 AEAD.
--  Capabilities: [kty]
--  Change Controller: IESG
--  Reference:  [[TBD: This RFC]]
--  Recommended: No
-
--  Name: HPKE-Base-CP256-SHA256-ChaCha20Poly1305
--  Value: TBD13 (Assumed: 45)
--  Description: Cipher suite for COSE-HPKE in Base Mode that uses the DHKEM(CP-256, HKDF-SHA256) KEM, the HKDF-SHA256 KDF and the ChaCha20Poly1305 AEAD.
--  Capabilities: [kty]
--  Change Controller: IESG
--  Reference:  [[TBD: This RFC]]
--  Recommended: Yes
-
--  Name: HPKE-Base-CP521-SHA512-ChaCha20Poly1305
--  Value: TBD14 (Assumed: 46)
--  Description: Cipher suite for COSE-HPKE in Base Mode that uses the DHKEM(CP-521, HKDF-SHA512) KEM, the HKDF-SHA512 KDF, and the ChaCha20Poly1305 AEAD.
--  Capabilities: [kty]
--  Change Controller: IESG
--  Reference:  [[TBD: This RFC]]
--  Recommended: Yes
-
-
--  Name: HPKE-Base-CP256-SHA256-AES128GCM
--  Value: TBD15 (Assumed: 47)
--  Description: Cipher suite for COSE-HPKE in Base Mode that uses the DHKEM(CP-256, HKDF-SHA256) KEM, the HKDF-SHA256 KDF and the AES128GCM AEAD.
--  Capabilities: [kty]
--  Change Controller: IESG
--  Reference:  [[TBD: This RFC]]
--  Recommended: Yes
-
--  Name: HPKE-Base-CP521-SHA512-AES256GCM
--  Value: TBD16 (Assumed: 47)
--  Description: Cipher suite for COSE-HPKE in Base Mode that uses the DHKEM(CP-521, HKDF-SHA512) KEM, the HKDF-SHA512 KDF, and the AES256GCM AEAD.
 -  Capabilities: [kty]
 -  Change Controller: IESG
 -  Reference:  [[TBD: This RFC]]
