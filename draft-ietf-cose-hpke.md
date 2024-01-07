@@ -262,10 +262,10 @@ or public keys. When using a COSE_Key for COSE-HPKE, the following checks are ma
 * If the "kty" field is "OKP" or "EC2", the "crv" field MUST be present
   and it MUST be a curve for HPKE KEM.
 * If the "alg" field is present, the key type of its KEM MUST match the "kty" field.
-  And if the "kty" field is "OKP" or "EC2", the curve of the KEM MUST match the "crv" field.
+  If the "kty" field is "OKP" or "EC2", the curve of the KEM MUST match the "crv" field.
   The valid combinations of the "alg", "kty" and "crv" are shown in {{ciphersuite-kty-crv}}.
-* If the "key_ops" field is present, it MUST include only "derive bits" for the private key.
-* If the "key_ops" field is present, it MUST be empty for the public key.
+* If the "key_ops" field is present, it MUST include only "derive bits" for the private key
+  and MUST be empty for the public key.
 
 Examples of the COSE_Key for COSE-HPKE are shown in {{key-representation-example}}.
 
@@ -376,8 +376,8 @@ to some extend to maintain the tradeoff between readability and length.
 
 ## COSE_Keys for COSE-HPKE Ciphersuites
 
-The COSE-HPKE ciphersuite uniquely determines the type of KEM for which a COSE_Key is used
-as defined in the previous section. The following mapping table shows the valid combinations
+The COSE-HPKE ciphersuite uniquely determines the type of KEM for which a COSE_Key is used.
+The following mapping table shows the valid combinations
 of the COSE-HPKE ciphersuite, COSE_Key type and its curve.
 
 ~~~
@@ -396,7 +396,6 @@ of the COSE-HPKE ciphersuite, COSE_Key type and its curve.
 +---------------------+-----+--------+
 ~~~
 {: #ciphersuite-kty-crv title="COSE_Key Types and Curves for COSE-HPKE Ciphersuites"}
-
 
 # Examples
 
