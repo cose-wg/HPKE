@@ -356,7 +356,7 @@ constrained environments.
 
 As a guideline for ciphersuite submissions to the IANA CoSE algorithm
 registry, the designated experts must only register combinations of 
-(KEM, KDF, AEAD) triple that consitute validate combinations for use with HPKE.
+(KEM, KDF, AEAD) triple that consitute valid combinations for use with HPKE, the KDF used should (if possible) match one internally used by the KEM, and components should not be mixed between global and national standards.
 
 # Examples
 
