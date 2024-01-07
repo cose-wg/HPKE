@@ -146,8 +146,10 @@ transported separately then it is called "detached content". A nil CBOR
 object is placed in the location of the ciphertext. See Section 5
 of {{RFC9052}} for a description of detached payloads.
 
-The sender MUST set the alg parameter in the protected header, which
-indicates the use of HPKE.
+{{RFC9052}} gives the sender the option to put the alg parameter into the
+header since it may be conveyed external to the COSE payload or known to
+the communicating parties out-of-band. If the alg parameter in carried in
+the protected header then it explicitly indicates the use of HPKE.
 
 The sender MUST place the 'encapsulated_key' parameter into the unprotected
 header. Although the use of the 'kid' parameter in COSE_Encrypt0 is
