@@ -650,7 +650,7 @@ Examples of private and public KEM key representation are shown below.
     / kid = '01' /
     2: h'3031',
     / alg = HPKE-Base-P256-SHA256-AES128GCM (Assumed: 35) /
-    3: 35_0,
+    3: 35,
     / key_ops = ['derive_bits'] /
     4: [8],
     / crv = 'P-256' /
@@ -675,7 +675,7 @@ Examples of private and public KEM key representation are shown below.
     / kid = '11' /
     2: h'3131',
     / alg = HPKE-Base-X25519-SHA256-CHACHA20POLY1305 (Assumed: 42) /
-    3: 42_0,
+    3: 42,
     / crv = 'X25519' /
     -1: 4,
     / x /
