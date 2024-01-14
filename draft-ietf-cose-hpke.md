@@ -261,7 +261,8 @@ or public keys. When using a COSE_Key for COSE-HPKE, the following checks are ma
 * The "kty" field MUST be present, and it MUST be one of the key types for HPKE KEM.
 * If the "kty" field is "OKP" or "EC2", the "crv" field MUST be present
   and it MUST be a curve for HPKE KEM.
-* If the "alg" field is present, the key type of its KEM MUST match the "kty" field.
+* If the "alg" field is present, it MUST be one of the supported COSE-HPKE "alg" values
+  and the key type of its KEM MUST match the "kty" field.
   If the "kty" field is "OKP" or "EC2", the curve of the KEM MUST match the "crv" field.
   The valid combinations of the "alg", "kty" and "crv" are shown in {{ciphersuite-kty-crv}}.
 * If the "key_ops" field is present, it MUST include only "derive bits" for the private key
