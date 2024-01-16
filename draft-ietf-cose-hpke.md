@@ -253,6 +253,23 @@ The COSE_Encrypt MAY be tagged or untagged.
 
 An example is shown in {{two-layer-example}}.
 
+## Key Representation {#key-representation}
+
+The COSE_Key with the existing key types can be used to represent KEM private
+or public keys. When using a COSE_Key for COSE-HPKE, the following checks are made:
+
+* The "kty" field MUST be present, and it MUST be one of the key types for HPKE KEM.
+* If the "kty" field is "OKP" or "EC2", the "crv" field MUST be present
+  and it MUST be a curve for HPKE KEM.
+* If the "alg" field is present, it MUST be one of the supported COSE-HPKE "alg" values
+  and the key type of its KEM MUST match the "kty" field.
+  If the "kty" field is "OKP" or "EC2", the curve of the KEM MUST match the "crv" field.
+  The valid combinations of the "alg", "kty" and "crv" are shown in {{ciphersuite-kty-crv}}.
+* If the "key_ops" field is present, it MUST include only "derive bits" for the private key
+  and MUST be empty for the public key.
+
+Examples of the COSE_Key for COSE-HPKE are shown in {{key-representation-example}}.
+
 ## Info Parameter {#info}
 
 The HPKE specification defines the "info" parameter as a context information
@@ -358,19 +375,44 @@ of the public keys defined in {{I-D.irtf-cfrg-dnhpke}}.
 As the list indicates, the ciphersuite labels have been abbreviated at least
 to some extend to maintain the tradeoff between readability and length.
 
+## COSE_Keys for COSE-HPKE Ciphersuites
+
+The COSE-HPKE ciphersuite uniquely determines the type of KEM for which a COSE_Key is used.
+The following mapping table shows the valid combinations
+of the COSE-HPKE ciphersuite, COSE_Key type and its curve.
+
+~~~
++---------------------+--------------+
+| COSE-HPKE           | COSE_Key     |
+| Ciphersuite Label   | kty | crv    |
++---------------------+-----+--------+
+| HPKE-Base-P256-\*   | EC2 | P-256  |
+| HPKE-Base-P384-\*   | EC2 | P-384  |
+| HPKE-Base-P521-\*   | EC2 | P-521  |
+| HPKE-Base-X25519-\* | OKP | X25519 |
+| HPKE-Base-X448-\*   | OKP | X448   |
+| HPKE-Base-CP256-\*  | EC2 | P-256  |
+| HPKE-Base-CP384-\*  | EC2 | P-384  |
+| HPKE-Base-CP521-\*  | EC2 | P-521  |
++---------------------+-----+--------+
+~~~
+{: #ciphersuite-kty-crv title="COSE_Key Types and Curves for COSE-HPKE Ciphersuites"}
+
 # Examples
 
 This section provides a set of examples that shows all COSE message types
 (COSE_Encrypt0, COSE_Encrypt and COSE_MAC) to which the COSE-HPKE can be
-applied. Each example includes the following information that can be used
-to check the interoperability of COSE-HPKE implementations:
+applied, and also provides some examples of key representation for HPKE KEM.
+
+Each example of the COSE message includes the following information
+that can be used to check the interoperability of COSE-HPKE implementations:
 
 - plaintext: Original data of the encrypted payload.
 - external_aad: Externally supplied AAD.
 - skR: A recipient private key.
 - skE: An ephemeral sender private key paired with the encapsulated_key.
 
-## Single Recipient / One Layer Example {#one-layer-example}
+## Single Recipient / One Layer COSE Message {#one-layer-example}
 
 This example assumes that a sender wants to communicate an
 encrypted payload to a single recipient in the most efficient way.
@@ -407,7 +449,7 @@ This example uses the following:
 ~~~
 {: #hpke-example-one title="COSE_Encrypt0 Example for HPKE"}
 
-## Multiple Recipients / Two Layer {#two-layer-example}
+## Multiple Recipients / Two Layer COSE Message {#two-layer-example}
 
 In this example we assume that a sender wants to transmit a
 payload to two recipients using the two-layer structure.
@@ -574,6 +616,74 @@ This example uses the following:
 ~~~
 {: #hpke-example-cose-mac title="COSE_MAC Example for HPKE"}
 
+
+## Key Representation {#key-representation-example}
+
+Examples of private and public KEM key representation are shown below.
+
+### KEM Public Key for HPKE-Base-P256-SHA256-AES128GCM
+
+~~~
+{
+    / kty = 'EC2' /
+    1: 2,
+    / kid = '01' /
+    2: h'3031',
+    / alg = HPKE-Base-P256-SHA256-AES128GCM (Assumed: 35) /
+    3: 35,
+    / crv = 'P-256' /
+    -1: 1,
+    / x /
+    -2: h'65eda5a12577c2bae829437fe338701a10aaa375e1bb5b5de108de439c08551d',
+    / y /
+    -3: h'1e52ed75701163f7f9e40ddf9f341b3dc9ba860af7e0ca7ca7e9eecd0084d19c'
+}
+~~~
+{: #hpke-example-key-1 title="Key Representation Example for HPKE-Base-P256-SHA256-AES128GCM"}
+
+
+### KEM Private Key for HPKE-Base-P256-SHA256-AES128GCM
+
+~~~
+{
+    / kty = 'EC2' /
+    1: 2,
+    / kid = '01' /
+    2: h'3031',
+    / alg = HPKE-Base-P256-SHA256-AES128GCM (Assumed: 35) /
+    3: 35,
+    / key_ops = ['derive_bits'] /
+    4: [8],
+    / crv = 'P-256' /
+    -1: 1,
+    / x /
+    -2: h'bac5b11cad8f99f9c72b05cf4b9e26d244dc189f745228255a219a86d6a09eff',
+    / y /
+    -3: h'20138bf82dc1b6d562be0fa54ab7804a3a64b6d72ccfed6b6fb6ed28bbfc117e',
+    / d /
+    -4: h'57c92077664146e876760c9520d054aa93c3afb04e306705db6090308507b4d3',
+}
+~~~
+{: #hpke-example-key-1 title="Key Representation Example for HPKE-Base-P256-SHA256-AES128GCM"}
+
+
+### KEM Public Key for HPKE-Base-X25519-SHA256-CHACHA20POLY1305
+
+~~~
+{
+    / kty = 'OKP' /
+    1: 1,
+    / kid = '11' /
+    2: h'3131',
+    / alg = HPKE-Base-X25519-SHA256-CHACHA20POLY1305 (Assumed: 42) /
+    3: 42,
+    / crv = 'X25519' /
+    -1: 4,
+    / x /
+    -2: h'cb7c09ab7b973c77a808ee05b9bbd373b55c06eaa9bd4ad2bd4e9931b1c34c22',
+}
+~~~
+{: #hpke-example-key-2 title="Key Representation Example for HPKE-Base-X25519-SHA256-CHACHA20POLY1305"}
 
 # Security Considerations {#sec-cons}
 
