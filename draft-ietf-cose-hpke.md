@@ -1,7 +1,7 @@
 ---
 title: Use of Hybrid Public-Key Encryption (HPKE) with CBOR Object Signing and Encryption (COSE)
 abbrev: COSE HPKE
-docname: draft-ietf-cose-hpke-07
+docname: draft-ietf-cose-hpke-08
 category: std
 
 ipr: pre5378Trust200902
@@ -77,20 +77,9 @@ This document defines the use of the HPKE with COSE.
 
 Hybrid public-key encryption (HPKE) {{RFC9180}} is a scheme that 
 provides public key encryption of arbitrary-sized plaintexts given a 
-recipient's public key. HPKE utilizes a non-interactive ephemeral-static 
-Diffie-Hellman exchange to establish a shared secret. The motivation for
-standardizing a public key encryption scheme is explained in the introduction
-of {{RFC9180}}.
+recipient's public key.
 
-The HPKE specification provides a variant of public key encryption of
-arbitrary-sized plaintexts for a recipient public key. It also
-includes three authenticated variants, including one that authenticates
-possession of a pre-shared key, one that authenticates possession of
-a key encapsulation mechanism (KEM) private key, and one that
-authenticates possession of both a pre-shared key and a KEM private key.
-
-This specification utilizes HPKE as a foundational building block and
-carries the output to COSE ({{RFC9052}}, {{RFC9053}}).
+This document defines the use of the HPKE with COSE ({{RFC9052}}, {{RFC9053}}).
 
 # Conventions and Terminology
 
@@ -151,14 +140,14 @@ indicates the use of HPKE.
 
 The sender MUST place the 'encapsulated_key' parameter into the unprotected
 header. Although the use of the 'kid' parameter in COSE_Encrypt0 is
-discouraged by RFC 9052, this profile allows the use of the 'kid' parameter
-(or other parameters) to identify the static recipient public key used by
-the sender. If the COSE_Encrypt0 contains the 'kid' then the recipient may
+discouraged by RFC 9052, this profile RECOMMENDS the use of the 'kid' parameter
+(or other parameters) to explicitly identify the static recipient public key
+used by the sender. If the COSE_Encrypt0 contains the 'kid' then the recipient may
 use it to select the appropriate private key.
 
-HPKE defines an API and this API uses an "aad" parameter as input. When
-COSE_Encrypt0 is used then there is no AEAD function executed by COSE
-natively and HPKE offers this functionality.
+The HPKE specification describes an API and this API uses an "aad" parameter
+as input. When COSE_Encrypt0 is used then there is no AEAD function executed
+by COSE natively and HPKE offers this functionality.
 
 The "aad" parameter provided to the HPKE API is constructed
 as follows (and the design has been re-used from {{RFC9052}}):
@@ -208,7 +197,7 @@ structure, i.e. one COSE_recipient structure per recipient.
 In this approach the following layers are involved: 
 
 - Layer 0 (corresponding to the COSE_Encrypt structure) contains the content (plaintext)
-encrypted with the CEK. This ciphertext MAY be detached. If not detached, then
+encrypted with the CEK. This ciphertext may be detached, and if not detached, then
 it is included in the COSE_Encrypt structure.
 
 - Layer 1 (corresponding to a recipient structure) contains parameters needed for 
@@ -250,6 +239,34 @@ header_map = {
 {: #cddl-hpke title="CDDL for HPKE-based COSE_Encrypt Structure"}
 
 The COSE_Encrypt MAY be tagged or untagged. 
+
+When encrypting the content at layer 0 then the instructions in
+Section 5.3 of {{RFC9052}} need to be followed, which includes the
+calculation of the authenticated data strcture.
+
+At layer 1 where HPKE is used to encrypted the CEK, the "aad" parameter
+provided to the HPKE API is constructed as follows (and the design has
+been re-used from {{RFC9052}}):
+
+~~~
+Enc_structure = [
+    context : "Enc_Recipient",
+    protected : empty_or_serialized_map,
+    external_aad : bstr
+]
+
+empty_or_serialized_map = bstr .cbor header_map / bstr .size 0
+~~~
+
+The protected field in the Enc_structure contains the protected attributes 
+from the COSE_recipient structure at layer 1, encoded in a bstr type.
+
+The external_aad field in the Enc_structure contains the Externally Supplied
+Data described in Section 4.3 and Section 5.3 in RFC 9052. If this field is
+not supplied, it defaults to a zero-length byte string.
+
+The HPKE APIs also use an "info" parameter as input and the details are
+provided in {{info}}.
 
 An example is shown in {{two-layer-example}}.
 
@@ -310,20 +327,20 @@ this specification the COSE_KDF_Context structure is repeated in {{cddl-cose-kdf
 
 # Ciphersuite Registration
 
-This specification registers a number of ciphersuites for use with HPKE.
-A ciphersuite is thereby a combination of several algorithm configurations:
+A ciphersuite is a group of algorithms, often sharing component algorithms
+such as hash functions, targeting a security level.
+An HPKE ciphersuite, is composed of the following choices:
 
 - HPKE Mode
-- KEM algorithm
-- KDF algorithm
-- AEAD algorithm
+- KEM Algorithm
+- KDF Algorithm
+- AEAD Algorithm
 
-The "KEM", "KDF", and "AEAD" values are conceptually taken from the HPKE IANA
-registry {{HPKE-IANA}}. Hence, COSE-HPKE cannot use a algorithm combination
-that is not already available with HPKE.
+The "KEM", "KDF", and "AEAD" values are chosen from the HPKE IANA
+registry {{HPKE-IANA}}. 
 
-For better readability of the algorithm combination ciphersuites labels are
-build according to the following scheme: 
+For readability the algorithm ciphersuites labels are built according
+to the following scheme: 
 
 ~~~
 HPKE-<Version>-<Mode>-<KEM>-<KDF>-<AEAD>
@@ -343,7 +360,8 @@ which authenticates using both a PSK and an asymmetric key.
 
 For a list of ciphersuite registrations, please see {{IANA}}. The following
 table summarizes the relationship between the ciphersuites registered in this
-document and the values registered in the HPKE IANA registry {{HPKE-IANA}}.
+document, which all use the "Base" mode and the values registered in the
+HPKE IANA registry {{HPKE-IANA}}.
 
 ~~~
 +--------------------------------------------------+------------------+
