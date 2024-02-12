@@ -244,7 +244,7 @@ When encrypting the content at layer 0 then the instructions in
 Section 5.3 of {{RFC9052}} MUST to be followed, which includes the
 calculation of the authenticated data strcture.
 
-At layer 1 where HPKE is used to encrypted the CEK, the "aad" parameter
+At layer 1 where HPKE is used to encrypt the CEK, the "aad" parameter
 provided to the HPKE API is constructed as follows (and the design has
 been re-used from {{RFC9052}}):
 
