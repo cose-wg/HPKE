@@ -140,7 +140,7 @@ indicates the use of HPKE.
 
 The sender MUST place the 'encapsulated_key' parameter into the unprotected
 header. Although the use of the 'kid' parameter in COSE_Encrypt0 is
-discouraged by RFC 9052, this profile RECOMMENDS the use of the 'kid' parameter
+discouraged by RFC 9052, this documents RECOMMENDS the use of the 'kid' parameter
 (or other parameters) to explicitly identify the static recipient public key
 used by the sender. If the COSE_Encrypt0 contains the 'kid' then the recipient may
 use it to select the appropriate private key.
