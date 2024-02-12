@@ -165,10 +165,6 @@ empty_or_serialized_map = bstr .cbor header_map / bstr .size 0
 The protected field in the Enc_structure contains the protected attributes 
 from the COSE_Encrypt0 structure at layer 0, encoded in a bstr type.
 
-The external_aad field in the Enc_structure contains the Externally Supplied
-Data described in Section 4.3 and Section 5.3 in RFC 9052. If this field is
-not supplied, it defaults to a zero-length byte string.
-
 The HPKE APIs also use an "info" parameter as input and the details are
 provided in {{info}}.
 
@@ -260,10 +256,6 @@ empty_or_serialized_map = bstr .cbor header_map / bstr .size 0
 
 The protected field in the Enc_structure contains the protected attributes 
 from the COSE_recipient structure at layer 1, encoded in a bstr type.
-
-The external_aad field in the Enc_structure contains the Externally Supplied
-Data described in Section 4.3 and Section 5.3 in RFC 9052. If this field is
-not supplied, it defaults to a zero-length byte string.
 
 The HPKE APIs also use an "info" parameter as input and the details are
 provided in {{info}}.
