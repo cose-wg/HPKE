@@ -676,7 +676,7 @@ Examples of private and public KEM key representation are shown below.
     -4: h'57c92077664146e876760c9520d054aa93c3afb04e306705db6090308507b4d3',
 }
 ~~~
-{: #hpke-example-key-1 title="Key Representation Example for HPKE-Base-P256-SHA256-AES128GCM"}
+{: #hpke-example-key-2 title="Key Representation Example for HPKE-Base-P256-SHA256-AES128GCM"}
 
 
 ### KEM Public Key for HPKE-Base-X25519-SHA256-CHACHA20POLY1305
@@ -695,7 +695,7 @@ Examples of private and public KEM key representation are shown below.
     -2: h'cb7c09ab7b973c77a808ee05b9bbd373b55c06eaa9bd4ad2bd4e9931b1c34c22',
 }
 ~~~
-{: #hpke-example-key-2 title="Key Representation Example for HPKE-Base-X25519-SHA256-CHACHA20POLY1305"}
+{: #hpke-example-key-3 title="Key Representation Example for HPKE-Base-X25519-SHA256-CHACHA20POLY1305"}
 
 # Security Considerations {#sec-cons}
 
