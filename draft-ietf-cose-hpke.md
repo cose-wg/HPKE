@@ -241,7 +241,7 @@ header_map = {
 The COSE_Encrypt MAY be tagged or untagged. 
 
 When encrypting the content at layer 0 then the instructions in
-Section 5.3 of {{RFC9052}} need to be followed, which includes the
+Section 5.3 of {{RFC9052}} MUST to be followed, which includes the
 calculation of the authenticated data strcture.
 
 At layer 1 where HPKE is used to encrypted the CEK, the "aad" parameter
