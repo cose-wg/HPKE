@@ -311,7 +311,7 @@ information.
 
 Since COSE originally provides a way to supply the AAD (Additional Authenticated Data)
 to the AEAD step, including an externaly supplied value (external_aad), in COSE-HPKE,
-using this AAD as "aad" for HPKE is more compatible and natural with the COSE convension.
+using this AAD as "aad" for HPKE is more compatible and natural with the COSE convention.
 
 Therefore, the "aad" for HPKE SHOULD be specified with the AAD that includes
 the external_aad, while the "info" should be specified with an empty string.
