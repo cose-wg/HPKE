@@ -56,6 +56,13 @@ informative:
      title: Hybrid Public Key Encryption (HPKE) IANA Registry
      target: https://www.iana.org/assignments/hpke/hpke.xhtml
      date: October 2023
+  SP800-56A:
+     author: Barker, E., Chen, L., Roginsky, A., Vassilev, A., and R. Davis
+        org: NIST
+     title: Recommendation for Pair-Wise Key Establishment Schemes Using Discrete Logarithm Cryptography
+     target: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-56Ar3.pdf
+     date: April 2018
+  
   
 --- abstract
 
@@ -279,43 +286,35 @@ or public keys. When using a COSE_Key for COSE-HPKE, the following checks are ma
 
 Examples of the COSE_Key for COSE-HPKE are shown in {{key-representation-example}}.
 
-## Info Parameter {#info}
+## Binding Keying Material to the Context of the COSE-HPKE Transaction {#binding-context}
 
-The HPKE specification defines the "info" parameter as a context information
-structure that is used to ensure that the derived keying material is bound to
-the context of the transaction. 
+The keying material derived in HPKE is originally bound to a specific transaction
+between a specific sender and recipient, in a manner compliant with {{SP800-56A}}.
 
-This section provides a suggestion for constructing the info structure. HPKE leaves
-the info parameter for these two functions as optional. Application profiles of this
-specification MAY populate the fields of the COSE_KDF_Context structure or MAY use
-a different structure as input to the "info" parameter. If no content for the
-"info" parameter is not supplied, it defaults to a zero-length byte string.
+Speficically, the KEM and KDF steps in HPKE supply sufficient context information
+including the recipient and sender public keys, the string "HPKE-v1", the HPKE mode,
+the specified ciphersuite represented by the combination of KEM, KDF and AEAD
+algorithm IDs, and the usage label to the key derivation process.
 
-This specification re-uses the context information structure defined in
-{{RFC9053}} as a foundation for the info structure. This payload becomes the content
-of the info parameter for the HPKE functions, when utilized. For better readability of
-this specification the COSE_KDF_Context structure is repeated in {{cddl-cose-kdf}}.
+Therefore, there is no need to use the COSE_KDF_Context structure defined in {{RFC9053}}.
+For the sake of improving interoperability and avoiding redundant context bindings
+as much as possible, the COSE_KDF_Context MUST NOT be used with the COSE-HPKE algorithms.
 
-~~~
-   PartyInfo = (
-       identity : bstr / nil,
-       nonce : bstr / int / nil,
-       other : bstr / nil
-   )
+## Auxiliary Authenticated Application Information {#aad}
 
-   COSE_KDF_Context = [
-       AlgorithmID : int / tstr,
-       PartyUInfo : [ PartyInfo ],
-       PartyVInfo : [ PartyInfo ],
-       SuppPubInfo : [
-           keyDataLength : uint,
-           protected : empty_or_serialized_map,
-           ? other : bstr
-       ],
-       ? SuppPrivInfo : bstr
-   ]
-~~~
-{: #cddl-cose-kdf title="COSE_KDF_Context Data Structure as 'info' Parameter for HPKE"}
+HPKE has two options for specifying auxiliary authenticated information externally:
+"info" and "aad".
+
+In COSE-HPKE, since an HPKE encryption context is used per message, applications using
+COSE-HPKE need only use either "info" or "aad" for specifying auxiliary authenticated
+information.
+
+Since COSE originally provides a way to supply the AAD (Additional Authenticated Data)
+to the AEAD step, including an externaly supplied value (external_aad), in COSE-HPKE,
+using this AAD as "aad" for HPKE is more compatible and natural with the COSE convension.
+
+Therefore, the "aad" for HPKE SHOULD be specified with the AAD that includes
+the external_aad, while the "info" should be specified with an empty string.
 
 # Ciphersuite Registration
 
