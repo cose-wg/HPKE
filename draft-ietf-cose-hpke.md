@@ -291,7 +291,7 @@ Examples of the COSE_Key for COSE-HPKE are shown in {{key-representation-example
 The keying material derived in HPKE is originally bound to a specific transaction
 between a specific sender and recipient, in a manner compliant with {{SP800-56A}}.
 
-Speficically, the KEM and KDF steps in HPKE supply sufficient context information
+Specifically, the KEM and KDF steps in HPKE supply sufficient context information
 including the recipient and sender public keys, the string "HPKE-v1", the HPKE mode,
 the specified ciphersuite represented by the combination of KEM, KDF and AEAD
 algorithm IDs, and the usage label to the key derivation process.
