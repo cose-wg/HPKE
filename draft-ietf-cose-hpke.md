@@ -110,11 +110,11 @@ This specification supports two modes of HPKE in COSE, namely
   *  HPKE Key Encryption mode, where HPKE is used to encrypt a content encryption key (CEK) and the CEK is subsequently used to encrypt the plaintext. This mode supports multiple recipients. {{two-layer}} 
   provides the details.
 
-In both cases a new COSE header parameter, called 'encapsulated_key',
+In both cases a new COSE header parameter, called 'ek',
 is used to convey the content of the enc structure defined in the HPKE
 specification. "Enc" represents the serialized public key.
 
-For use with HPKE the 'encapsulated_key' header parameter MUST
+For use with HPKE the 'ek' header parameter MUST
 be present in the unprotected header parameter and MUST contain
 the encapsulated key, which is output of the HPKE KEM, and it
 is a bstr.
@@ -133,7 +133,7 @@ of {{RFC9052}} for a description of detached payloads.
 The sender MUST set the alg parameter in the protected header, which
 indicates the use of HPKE.
 
-The sender MUST place the 'encapsulated_key' parameter into the unprotected
+The sender MUST place the 'ek' (encapsulated key) parameter into the unprotected
 header. Although the use of the 'kid' parameter in COSE_Encrypt0 is
 discouraged by RFC 9052, this documents RECOMMENDS the use of the 'kid' parameter
 (or other parameters) to explicitly identify the static recipient public key
@@ -157,7 +157,7 @@ Enc_structure = [
 empty_or_serialized_map = bstr .cbor header_map / bstr .size 0
 ~~~
 
-The protected field in the Enc_structure contains the protected attributes 
+The protected field in the Enc_structure contains the protected attributes
 from the COSE_Encrypt0 structure at layer 0, encoded in a bstr type.
 
 The HPKE APIs also use an "info" parameter as input and the details are
@@ -194,7 +194,7 @@ it is included in the COSE_Encrypt structure.
 - Layer 1 (corresponding to a recipient structure) contains parameters needed for 
 HPKE to generate a shared secret used to encrypt the CEK. This layer conveys the 
 encrypted CEK in the encCEK structure. The protected header MUST contain the HPKE 
-alg parameter and the unprotected header MUST contain the 'encapsulated_key' parameter.
+alg parameter and the unprotected header MUST contain the 'ek' parameter.
 The unprotected header MAY contain the kid parameter to identify the static recipient
 public key the sender has been using with HPKE.
 
@@ -417,7 +417,7 @@ that can be used to check the interoperability of COSE-HPKE implementations:
 - plaintext: Original data of the encrypted payload.
 - external_aad: Externally supplied AAD.
 - skR: A recipient private key.
-- skE: An ephemeral sender private key paired with the encapsulated_key.
+- skE: An ephemeral sender private key paired with the encapsulated key.
 
 ## HPKE Direct Encryption Mode {#one-layer-example}
 
@@ -443,7 +443,7 @@ This example uses the following:
     {
         / kid /
         4: h'3031',
-        / encapsulated_key /
+        / ek /
         -4: h'045df24272faf43849530db6be01f42708b3c3a9
               df8e268513f0a996ed09ba7840894a3fb946cb28
               23f609c59463093d8815a7400233b75ca8ecb177
@@ -502,7 +502,7 @@ This example uses the following:
             {
                 / kid /
                 4: h'3031',
-                / encapsulated_key /
+                / ek /
                 -4: h'04d97b79486fe2e7b98fb1bd43
                       c4faee316ff38d28609a1cf568
                       40a809298a91e601f1cc0c2ba4
@@ -519,7 +519,7 @@ This example uses the following:
             {
                 / kid /
                 4: h'3032',
-                / encapsulated_key /
+                / ek /
                 -4: h'd1afbdc95b0e735676f6bca34f
                       be50f2822259ac09bfc3c500f1
                       4a05de9b2833',
@@ -590,7 +590,7 @@ This example uses the following:
             {
                 / kid = '01' /
                 4: h'3031',
-                / encapsulated_key /
+                / ek /
                 -4: h'043ac21632e45e1fbd733f002a
                       621aa4f3d94737adc395d5a7cb
                       6e9554bd1ad273aec991493786
@@ -608,7 +608,7 @@ This example uses the following:
             {
                 / kid = '02' /
                 4: h'3032',
-                / encapsulated_key /
+                / ek /
                 -4: h'02cffacc60def3bb3d0a1c3661
                       227c9de8dc2b1d3939dd2c07d4
                       49ebb0bba324',
@@ -781,7 +781,7 @@ the 'COSE Header Parameters' registries.
 
 ## COSE Header Parameters
 
--  Name: encapsulated_key
+-  Name: ek
 -  Label: TBDX (Assumed: -4)
 -  Value type: bstr
 -  Value Registry: N/A
