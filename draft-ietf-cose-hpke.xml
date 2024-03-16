@@ -53,7 +53,7 @@
       </address>
     </author>
 
-    <date year="2024" month="February" day="12"/>
+    <date year="2024" month="March" day="16"/>
 
     <area>Security</area>
     <workgroup>COSE</workgroup>
@@ -123,31 +123,26 @@ when, and only when, they appear in all capitals, as shown here.</t>
 
 <section anchor="overview"><name>Overview</name>
 
-<t>This specification supports two uses of HPKE in COSE, namely</t>
+<t>This specification supports two modes of HPKE in COSE, namely</t>
 
 <t><list style="symbols">
-  <t>HPKE in a single recipient setup.
-This use case utilizes a one layer COSE structure. 
-<xref target="one-layer"/> provides the details.</t>
-  <t>HPKE in a multiple recipient setup. 
-This use case requires a two layer COSE structure.  <xref target="two-layer"/> 
-provides the details. While it is possible to support the single 
-recipient use case with a two layer structure, the single 
-layer setup is more efficient.</t>
+  <t>HPKE Direct Encryption mode, where HPKE is used to encrypt the plaintext. This mode can only be used with a single recipient. <xref target="one-layer"/> provides the details.</t>
+  <t>HPKE Key Encryption mode, where HPKE is used to encrypt a content encryption key (CEK) and the CEK is subsequently used to encrypt the plaintext. This mode supports multiple recipients. <xref target="two-layer"/> 
+  provides the details.</t>
 </list></t>
 
-<t>In both cases a new COSE header parameter, called 'encapsulated_key',
+<t>In both cases a new COSE header parameter, called 'ek',
 is used to convey the content of the enc structure defined in the HPKE
 specification. "Enc" represents the serialized public key.</t>
 
-<t>For use with HPKE the 'encapsulated_key' header parameter MUST
+<t>For use with HPKE the 'ek' header parameter MUST
 be present in the unprotected header parameter and MUST contain
 the encapsulated key, which is output of the HPKE KEM, and it
 is a bstr.</t>
 
-<section anchor="one-layer"><name>Single Recipient / One Layer Structure</name>
+<section anchor="one-layer"><name>HPKE Direct Encryption Mode</name>
 
-<t>With the one layer structure the information carried inside the 
+<t>With the HPKE Direct Encryption mode the information carried inside the 
 COSE_recipient structure is embedded inside the COSE_Encrypt0.</t>
 
 <t>HPKE is used to directly encrypt the plaintext and the resulting ciphertext
@@ -156,22 +151,27 @@ transported separately then it is called "detached content". A nil CBOR
 object is placed in the location of the ciphertext. See Section 5
 of <xref target="RFC9052"/> for a description of detached payloads.</t>
 
+<t>The sender MUST place the 'ek' (encapsulated key) parameter into the unprotected
+header.</t>
+
 <t>The sender MUST set the alg parameter in the protected header, which
 indicates the use of HPKE.</t>
 
-<t>The sender MUST place the 'encapsulated_key' parameter into the unprotected
-header. Although the use of the 'kid' parameter in COSE_Encrypt0 is
-discouraged by RFC 9052, this documents RECOMMENDS the use of the 'kid' parameter
-(or other parameters) to explicitly identify the static recipient public key
-used by the sender. If the COSE_Encrypt0 contains the 'kid' then the recipient may
-use it to select the appropriate private key.</t>
+<t>This specification RECOMMENDS the inclusion of parameters describing the
+context of the transaction in the protected header. Section 5.2
+of <xref target="RFC9053"/> defines several parameters for this purpose, such as PartyU
+and PartyV identity and nonce, which are re-used by this specification.
+PartyU refers to the entity that is creating the message and PartyV refers
+to the entity that is receiving the message. The context information
+parameters are, unlike described in <xref target="RFC9053"/>, not used to build the
+COSE_KDF_Context structure, as explained below.</t>
 
-<t>The HPKE specification describes an API and this API uses an "aad" parameter
+<t>The HPKE specification describes an API and uses an "aad" parameter
 as input. When COSE_Encrypt0 is used then there is no AEAD function executed
-by COSE natively and HPKE offers this functionality.</t>
+by COSE natively and HPKE instead offers this functionality.</t>
 
-<t>The "aad" parameter provided to the HPKE API is constructed
-as follows (and the design has been re-used from <xref target="RFC9052"/>):</t>
+<t>The "aad" parameter provided to the HPKE API MUST be constructed as follows
+(and the design has been re-used from <xref target="RFC9052"/>).</t>
 
 <figure><artwork><![CDATA[
 Enc_structure = [
@@ -183,15 +183,12 @@ Enc_structure = [
 empty_or_serialized_map = bstr .cbor header_map / bstr .size 0
 ]]></artwork></figure>
 
-<t>The protected field in the Enc_structure contains the protected attributes 
-from the COSE_Encrypt0 structure at layer 0, encoded in a bstr type.</t>
-
-<t>The HPKE APIs also use an "info" parameter as input and the details are
-provided in <xref target="info"/>.</t>
+<t>The protected field in the Enc_structure contains the protected attributes
+from the COSE_Encrypt0 structure, encoded in a bstr type.</t>
 
 <t><xref target="cddl-hpke-one-layer"/> shows the COSE_Encrypt0 CDDL structure.</t>
 
-<figure title="CDDL for HPKE-based COSE_Encrypt0 Structure" anchor="cddl-hpke-one-layer"><artwork><![CDATA[
+<figure title="CDDL used for the HPKE Direct Encryption Mode" anchor="cddl-hpke-one-layer"><artwork><![CDATA[
 COSE_Encrypt0_Tagged = #6.16(COSE_Encrypt0)
 
 ; Layer 0
@@ -206,9 +203,9 @@ COSE_Encrypt0 = [
 <t>An example is shown in <xref target="one-layer-example"/>.</t>
 
 </section>
-<section anchor="two-layer"><name>Multiple Recipients / Two Layer Structure</name>
+<section anchor="two-layer"><name>HPKE Key Encryption Mode</name>
 
-<t>With the two layer structure the HPKE information is conveyed in the COSE_recipient 
+<t>With the HPKE Key Encryption mode information is conveyed in the COSE_recipient
 structure, i.e. one COSE_recipient structure per recipient.</t>
 
 <t>In this approach the following layers are involved:</t>
@@ -220,7 +217,7 @@ it is included in the COSE_Encrypt structure.</t>
   <t>Layer 1 (corresponding to a recipient structure) contains parameters needed for 
 HPKE to generate a shared secret used to encrypt the CEK. This layer conveys the 
 encrypted CEK in the encCEK structure. The protected header MUST contain the HPKE 
-alg parameter and the unprotected header MUST contain the 'encapsulated_key' parameter.
+alg parameter and the unprotected header MUST contain the 'ek' parameter.
 The unprotected header MAY contain the kid parameter to identify the static recipient
 public key the sender has been using with HPKE.</t>
 </list></t>
@@ -232,7 +229,7 @@ As stated above, the specification uses a CEK to encrypt the content at layer 0.
 <t>The COSE_recipient structure, shown in <xref target="cddl-hpke"/>, is repeated for each
 recipient.</t>
 
-<figure title="CDDL for HPKE-based COSE_Encrypt Structure" anchor="cddl-hpke"><artwork><![CDATA[
+<figure title="CDDL used for the HPKE Key Encryption Mode" anchor="cddl-hpke"><artwork><![CDATA[
 COSE_Encrypt_Tagged = #6.96(COSE_Encrypt)
  
 / Layer 0 /
@@ -257,12 +254,19 @@ header_map = {
 
 <t>The COSE_Encrypt MAY be tagged or untagged.</t>
 
-<t>When encrypting the content at layer 0 then the instructions in
-Section 5.3 of <xref target="RFC9052"/> MUST to be followed, which includes the
-calculation of the authenticated data strcture.</t>
+<t>The sender MUST place the 'ek' (encapsulated key) parameter into the unprotected
+header.</t>
 
-<t>At layer 1 where HPKE is used to encrypt the CEK, the "aad" parameter
-provided to the HPKE API is constructed as follows (and the design has
+<t>The sender MUST set the alg parameter in the protected header, which
+indicates the use of HPKE.</t>
+
+<t>This specification RECOMMENDS the inclusion of parameters describing the
+context of the transaction in the protected header. Section 5.2
+of <xref target="RFC9053"/> defines several parameters for this purpose, such as PartyU
+and PartyV identity and nonce, which are re-used by this specification.</t>
+
+<t>At the recipient layer where HPKE is used to encrypt the CEK, the "aad" parameter
+provided to the HPKE API MUST be constructed as follows (and the design has
 been re-used from <xref target="RFC9052"/>):</t>
 
 <figure><artwork><![CDATA[
@@ -277,9 +281,6 @@ empty_or_serialized_map = bstr .cbor header_map / bstr .size 0
 
 <t>The protected field in the Enc_structure contains the protected attributes 
 from the COSE_recipient structure at layer 1, encoded in a bstr type.</t>
-
-<t>The HPKE APIs also use an "info" parameter as input and the details are
-provided in <xref target="info"/>.</t>
 
 <t>An example is shown in <xref target="two-layer-example"/>.</t>
 
@@ -305,44 +306,6 @@ and MUST be empty for the public key.</t>
 <t>Examples of the COSE_Key for COSE-HPKE are shown in <xref target="key-representation-example"/>.</t>
 
 </section>
-<section anchor="info"><name>Info Parameter</name>
-
-<t>The HPKE specification defines the "info" parameter as a context information
-structure that is used to ensure that the derived keying material is bound to
-the context of the transaction.</t>
-
-<t>This section provides a suggestion for constructing the info structure. HPKE leaves
-the info parameter for these two functions as optional. Application profiles of this
-specification MAY populate the fields of the COSE_KDF_Context structure or MAY use
-a different structure as input to the "info" parameter. If no content for the
-"info" parameter is not supplied, it defaults to a zero-length byte string.</t>
-
-<t>This specification re-uses the context information structure defined in
-<xref target="RFC9053"/> as a foundation for the info structure. This payload becomes the content
-of the info parameter for the HPKE functions, when utilized. For better readability of
-this specification the COSE_KDF_Context structure is repeated in <xref target="cddl-cose-kdf"/>.</t>
-
-<figure title="COSE_KDF_Context Data Structure as 'info' Parameter for HPKE" anchor="cddl-cose-kdf"><artwork><![CDATA[
-   PartyInfo = (
-       identity : bstr / nil,
-       nonce : bstr / int / nil,
-       other : bstr / nil
-   )
-
-   COSE_KDF_Context = [
-       AlgorithmID : int / tstr,
-       PartyUInfo : [ PartyInfo ],
-       PartyVInfo : [ PartyInfo ],
-       SuppPubInfo : [
-           keyDataLength : uint,
-           protected : empty_or_serialized_map,
-           ? other : bstr
-       ],
-       ? SuppPrivInfo : bstr
-   ]
-]]></artwork></figure>
-
-</section>
 </section>
 <section anchor="ciphersuite-registration"><name>Ciphersuite Registration</name>
 
@@ -364,7 +327,7 @@ registry <xref target="HPKE-IANA"/>.</t>
 to the following scheme:</t>
 
 <figure><artwork><![CDATA[
-HPKE-<Version>-<Mode>-<KEM>-<KDF>-<AEAD>
+HPKE-<Mode>-<KEM>-<KDF>-<AEAD>
 ]]></artwork></figure>
 
 <t>The "Mode" indicator may be populated with the following values from
@@ -455,15 +418,15 @@ that can be used to check the interoperability of COSE-HPKE implementations:</t>
   <t>plaintext: Original data of the encrypted payload.</t>
   <t>external_aad: Externally supplied AAD.</t>
   <t>skR: A recipient private key.</t>
-  <t>skE: An ephemeral sender private key paired with the encapsulated_key.</t>
+  <t>skE: An ephemeral sender private key paired with the encapsulated key.</t>
 </list></t>
 
-<section anchor="one-layer-example"><name>Single Recipient / One Layer COSE Message</name>
+<section anchor="one-layer-example"><name>HPKE Direct Encryption Mode</name>
 
 <t>This example assumes that a sender wants to communicate an
 encrypted payload to a single recipient in the most efficient way.</t>
 
-<t>An example of the COSE_Encrypt0 structure using the HPKE scheme is
+<t>An example of the HPKE Direct Encryption Mode is
 shown in <xref target="hpke-example-one"/>. Line breaks and comments have been inserted
 for better readability.</t>
 
@@ -473,6 +436,8 @@ for better readability.</t>
   <t>alg: HPKE-Base-P256-SHA256-AES128GCM</t>
   <t>plaintext: "This is the content."</t>
   <t>external_aad: "COSE-HPKE app"</t>
+  <t>PartyU identity: "sender"</t>
+  <t>PartyV identity: "recipient"</t>
   <t>skR: h'57c92077664146e876760c9520d054aa93c3afb04e306705db6090308507b4d3'</t>
   <t>skE: h'42dd125eefc409c3b57366e721a40043fb5a58e346d51c133128a77237160218'</t>
 </list></t>
@@ -480,11 +445,11 @@ for better readability.</t>
 <figure title="COSE_Encrypt0 Example for HPKE" anchor="hpke-example-one"><artwork><![CDATA[
 16([
     / alg = HPKE-Base-P256-SHA256-AES128GCM (Assumed: 35) /
-    h'a1011823',
+    / PartyU identity (-21) /
+    / PartyV identity (-24) /
+    h'A3011823346673656E6465723769726563697069656E74',
     {
-        / kid /
-        4: h'3031',
-        / encapsulated_key /
+        / ek /
         -4: h'045df24272faf43849530db6be01f42708b3c3a9
               df8e268513f0a996ed09ba7840894a3fb946cb28
               23f609c59463093d8815a7400233b75ca8ecb177
@@ -497,10 +462,10 @@ for better readability.</t>
 ]]></artwork></figure>
 
 </section>
-<section anchor="two-layer-example"><name>Multiple Recipients / Two Layer COSE Message</name>
+<section anchor="two-layer-example"><name>HPKE Key Encryption Mode</name>
 
 <t>In this example we assume that a sender wants to transmit a
-payload to two recipients using the two-layer structure.
+payload to two recipients using the HPKE Key Encryption mode.
 Note that it is possible to send two single-layer payloads, 
 although it will be less efficient.</t>
 
@@ -547,9 +512,7 @@ inserted for better readability.</t>
             / alg = HPKE-Base-P256-SHA256-AES128GCM (Assumed: 35) /
             h'a1011823',
             {
-                / kid /
-                4: h'3031',
-                / encapsulated_key /
+                / ek /
                 -4: h'04d97b79486fe2e7b98fb1bd43
                       c4faee316ff38d28609a1cf568
                       40a809298a91e601f1cc0c2ba4
@@ -566,7 +529,7 @@ inserted for better readability.</t>
             {
                 / kid /
                 4: h'3032',
-                / encapsulated_key /
+                / ek /
                 -4: h'd1afbdc95b0e735676f6bca34f
                       be50f2822259ac09bfc3c500f1
                       4a05de9b2833',
@@ -642,7 +605,7 @@ shown in <xref target="hpke-example-cose-mac"/>.</t>
             {
                 / kid = '01' /
                 4: h'3031',
-                / encapsulated_key /
+                / ek /
                 -4: h'043ac21632e45e1fbd733f002a
                       621aa4f3d94737adc395d5a7cb
                       6e9554bd1ad273aec991493786
@@ -660,7 +623,7 @@ shown in <xref target="hpke-example-cose-mac"/>.</t>
             {
                 / kid = '02' /
                 4: h'3032',
-                / encapsulated_key /
+                / ek /
                 -4: h'02cffacc60def3bb3d0a1c3661
                       227c9de8dc2b1d3939dd2c07d4
                       49ebb0bba324',
@@ -832,7 +795,7 @@ the 'COSE Header Parameters' registries.</t>
 <section anchor="cose-header-parameters"><name>COSE Header Parameters</name>
 
 <t><list style="symbols">
-  <t>Name: encapsulated_key</t>
+  <t>Name: ek</t>
   <t>Label: TBDX (Assumed: -4)</t>
   <t>Value type: bstr</t>
   <t>Value Registry: N/A</t>
@@ -1005,7 +968,7 @@ the 'COSE Header Parameters' registries.</t>
     </references>
 
 
-<?line 796?>
+<?line 759?>
 
 <section anchor="contributors"><name>Contributors</name>
 
@@ -1033,208 +996,198 @@ and Goeran Selander for their review feedback.</t>
   </back>
 
 <!-- ##markdown-source:
-H4sIAAAAAAAAA+V9a3PcuJX2d/4KlFz1yk6627xftDvZaCQ59toeey1PsqmJ
-ywWSoMSou9kh2ZIV2/nt73MAkATZLdlzSWVS2zUjq0kCODg4l+ccHFDz+dxq
-y3Ypjtj3jWBVwZ7epnWZs9fbdFlm8+filp2ts/p205bVmj18+vr52SN2U7aX
-7OTbV2/Yq/SvImvZeXmxLtcXjK/z0eMnr87PHlk8TWtxfcToG6MerLzK1nyF
-QfOaF+28FG0xz6pGzC83V2Jux1bGW3FR1bdHrGlzyyo39RHb1CLwovhtvW1a
-17YT27V4LfgROxfZti7bW+umqq8u6mq7UWNZV+IWl/Ij9mzdinot2vkpjWdZ
-TQtK3/NltQYNt6KxNuUR+6GtshlrqrqtRdHgt9sV/fLOsvi2vazqI2tuMVau
-myP2dMHeNtllVYh1eYGLajJP+XotmvGdqr7g6/LvnPhxhO9ixcvlEbuUjy7a
-/tHfX6w+LEAhHsmq7bqlqR9jonXJh2FfLdh5K8RS9EO+qksxXKsrWkiRl21V
-T8dmb2u+blbbVgxUVGj9+7a7vijXuRwR/DCo+H5dtiLHIFiSZqDldMGO/4qB
-VmVPzCkvm+2VMK6PKUjLtGz5chg/538t8R/mjq+LrFqZ4/433/D1MN6LBXux
-XefpkufD9F/wbS3WmRjdGg/aCQd7eykgUOzFi5OBgOXF8veNfqCV96dUjGdv
-rat6hY6vBa3lmycnruMk+tfYiXz9a+LEdverHbjDrx79apXrYtJNnHhR12Po
-ybbP5qeLsia9KOqLeb4mzaDrpD/zZ8ffHdMXfDrZZPqD2UPecV9d0co90mq2
-X6upEXsjLkrIwK1uzesL0UJc23bTHD1+fHNzsyj5mi8wymPeNFD7lVi3zWOi
-Tv5YfLhsV0vVOgfPIKJZW6WiZq7tejT7+XzOeIoxeAZNfHtZNqzZiKwsykwu
-GctFUZIeXSqaN8oSQZeZ2KEZjGRbGC5pkayvNkkLyUaYu0LUDePsmkPP1i0u
-WPuHg2HkNaS35vXtvCn/DpHYLHkJs/KhbSQVnNWYxKYEOzTJDH0sLEuORJZJ
-P7e+hXSt0nLN+57XjMPYrAR0T7aikfmm2S7VIyuRwV6UzYo9fH728tGM7Bq4
-VJfX6n6xXWdqcs9PnzyaySmTWIAU4iloNWZCnLJ4DhuBb3xJi8TZw+Oz49NH
-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
-IBYhMVhY/x9FCCUjlW8AAA==
+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
+6bXXxwXoJNKhOgnwnk4CHL7TD8MQ/hi++4mSEvPEiy0r4YBAUZRFCaCw6SWZ
+G0fCppQhWSFYmsD1bDuEr+C2FWGRU5+bkciyPZJim5YTwk3baB37qecDO5sZ
+B0CHVTJd7nAfCBUuPaHcjh/7WewT6orjLLEAbbtu21SJMvc/G/zP7pNA+39C
+AvcZny+EBbsk8eWzVwNJtCaSaE0k0bpHEn+C03foy0TIVDdDKXN3S1kSB4kZ
+Ye1jAPYkACQyQyFML47iOHUQs3geIhiBBYxTF4AQv0UUOVYMX+4mtn3/ujlf
+vW73069qW7rXwJ6V8lVMurwc3qsWyZxK4j7vPAuKC3Q+gd4ZqGL0tuq7O5uS
+jDuUSZb+JZLy9YV0XBJTFkwWsSSyQkyWsMg6wB3nLtVIXR1El4SSbxiQO3ai
+rgc5qnve40cTVv2p+hZ+3XbJV3rPUW5i1Qv2RMjjobKchspcpMvue06pLpFO
+FFLxS/9OUipUVQImD4FSeSmL6ZVdm6Z751WdlGudBxm84rIltBJLOudObh+D
+b6pEPlph4uWqoM1F9f5HfsPzpeRdWejiyJs8EcNqWCoUNbrqFNrInJ7K14dT
+5YF0OcDyrnthQjo5QmeIot5U8iU4+gx+V91Zdy/2oVf36hdTqQ5ZsVnR+251
+r+olkFWbl6G3bbXv/CoYia86TJCWopa1kDtTkVy+9GHrNWgLpreRDXrTnFrg
+7vxszeSriLrM42yQhJx1yagZ00Vh9MVsi63aciaeppOp6DfnSunVb/RRryeU
+PNo1eXr5Rzbe722H3HrbkM6W7to6avSLiIzRi/10VZistrqU6qjTisS1m5x/
+mXxjRH+3DEl5I/Qp6x2zAePbAi7igJQXJSxGJyu7iJBsk4W8OelavXPe+n0c
+eT0jqTK6ymyZPqF1pjeXyhc80TkL1fvwHPZavvNW7JuEQcpJVc668vZywyG4
+jVDVugXA+6BfWWzL2kLlieWUp1imr62taG1qSJ9so2WIXoCoj8no0udDKazd
+Cbv6UBnWkhn9XfWmAyqg0SffD9uidZiLvgp40Ev/+mpjztj36q3sXyyPYn+i
+qZ2wt9+eW2MARzfP+5fNnbQnY1St7LieslXnF+rFgbzpU7LnT6CsRxLEzdiT
+Z+ff6Vk8Vu8ylCrdX5XF1q2bGW7Y0rpQqR4742tVrAA+AC4CULyTl2GRL4V8
+x2wFYyOqE/b04s0f6NZrOvBFInfC2I8/gtATJWQwYO/eqQdUpURKlP+FakB3
+MXDXqZkxA50hA4NfmoEYuGcgvuxgIJXdysL3IQdpxX8dHNx1XmjMwSFgc6Jf
+moMYv+cgZrGDg7j6K+bgnpNSYx4GQ9Br/bI8VBN4oB7Pfp2KfP8xsTEvw3EA
+8Wvg5dZJsv99hu46LzfmYzTko/ML8xHD/4ur9T0HBScu2hwy0v0VMPJ/WRxb
+GLQFlwaMFtf0WR7ukUz8rwEP54qHksPy1IZ+j013rQVVJ+z749MtdkvGTg8C
+TEgBJVthLshR/xhIzJNr/W8VqPiypKn/GThXHhCTUQzWqrjeOouR5jd5ugGo
+bl+PkcsX2HVRaveSV/3SIDq6It/IPNp116+Y7k5KSmb2EaMxeLM/W5b6nxRZ
+qrec0j8jI99fSFEvAuRkI+NyufX+OkeIXKWQuKqgfzmHPV3yKmfP8019w7FI
+hvFdrmPW2zGxpab3NXpjT8pNvRTq4Oi34GfKqbAYkL0n2hgR3UJs+W8rUeiY
+lHP1r8TIJHxeQBz5kiG+kYcRJcI/Ta6L8nYp0ksZ1Gzzv53SH8srDM+bpq5L
+xFQv6OarqqzK5Jq+gWKxbCmnJ+S7qP5QCprvG7HkMo3RrxadrUVskCH6IDFY
+GP8NMIDHlpFqAAA=
 
 -->
 

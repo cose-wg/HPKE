@@ -130,22 +130,27 @@ transported separately then it is called "detached content". A nil CBOR
 object is placed in the location of the ciphertext. See Section 5
 of {{RFC9052}} for a description of detached payloads.
 
+The sender MUST place the 'ek' (encapsulated key) parameter into the unprotected
+header.
+
 The sender MUST set the alg parameter in the protected header, which
 indicates the use of HPKE.
 
-The sender MUST place the 'ek' (encapsulated key) parameter into the unprotected
-header. Although the use of the 'kid' parameter in COSE_Encrypt0 is
-discouraged by RFC 9052, this documents RECOMMENDS the use of the 'kid' parameter
-(or other parameters) to explicitly identify the static recipient public key
-used by the sender. If the COSE_Encrypt0 contains the 'kid' then the recipient may
-use it to select the appropriate private key.
+This specification RECOMMENDS the inclusion of parameters describing the
+context of the transaction in the protected header. Section 5.2
+of {{RFC9053}} defines several parameters for this purpose, such as PartyU
+and PartyV identity and nonce, which are re-used by this specification.
+PartyU refers to the entity that is creating the message and PartyV refers
+to the entity that is receiving the message. The context information
+parameters are, unlike described in {{RFC9053}}, not used to build the
+COSE_KDF_Context structure, as explained below.
 
-The HPKE specification describes an API and this API uses an "aad" parameter
+The HPKE specification describes an API and uses an "aad" parameter
 as input. When COSE_Encrypt0 is used then there is no AEAD function executed
-by COSE natively and HPKE offers this functionality.
+by COSE natively and HPKE instead offers this functionality.
 
-The "aad" parameter provided to the HPKE API is constructed
-as follows (and the design has been re-used from {{RFC9052}}):
+The "aad" parameter provided to the HPKE API MUST be constructed as follows
+(and the design has been re-used from {{RFC9052}}).
 
 ~~~
 Enc_structure = [
@@ -158,10 +163,7 @@ empty_or_serialized_map = bstr .cbor header_map / bstr .size 0
 ~~~
 
 The protected field in the Enc_structure contains the protected attributes
-from the COSE_Encrypt0 structure at layer 0, encoded in a bstr type.
-
-The HPKE APIs also use an "info" parameter as input and the details are
-provided in {{info}}.
+from the COSE_Encrypt0 structure, encoded in a bstr type.
 
 {{cddl-hpke-one-layer}} shows the COSE_Encrypt0 CDDL structure.
 
@@ -182,10 +184,10 @@ An example is shown in {{one-layer-example}}.
 
 ### HPKE Key Encryption Mode {#two-layer}
 
-With the HPKE Key Encryption mode information is conveyed in the COSE_recipient 
+With the HPKE Key Encryption mode information is conveyed in the COSE_recipient
 structure, i.e. one COSE_recipient structure per recipient.
 
-In this approach the following layers are involved: 
+In this approach the following layers are involved:
 
 - Layer 0 (corresponding to the COSE_Encrypt structure) contains the content (plaintext)
 encrypted with the CEK. This ciphertext may be detached, and if not detached, then
@@ -229,14 +231,21 @@ header_map = {
 ~~~
 {: #cddl-hpke title="CDDL used for the HPKE Key Encryption Mode"}
 
-The COSE_Encrypt MAY be tagged or untagged. 
+The COSE_Encrypt MAY be tagged or untagged.
 
-When encrypting the content at layer 0 then the instructions in
-Section 5.3 of {{RFC9052}} MUST to be followed, which includes the
-calculation of the authenticated data strcture.
+The sender MUST place the 'ek' (encapsulated key) parameter into the unprotected
+header.
 
-At layer 1 where HPKE is used to encrypt the CEK, the "aad" parameter
-provided to the HPKE API is constructed as follows (and the design has
+The sender MUST set the alg parameter in the protected header, which
+indicates the use of HPKE.
+
+This specification RECOMMENDS the inclusion of parameters describing the
+context of the transaction in the protected header. Section 5.2
+of {{RFC9053}} defines several parameters for this purpose, such as PartyU
+and PartyV identity and nonce, which are re-used by this specification.
+
+At the recipient layer where HPKE is used to encrypt the CEK, the "aad" parameter
+provided to the HPKE API MUST be constructed as follows (and the design has
 been re-used from {{RFC9052}}):
 
 ~~~
@@ -251,9 +260,6 @@ empty_or_serialized_map = bstr .cbor header_map / bstr .size 0
 
 The protected field in the Enc_structure contains the protected attributes 
 from the COSE_recipient structure at layer 1, encoded in a bstr type.
-
-The HPKE APIs also use an "info" parameter as input and the details are
-provided in {{info}}.
 
 An example is shown in {{two-layer-example}}.
 
@@ -274,44 +280,6 @@ or public keys. When using a COSE_Key for COSE-HPKE, the following checks are ma
 
 Examples of the COSE_Key for COSE-HPKE are shown in {{key-representation-example}}.
 
-## Info Parameter {#info}
-
-The HPKE specification defines the "info" parameter as a context information
-structure that is used to ensure that the derived keying material is bound to
-the context of the transaction. 
-
-This section provides a suggestion for constructing the info structure. HPKE leaves
-the info parameter for these two functions as optional. Application profiles of this
-specification MAY populate the fields of the COSE_KDF_Context structure or MAY use
-a different structure as input to the "info" parameter. If no content for the
-"info" parameter is not supplied, it defaults to a zero-length byte string.
-
-This specification re-uses the context information structure defined in
-{{RFC9053}} as a foundation for the info structure. This payload becomes the content
-of the info parameter for the HPKE functions, when utilized. For better readability of
-this specification the COSE_KDF_Context structure is repeated in {{cddl-cose-kdf}}.
-
-~~~
-   PartyInfo = (
-       identity : bstr / nil,
-       nonce : bstr / int / nil,
-       other : bstr / nil
-   )
-
-   COSE_KDF_Context = [
-       AlgorithmID : int / tstr,
-       PartyUInfo : [ PartyInfo ],
-       PartyVInfo : [ PartyInfo ],
-       SuppPubInfo : [
-           keyDataLength : uint,
-           protected : empty_or_serialized_map,
-           ? other : bstr
-       ],
-       ? SuppPrivInfo : bstr
-   ]
-~~~
-{: #cddl-cose-kdf title="COSE_KDF_Context Data Structure as 'info' Parameter for HPKE"}
-
 # Ciphersuite Registration
 
 A ciphersuite is a group of algorithms, often sharing component algorithms
@@ -330,7 +298,7 @@ For readability the algorithm ciphersuites labels are built according
 to the following scheme: 
 
 ~~~
-HPKE-<Version>-<Mode>-<KEM>-<KDF>-<AEAD>
+HPKE-<Mode>-<KEM>-<KDF>-<AEAD>
 ~~~
 
 The "Mode" indicator may be populated with the following values from
@@ -433,16 +401,18 @@ This example uses the following:
 - alg: HPKE-Base-P256-SHA256-AES128GCM
 - plaintext: "This is the content."
 - external_aad: "COSE-HPKE app"
+- PartyU identity: "sender"
+- PartyV identity: "recipient"
 - skR: h'57c92077664146e876760c9520d054aa93c3afb04e306705db6090308507b4d3'
 - skE: h'42dd125eefc409c3b57366e721a40043fb5a58e346d51c133128a77237160218'
 
 ~~~
 16([
     / alg = HPKE-Base-P256-SHA256-AES128GCM (Assumed: 35) /
-    h'a1011823',
+    / PartyU identity (-21) /
+    / PartyV identity (-24) /
+    h'A3011823346673656E6465723769726563697069656E74',
     {
-        / kid /
-        4: h'3031',
         / ek /
         -4: h'045df24272faf43849530db6be01f42708b3c3a9
               df8e268513f0a996ed09ba7840894a3fb946cb28
@@ -500,8 +470,6 @@ This example uses the following:
             / alg = HPKE-Base-P256-SHA256-AES128GCM (Assumed: 35) /
             h'a1011823',
             {
-                / kid /
-                4: h'3031',
                 / ek /
                 -4: h'04d97b79486fe2e7b98fb1bd43
                       c4faee316ff38d28609a1cf568
