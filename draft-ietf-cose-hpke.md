@@ -103,17 +103,12 @@ This specification uses the following abbreviations and terms:
 
 ## Overview
 
-This specification supports two uses of HPKE in COSE, namely 
+This specification supports two modes of HPKE in COSE, namely 
 
-* HPKE in a single recipient setup.
-  This use case utilizes a one layer COSE structure. 
-  {{one-layer}} provides the details.
-
-* HPKE in a multiple recipient setup. 
-  This use case requires a two layer COSE structure.  {{two-layer}} 
-  provides the details. While it is possible to support the single 
-  recipient use case with a two layer structure, the single 
-  layer setup is more efficient.
+  *  HPKE Direct Encryption mode, where HPKE is used to encrypt the plaintext. This mode can only be used with a single recipient. {{one-layer}} provides the details.
+  
+  *  HPKE Key Encryption mode, where HPKE is used to encrypt a content encryption key (CEK) and the CEK is subsequently used to encrypt the plaintext. This mode supports multiple recipients. {{two-layer}} 
+  provides the details.
 
 In both cases a new COSE header parameter, called 'encapsulated_key',
 is used to convey the content of the enc structure defined in the HPKE
@@ -124,10 +119,10 @@ be present in the unprotected header parameter and MUST contain
 the encapsulated key, which is output of the HPKE KEM, and it
 is a bstr.
 
-### Single Recipient / One Layer Structure {#one-layer}
+### HPKE Direct Encryption Mode {#one-layer}
 
-With the one layer structure the information carried inside the 
-COSE_recipient structure is embedded inside the COSE_Encrypt0. 
+With the HPKE Direct Encryption mode the information carried inside the 
+COSE_recipient structure is embedded inside the COSE_Encrypt0.
 
 HPKE is used to directly encrypt the plaintext and the resulting ciphertext
 is either included in the COSE_Encrypt0 or is detached. If a payload is
@@ -179,15 +174,15 @@ COSE_Encrypt0 = [
     ciphertext : bstr / nil,
 ]
 ~~~
-{: #cddl-hpke-one-layer title="CDDL for HPKE-based COSE_Encrypt0 Structure"}
+{: #cddl-hpke-one-layer title="CDDL used for the HPKE Direct Encryption Mode"}
 
 The COSE_Encrypt0 MAY be tagged or untagged.
 
 An example is shown in {{one-layer-example}}.
 
-### Multiple Recipients / Two Layer Structure {#two-layer}
+### HPKE Key Encryption Mode {#two-layer}
 
-With the two layer structure the HPKE information is conveyed in the COSE_recipient 
+With the HPKE Key Encryption mode information is conveyed in the COSE_recipient 
 structure, i.e. one COSE_recipient structure per recipient.
 
 In this approach the following layers are involved: 
@@ -232,7 +227,7 @@ header_map = {
   * label => values,
 }
 ~~~
-{: #cddl-hpke title="CDDL for HPKE-based COSE_Encrypt Structure"}
+{: #cddl-hpke title="CDDL used for the HPKE Key Encryption Mode"}
 
 The COSE_Encrypt MAY be tagged or untagged. 
 
@@ -424,12 +419,12 @@ that can be used to check the interoperability of COSE-HPKE implementations:
 - skR: A recipient private key.
 - skE: An ephemeral sender private key paired with the encapsulated_key.
 
-## Single Recipient / One Layer COSE Message {#one-layer-example}
+## HPKE Direct Encryption Mode {#one-layer-example}
 
 This example assumes that a sender wants to communicate an
 encrypted payload to a single recipient in the most efficient way.
 
-An example of the COSE_Encrypt0 structure using the HPKE scheme is
+An example of the HPKE Direct Encryption Mode is
 shown in {{hpke-example-one}}. Line breaks and comments have been inserted
 for better readability.
 
@@ -461,10 +456,10 @@ This example uses the following:
 ~~~
 {: #hpke-example-one title="COSE_Encrypt0 Example for HPKE"}
 
-## Multiple Recipients / Two Layer COSE Message {#two-layer-example}
+## HPKE Key Encryption Mode {#two-layer-example}
 
 In this example we assume that a sender wants to transmit a
-payload to two recipients using the two-layer structure.
+payload to two recipients using the HPKE Key Encryption mode.
 Note that it is possible to send two single-layer payloads, 
 although it will be less efficient.
 
