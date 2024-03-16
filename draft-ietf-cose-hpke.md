@@ -313,8 +313,36 @@ Since COSE originally provides a way to supply the AAD (Additional Authenticated
 to the AEAD step, including an externaly supplied value (external_aad), in COSE-HPKE,
 using this AAD as "aad" for HPKE is more compatible and natural with the COSE convention.
 
-Therefore, the "aad" for HPKE SHOULD be specified with the AAD that includes
-the external_aad, while the "info" should be specified with an empty string.
+
+In both "HPKE direct encryption" and "HPKE key encryption", the aad provided to the Seal and Open operations MUST be the protected headers.
+
+When using "HPKE direct encryption":
+
+This mode MUST be used with COSE_Encrypt0 (tag 16).
+This mode MUST NOT be used with COSE_Encrypt (tag 96).
+
+The `aad` provided to HPKE Seal and HPKE Open MUST be the protected bytes, as defined in {{Section 3 of RFC9052 }}.
+
+This mode MAY be used with external aad, as described in {{Section 5.3 of RFC9052}}.
+
+This mode MAY be used with COSE_KDF_Context as described in {{Section 5.2 of RFC9053}}.
+
+Parameters to COSE_KDF_Context are known to both sender and receiver, and MAY be found in either the protected or unprotected headers of the COSE_Encrypt0 structure, or supplied directly to the encrypt or decrypt operations for this mode.
+
+
+When using  "HPKE key encryption", 
+
+This mode MUST NOT be used with COSE_Encrypt0 (tag 16).
+This mode MUST be used with COSE_Encrypt (tag 96).
+
+The `aad` provided to HPKE Seal and HPKE Open MUST be the protected bytes of the COSE_Recipient, as defined in {{Section 5.1 of RFC9052 }}.
+
+This mode MAY be used with external aad, as described in {{Section 5.3 of RFC9052}}.
+
+This mode MAY be used with COSE_KDF_Context as described in {{Section 5.2 of RFC9053}}.
+
+Parameters to COSE_KDF_Context are known to both sender and receiver, and MAY be found in either the protected or unprotected headers of the COSE_Encrypt structure, the protected or unprotected headers of the COSE_Recipient structure, or supplied directly to the encrypt or decrypt operations for this mode.
+
 
 # Ciphersuite Registration
 
