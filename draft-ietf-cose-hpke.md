@@ -332,7 +332,7 @@ Parameters to COSE_KDF_Context are known to both sender and receiver, and MAY be
 When using  "HPKE key encryption", 
 
 This mode MUST NOT be used with COSE_Encrypt0 (tag 16).
-This mode MUST be used with COSE_Encrypt (tag 96).
+This mode MAY be used with COSE_Encrypt (tag 96).
 
 The `aad` provided to HPKE Seal and HPKE Open MUST be the protected bytes of the COSE_Recipient, as defined in {{Section 5.1 of RFC9052 }}.
 
