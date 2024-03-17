@@ -338,7 +338,6 @@ The `aad` provided to HPKE Seal and HPKE Open MUST be the protected bytes of the
 
 This mode MAY be used with external aad, as described in {{Section 5.3 of RFC9052}}.
 
-This mode MAY be used with COSE_KDF_Context as described in {{Section 5.2 of RFC9053}}.
 
 Parameters to COSE_KDF_Context are known to both sender and receiver, and MAY be found in either the protected or unprotected headers of the COSE_Encrypt structure, the protected or unprotected headers of the COSE_Recipient structure, or supplied directly to the encrypt or decrypt operations for this mode.
 
