@@ -328,7 +328,7 @@ This mode MAY be used with external aad, as described in {{Section 5.3 of RFC905
 
 Parameters to COSE_KDF_Context MAY be found in either the protected or unprotected headers.
 
-Unless understood in some consistent way by sender and receiver, they are ignored.
+Unless understood in some consistent way by sender and recipient, they are ignored.
 
 
 When using  "HPKE key encryption", 
@@ -343,7 +343,7 @@ This mode MAY be used with external aad, as described in {{Section 5.3 of RFC905
 
 Parameters related to COSE_KDF_Context MAY be found in either the protected or unprotected headers of the COSE_Encrypt structure, the protected or unprotected headers of the COSE_Recipient structure.
 
-Unless understood in some consistent way by send are receiver, they are ignore.
+Unless understood in some consistent way by sender and recipient, they are ignored.
 
 
 # Ciphersuite Registration
