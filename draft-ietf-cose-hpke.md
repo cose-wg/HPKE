@@ -202,6 +202,76 @@ This two-layer structure is used to encrypt content that can also be shared with
 multiple parties at the expense of a single additional encryption operation.
 As stated above, the specification uses a CEK to encrypt the content at layer 0.
 
+#### Recipient Encryption
+
+This describes a Recipient_structure.
+It serves instead of COSE_KDF_Context for COSE-HPKE recipients (and possibly other COSE algorithms defined outside this document).
+It is mandatory for COSE-HPKE recipients as it provides the protection for protected headers.
+It is patterned after the Enc_structure in RFC 9052, but is specifically for a COSE_recipient, never a COSE_Encrypt.
+The COSE_KDF_Context is NOT used in COSE-HPKE.
+
+~~~
+Recipient_structure = [ 
+    context: “Recipient”,
+    next_layer_alg: int/tstr,
+    recipient_protected_header: empty_or_serialize_map,
+    recipient_aad: bstr
+]
+~~~
+
+
+- "next_layer_alg" is the algorithm ID of the COSE layer for which the COSE_recipient is providing a key.
+It is the algorithm that the key MUST be used for.
+This MUST match the alg parameter in the next lower COSE layer.
+(This serves the same purpose as the alg ID in the COSE_KDF_Context.
+It also mitigates attacks where a man-in-the-middle changes the following layer algorithm from an AEAD algorithm to one that is not foiling the protection of the following layer headers).
+
+- "recipient_protected_header" This is the protected headers from the COSE_recipient CBOR-encoded deterministically with CDE.
+
+- "recipient_aad" This is any additional context that the application wishes to protect.
+If none, it is a zero-length string.
+This is distinct from the external_aad for the whole COSE encrypt.
+It is per-recipient. Since it is not a header, it may be secret data that is not transmitted.
+It provides a means to convey many of the fields in COSE_KDF_Context.
+
+
+#### COSE-HPKE Recipient Construction
+
+This is the procedure for creating a COSE_recipient for COSE-HPKE.
+
+When a COSE_recipeint is constructed for a COSE-HPKE recipient, this is given as the “aad” parameter to the HPKE Seal() API.
+The “info” parameter to HPKE_Seal is not used with COSE_HPKE.
+
+The creation of the COSE_recipient is as follows:
+
+1. Prepare a Recipient_structure
+2. Obtain the CEK from the next lowest layer
+3. Pass in the following parameters to HPKE Seal API
+    1. Public key of recipient for “pKR”
+    2. Empty string for “info”
+    3. CBOR-encoded Recipient_structure for “aad”
+    4. CEK for next cose layer for “pt”
+4.  The following are returned from the HPKE Seal API
+    1. The “enc” is placed in the "ek" header of the COSE_recipient
+    2. The “ct” is placed in the “ciphertext” field of the COSE_recipient
+
+The decoding and decryption of a COSE_recipient is as follows:
+
+1. Prepare a Recipient_structure
+2. Pass in the following parameters to HPKE Open API
+    1. The "ek" header  for “enc”
+    2. Secret key for recipient for “sKR”
+    3. Empty string for “info”
+    4. CBOR-encoded Recipient_structure for “aad”
+    5. The cipher text from the COSE_recipient as “ct”
+3. What is returned from HPKE Open API is the CEK for the next COSE layer
+
+It is not necessary to fill in recipeint_aad as HPKE itself covers the attacks that recipient_aad (and COSE_KDF_Context (and xxxx reference)) are used to mitigate.
+COSE-HPKE use cases may use it for any purpose they wish, but it should generally be for small identifiers, context or secrets, not to protect bulk external data.
+Bulk external data should be protected at layer 0 with external_aad.
+
+
+
 The COSE_recipient structure, shown in {{cddl-hpke}}, is repeated for each
 recipient.
 
@@ -274,43 +344,6 @@ or public keys. When using a COSE_Key for COSE-HPKE, the following checks are ma
 
 Examples of the COSE_Key for COSE-HPKE are shown in {{key-representation-example}}.
 
-## Info Parameter {#info}
-
-The HPKE specification defines the "info" parameter as a context information
-structure that is used to ensure that the derived keying material is bound to
-the context of the transaction. 
-
-This section provides a suggestion for constructing the info structure. HPKE leaves
-the info parameter for these two functions as optional. Application profiles of this
-specification MAY populate the fields of the COSE_KDF_Context structure or MAY use
-a different structure as input to the "info" parameter. If no content for the
-"info" parameter is not supplied, it defaults to a zero-length byte string.
-
-This specification re-uses the context information structure defined in
-{{RFC9053}} as a foundation for the info structure. This payload becomes the content
-of the info parameter for the HPKE functions, when utilized. For better readability of
-this specification the COSE_KDF_Context structure is repeated in {{cddl-cose-kdf}}.
-
-~~~
-   PartyInfo = (
-       identity : bstr / nil,
-       nonce : bstr / int / nil,
-       other : bstr / nil
-   )
-
-   COSE_KDF_Context = [
-       AlgorithmID : int / tstr,
-       PartyUInfo : [ PartyInfo ],
-       PartyVInfo : [ PartyInfo ],
-       SuppPubInfo : [
-           keyDataLength : uint,
-           protected : empty_or_serialized_map,
-           ? other : bstr
-       ],
-       ? SuppPrivInfo : bstr
-   ]
-~~~
-{: #cddl-cose-kdf title="COSE_KDF_Context Data Structure as 'info' Parameter for HPKE"}
 
 # Ciphersuite Registration
 
