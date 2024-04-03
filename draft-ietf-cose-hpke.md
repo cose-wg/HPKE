@@ -220,8 +220,8 @@ Recipient_structure = [ 
 ~~~
 
 
-- "next_layer_alg" is the algorithm ID of the COSE layer for which the COSE_recipient is providing a key.
-It is the algorithm that the key MUST be used for.
+- "next_layer_alg" is the algorithm ID of the COSE layer for which the COSE_recipient is encrypting a key.
+It is the algorithm that the key MUST be used with.
 This MUST match the alg parameter in the next lower COSE layer.
 (This serves the same purpose as the alg ID in the COSE_KDF_Context.
 It also mitigates attacks where a man-in-the-middle changes the following layer algorithm from an AEAD algorithm to one that is not foiling the protection of the following layer headers).
@@ -304,26 +304,6 @@ The COSE_Encrypt MAY be tagged or untagged.
 When encrypting the content at layer 0 then the instructions in
 Section 5.3 of {{RFC9052}} MUST to be followed, which includes the
 calculation of the authenticated data strcture.
-
-At layer 1 where HPKE is used to encrypt the CEK, the "aad" parameter
-provided to the HPKE API is constructed as follows (and the design has
-been re-used from {{RFC9052}}):
-
-~~~
-Enc_structure = [
-    context : "Enc_Recipient",
-    protected : empty_or_serialized_map,
-    external_aad : bstr
-]
-
-empty_or_serialized_map = bstr .cbor header_map / bstr .size 0
-~~~
-
-The protected field in the Enc_structure contains the protected attributes 
-from the COSE_recipient structure at layer 1, encoded in a bstr type.
-
-The HPKE APIs also use an "info" parameter as input and the details are
-provided in {{info}}.
 
 An example is shown in {{two-layer-example}}.
 
@@ -503,6 +483,8 @@ shown in {{hpke-example-cose-encrypt}}. Line breaks and comments have been
 inserted for better readability. 
 
 This example uses the following:
+
+TODO: recompute this for Recipient_structure
 
 - Encryption alg: AES-128-GCM
 - plaintext: "This is the content."
