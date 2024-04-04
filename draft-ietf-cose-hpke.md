@@ -204,11 +204,11 @@ As stated above, the specification uses a CEK to encrypt the content at layer 0.
 
 #### Recipient Encryption
 
-This describes a Recipient_structure.
+This describes the Recipient_structure.
 It serves instead of COSE_KDF_Context for COSE-HPKE recipients (and possibly other COSE algorithms defined outside this document).
-It is mandatory for COSE-HPKE recipients as it provides the protection for protected headers.
-It is patterned after the Enc_structure in RFC 9052, but is specifically for a COSE_recipient, never a COSE_Encrypt.
-The COSE_KDF_Context is NOT used in COSE-HPKE.
+It MUST be used for COSE-HPKE recipients as it provides the protection for recipient protected headers.
+It is patterned after the Enc_structure in {{RFC9052}}, but is specifically for a COSE_recipient, never a COSE_Encrypt.
+The COSE_KDF_Context MUST NOT be used in COSE-HPKE.
 
 ~~~
 Recipient_structure = [ 
@@ -218,7 +218,6 @@ Recipient_structure = [ 
     recipient_aad: bstr
 ]
 ~~~
-
 
 - "next_layer_alg" is the algorithm ID of the COSE layer for which the COSE_recipient is encrypting a key.
 It is the algorithm that the key MUST be used with.
@@ -231,7 +230,8 @@ It also mitigates attacks where a man-in-the-middle changes the following layer 
 - "recipient_aad" This is any additional context that the application wishes to protect.
 If none, it is a zero-length string.
 This is distinct from the external_aad for the whole COSE encrypt.
-It is per-recipient. Since it is not a header, it may be secret data that is not transmitted.
+It is per-recipient.
+Since it is not a header, it may be secret data that is not transmitted.
 It provides a means to convey many of the fields in COSE_KDF_Context.
 
 
@@ -245,12 +245,12 @@ The “info” parameter to HPKE_Seal is not used with COSE_HPKE.
 The creation of the COSE_recipient is as follows:
 
 1. Prepare a Recipient_structure
-2. Obtain the CEK from the next lowest layer
+2. Obtain the key To used use by the next lowest layer
 3. Pass in the following parameters to HPKE Seal API
     1. Public key of recipient for “pKR”
     2. Empty string for “info”
     3. CBOR-encoded Recipient_structure for “aad”
-    4. CEK for next cose layer for “pt”
+    4. The key for next lowest COSE layer for “pt”
 4.  The following are returned from the HPKE Seal API
     1. The “enc” is placed in the "ek" header of the COSE_recipient
     2. The “ct” is placed in the “ciphertext” field of the COSE_recipient
@@ -264,12 +264,11 @@ The decoding and decryption of a COSE_recipient is as follows:
     3. Empty string for “info”
     4. CBOR-encoded Recipient_structure for “aad”
     5. The cipher text from the COSE_recipient as “ct”
-3. What is returned from HPKE Open API is the CEK for the next COSE layer
+3. What is returned from HPKE Open API is the key for the next lowest COSE layer
 
-It is not necessary to fill in recipeint_aad as HPKE itself covers the attacks that recipient_aad (and COSE_KDF_Context (and xxxx reference)) are used to mitigate.
+It is not necessary to fill in recipeint_aad as HPKE itself covers the attacks that recipient_aad (and COSE_KDF_Context (and SP800-56A)) are used to mitigate.
 COSE-HPKE use cases may use it for any purpose they wish, but it should generally be for small identifiers, context or secrets, not to protect bulk external data.
 Bulk external data should be protected at layer 0 with external_aad.
-
 
 
 The COSE_recipient structure, shown in {{cddl-hpke}}, is repeated for each
@@ -718,7 +717,9 @@ mechanism is assumed to exist but outside the scope of this document.
 
 HPKE relies on a source of randomness to be available on the device. Additionally, 
 with the two layer structure the CEK is randomly generated and it MUST be
-ensured that the guidelines in {{RFC8937}} for random number generations are followed. 
+ensured that the guidelines in {{RFC8937}} for random number generations are followed.
+
+TODO: 
 
 HPKE in Base mode does not offer authentication as part of the HPKE KEM. In this
 case COSE constructs like COSE_Sign, COSE_Sign1, COSE_MAC, or COSE_MAC0 can be
