@@ -266,7 +266,7 @@ The decoding and decryption of a COSE_recipient is as follows:
     5. The cipher text from the COSE_recipient as “ct”
 3. What is returned from HPKE Open API is the CEK for the next COSE layer
 
-It is not necessary to fill in recipeint_aad as HPKE itself covers the attacks that recipient_aad (and COSE_KDF_Context (and xxxx reference)) are used to mitigate.
+It is not necessary to fill in recipient_aad as HPKE itself covers the attacks that recipient_aad (and COSE_KDF_Context (and xxxx reference)) are used to mitigate.
 COSE-HPKE use cases may use it for any purpose they wish, but it should generally be for small identifiers, context or secrets, not to protect bulk external data.
 Bulk external data should be protected at layer 0 with external_aad.
 
