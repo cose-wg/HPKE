@@ -45,6 +45,7 @@ normative:
   RFC9180:
   RFC9052:
   RFC9053:
+  STD94:
   
 informative:
   RFC8937:
@@ -225,7 +226,7 @@ This MUST match the alg parameter in the next lower COSE layer.
 (This serves the same purpose as the alg ID in the COSE_KDF_Context.
 It also mitigates attacks where a man-in-the-middle changes the following layer algorithm from an AEAD algorithm to one that is not foiling the protection of the following layer headers).
 
-- "recipient_protected_header" This is the protected headers from the COSE_recipient CBOR-encoded deterministically with CDE.
+- "recipient_protected_header" This is the protected headers from the COSE_recipient CBOR-encoded deterministically with Core Deterministic Encoding Requirements specified in Section 4.2.1 of RFC 8949 {{STD94}}.
 
 - "recipient_aad" This is any additional context that the application wishes to protect.
 If none, it is a zero-length string.
