@@ -224,7 +224,7 @@ Recipient_structure = [ 
 It is the algorithm that the key MUST be used with.
 This value MUST match the alg parameter in the next lower COSE layer.
 (This serves the same purpose as the alg ID in the COSE_KDF_Context.
-It also mitigates attacks where a man-in-the-middle changes the following layer algorithm from an AEAD algorithm to one that is not foiling the protection of the following layer headers).
+It also mitigates attacks where a person-in-the-middle changes the following layer algorithm from an AEAD algorithm to one that is not foiling the protection of the following layer headers).
 
 - "recipient_protected_header" This is the protected headers from the COSE_recipient CBOR-encoded deterministically with Core Deterministic Encoding Requirements specified in Section 4.2.1 of RFC 8949 {{STD94}}.
 
