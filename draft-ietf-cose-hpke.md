@@ -248,23 +248,23 @@ The creation of the COSE_recipient is as follows:
 1. Prepare a Recipient_structure
 2. Obtain the key To used use by the next lowest layer
 3. Pass in the following parameters to HPKE Seal API
-    1. Public key of recipient for “pKR”
-    2. Empty string for “info”
-    3. CBOR-encoded Recipient_structure for “aad”
-    4. The key for next lowest COSE layer for “pt”
+    1. Public key of recipient for "pKR"
+    2. Empty string for "info"
+    3. CBOR-encoded Recipient_structure for "aad"
+    4. The key for next lowest COSE layer for "pt"
 4.  The following are returned from the HPKE Seal API
-    1. The “enc” is placed in the "ek" header of the COSE_recipient
-    2. The “ct” is placed in the “ciphertext” field of the COSE_recipient
+    1. The "enc" is placed in the "ek" header of the COSE_recipient
+    2. The "ct" is placed in the "ciphertext" field of the COSE_recipient
 
 The decoding and decryption of a COSE_recipient is as follows:
 
 1. Prepare a Recipient_structure
 2. Pass in the following parameters to HPKE Open API
-    1. The "ek" header  for “enc”
-    2. Secret key for recipient for “sKR”
-    3. Empty string for “info”
-    4. CBOR-encoded Recipient_structure for “aad”
-    5. The cipher text from the COSE_recipient as “ct”
+    1. The "ek" header  for "enc"
+    2. Secret key for recipient for "sKR"
+    3. Empty string for "info"
+    4. CBOR-encoded Recipient_structure for "aad"
+    5. The cipher text from the COSE_recipient as "ct"
 3. What is returned from HPKE Open API is the key for the next lowest COSE layer
 
 It is not necessary to fill in recipient_aad as HPKE itself covers the attacks that recipient_aad (and COSE_KDF_Context (and SP800-56A)) are used to mitigate.
