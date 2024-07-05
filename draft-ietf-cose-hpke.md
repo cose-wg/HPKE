@@ -16,9 +16,9 @@ author:
 -
   ins: H. Tschofenig
   name: Hannes Tschofenig
-  organization:
+  organization: University of Applied Sciences Bonn-Rhein-Sieg
   email: hannes.tschofenig@gmx.net
-  country: Austria
+  country: Germany
 -
   ins: O. Steele
   name: Orie Steele
@@ -160,9 +160,6 @@ empty_or_serialized_map = bstr .cbor header_map / bstr .size 0
 
 The protected field in the Enc_structure contains the protected attributes
 from the COSE_Encrypt0 structure at layer 0, encoded in a bstr type.
-
-The HPKE APIs also use an "info" parameter as input and the details are
-provided in {{info}}.
 
 {{cddl-hpke-one-layer}} shows the COSE_Encrypt0 CDDL structure.
 
@@ -719,8 +716,6 @@ mechanism is assumed to exist but outside the scope of this document.
 HPKE relies on a source of randomness to be available on the device. Additionally, 
 with the two layer structure the CEK is randomly generated and it MUST be
 ensured that the guidelines in {{RFC8937}} for random number generations are followed.
-
-TODO: 
 
 HPKE in Base mode does not offer authentication as part of the HPKE KEM. In this
 case COSE constructs like COSE_Sign, COSE_Sign1, COSE_MAC, or COSE_MAC0 can be
