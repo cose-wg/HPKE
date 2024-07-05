@@ -228,7 +228,7 @@ It also mitigates attacks where a person-in-the-middle changes the following lay
 
 - "recipient_protected_header" This is the protected headers from the COSE_recipient CBOR-encoded deterministically with Core Deterministic Encoding Requirements specified in Section 4.2.1 of RFC 8949 {{STD94}}.
 
-- "recipient_aad" This is any additional context that the application wishes to protect.
+- "recipient_aad" contains any additional context the application wishes to protect.
 If none, it is a zero-length string.
 This is distinct from the external_aad for the whole COSE encrypt.
 It is per-recipient.
