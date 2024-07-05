@@ -222,7 +222,7 @@ Recipient_structure = [ 
 
 - "next_layer_alg" is the algorithm ID of the COSE layer for which the COSE_recipient is encrypting a key.
 It is the algorithm that the key MUST be used with.
-This MUST match the alg parameter in the next lower COSE layer.
+This value MUST match the alg parameter in the next lower COSE layer.
 (This serves the same purpose as the alg ID in the COSE_KDF_Context.
 It also mitigates attacks where a man-in-the-middle changes the following layer algorithm from an AEAD algorithm to one that is not foiling the protection of the following layer headers).
 
