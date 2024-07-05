@@ -213,7 +213,7 @@ The COSE_KDF_Context MUST NOT be used in COSE-HPKE.
 
 ~~~
 Recipient_structure = [ 
-    context: “Recipient”,
+    context: "Recipient",
     next_layer_alg: int/tstr,
     recipient_protected_header: empty_or_serialize_map,
     recipient_aad: bstr
