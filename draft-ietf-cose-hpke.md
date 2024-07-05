@@ -241,7 +241,7 @@ It provides a means to convey many of the fields in COSE_KDF_Context.
 This is the procedure for creating a COSE_recipient for COSE-HPKE.
 
 When a COSE_recipeint is constructed for a COSE-HPKE recipient, this is given as the “aad” parameter to the HPKE Seal() API.
-The “info” parameter to HPKE_Seal is not used with COSE_HPKE.
+The "info" parameter to HPKE_Seal is not used with COSE_HPKE.
 
 The creation of the COSE_recipient is as follows:
 
