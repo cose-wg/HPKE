@@ -368,12 +368,12 @@ HPKE IANA registry {{HPKE-IANA}}.
 | COSE-HPKE                                        |      HPKE        |
 | Cipher Suite Label                               | KEM | KDF | AEAD |
 +--------------------------------------------------+-----+-----+------+
-| HPKE-Base-P256-SHA256-AES128GCM                  |0x10 | 0x1 | 0x1  |
-| HPKE-Base-P384-SHA384-AES256GCM                  |0x11 | 0x2 | 0x2  |
-| HPKE-Base-P521-SHA512-AES256GCM                  |0x12 | 0x3 | 0x2  |
-| HPKE-Base-X25519-SHA256-AES128GCM                |0x20 | 0x1 | 0x1  |
+| HPKE-Base-P256-SHA256-A128GCM                    |0x10 | 0x1 | 0x1  |
+| HPKE-Base-P384-SHA384-AS256GCM                   |0x11 | 0x2 | 0x2  |
+| HPKE-Base-P521-SHA512-AS256GCM                   |0x12 | 0x3 | 0x2  |
+| HPKE-Base-X25519-SHA256-A128GCM                  |0x20 | 0x1 | 0x1  |
 | HPKE-Base-X25519-SHA256-ChaCha20Poly1305         |0x20 | 0x1 | 0x3  |
-| HPKE-Base-X448-SHA512-AES256GCM                  |0x21 | 0x3 | 0x2  |
+| HPKE-Base-X448-SHA512-AS256GCM                   |0x21 | 0x3 | 0x2  |
 | HPKE-Base-X448-SHA512-ChaCha20Poly1305           |0x21 | 0x3 | 0x3  |
 +--------------------------------------------------+-----+-----+------+
 ~~~
@@ -443,7 +443,7 @@ for better readability.
 
 This example uses the following:
 
-- alg: HPKE-Base-P256-SHA256-AES128GCM
+- alg: HPKE-Base-P256-SHA256-A128GCM
 - plaintext: "This is the content."
 - external_aad: "COSE-HPKE app"
 - skR: h'57c92077664146e876760c9520d054aa93c3afb04e306705db6090308507b4d3'
@@ -451,7 +451,7 @@ This example uses the following:
 
 ~~~
 16([
-    / alg = HPKE-Base-P256-SHA256-AES128GCM (Assumed: 35) /
+    / alg = HPKE-Base-P256-SHA256-A128GCM (Assumed: 35) /
     h'a1011823',
     {
         / kid /
@@ -490,7 +490,7 @@ TODO: recompute this for Recipient_structure
 - plaintext: "This is the content."
 - detatched ciphertext: h'cc168c4e148c52a83010a75250935a47ccb8682deebcef8fce5d60c161e849f53a2dc664'
 - kid:"01"
-    - alg: HPKE-Base-P256-SHA256-AES128GCM
+    - alg: HPKE-Base-P256-SHA256-A128GCM
     - external_aad: "COSE-HPKE app"
     - skR: h'57c92077664146e876760c9520d054aa93c3afb04e306705db6090308507b4d3'
     - skE: h'97ad883f949f4cdcb1301b9446950efd4eb519e16c4a3d78304eec832692f9f6'
@@ -512,7 +512,7 @@ TODO: recompute this for Recipient_structure
     null,
     [
         [
-            / alg = HPKE-Base-P256-SHA256-AES128GCM (Assumed: 35) /
+            / alg = HPKE-Base-P256-SHA256-A128GCM (Assumed: 35) /
             h'a1011823',
             {
                 / kid /
@@ -579,7 +579,7 @@ This example uses the following:
 - MAC alg: HMAC 256/256
 - payload: "This is the content."
 - kid:"01"
-    - alg: HPKE-Base-P256-SHA256-AES128GCM
+    - alg: HPKE-Base-P256-SHA256-A128GCM
     - external_aad: "COSE-HPKE app"
     - skR: h'57c92077664146e876760c9520d054aa93c3afb04e306705db6090308507b4d3'
     - skE: h'e5dd9472b5807636c95be0ba2575020ba91cbb3561b52be141da89678c664307'
@@ -600,7 +600,7 @@ This example uses the following:
     h'5cdcf6055fcbdb53b4001d8fb88b2a46b200ed28e1ed77e16ddf43fb3cac3a98',
     [
         [
-            / alg = HPKE-Base-P256-SHA256-AES128GCM (Assumed: 35) /
+            / alg = HPKE-Base-P256-SHA256-A128GCM (Assumed: 35) /
             h'a1011823',
             {
                 / kid = '01' /
@@ -643,7 +643,7 @@ This example uses the following:
 
 Examples of private and public KEM key representation are shown below.
 
-### KEM Public Key for HPKE-Base-P256-SHA256-AES128GCM
+### KEM Public Key for HPKE-Base-P256-SHA256-A128GCM
 
 ~~~
 {
@@ -651,7 +651,7 @@ Examples of private and public KEM key representation are shown below.
     1: 2,
     / kid = '01' /
     2: h'3031',
-    / alg = HPKE-Base-P256-SHA256-AES128GCM (Assumed: 35) /
+    / alg = HPKE-Base-P256-SHA256-A128GCM (Assumed: 35) /
     3: 35,
     / crv = 'P-256' /
     -1: 1,
@@ -661,10 +661,10 @@ Examples of private and public KEM key representation are shown below.
     -3: h'1e52ed75701163f7f9e40ddf9f341b3dc9ba860af7e0ca7ca7e9eecd0084d19c'
 }
 ~~~
-{: #hpke-example-key-1 title="Key Representation Example for HPKE-Base-P256-SHA256-AES128GCM"}
+{: #hpke-example-key-1 title="Key Representation Example for HPKE-Base-P256-SHA256-A128GCM"}
 
 
-### KEM Private Key for HPKE-Base-P256-SHA256-AES128GCM
+### KEM Private Key for HPKE-Base-P256-SHA256-A128GCM
 
 ~~~
 {
@@ -672,7 +672,7 @@ Examples of private and public KEM key representation are shown below.
     1: 2,
     / kid = '01' /
     2: h'3031',
-    / alg = HPKE-Base-P256-SHA256-AES128GCM (Assumed: 35) /
+    / alg = HPKE-Base-P256-SHA256-A128GCM (Assumed: 35) /
     3: 35,
     / key_ops = ['derive_bits'] /
     4: [8],
@@ -686,7 +686,7 @@ Examples of private and public KEM key representation are shown below.
     -4: h'57c92077664146e876760c9520d054aa93c3afb04e306705db6090308507b4d3',
 }
 ~~~
-{: #hpke-example-key-2 title="Key Representation Example for HPKE-Base-P256-SHA256-AES128GCM"}
+{: #hpke-example-key-2 title="Key Representation Example for HPKE-Base-P256-SHA256-A128GCM"}
 
 
 ### KEM Public Key for HPKE-Base-X25519-SHA256-CHACHA20POLY1305
@@ -740,7 +740,7 @@ the 'COSE Header Parameters' registries.
 
 ## COSE Algorithms Registry
 
--  Name: HPKE-Base-P256-SHA256-AES128GCM
+-  Name: HPKE-Base-P256-SHA256-A128GCM
 -  Value: TBD1 (Assumed: 35)
 -  Description: Cipher suite for COSE-HPKE in Base Mode that uses the DHKEM(P-256, HKDF-SHA256) KEM, the HKDF-SHA256 KDF and the AES-128-GCM AEAD.
 -  Capabilities: [kty]
@@ -748,7 +748,7 @@ the 'COSE Header Parameters' registries.
 -  Reference:  [[TBD: This RFC]]
 -  Recommended: Yes
 
--  Name: HPKE-Base-P384-SHA384-AES256GCM
+-  Name: HPKE-Base-P384-SHA384-AS256GCM
 -  Value: TBD3 (Assumed: 37)
 -  Description: Cipher suite for COSE-HPKE in Base Mode that uses the DHKEM(P-384, HKDF-SHA384) KEM, the HKDF-SHA384 KDF, and the AES-256-GCM AEAD.
 -  Capabilities: [kty]
@@ -756,7 +756,7 @@ the 'COSE Header Parameters' registries.
 -  Reference:  [[TBD: This RFC]]
 -  Recommended: Yes
 
--  Name: HPKE-Base-P521-SHA512-AES256GCM
+-  Name: HPKE-Base-P521-SHA512-AS256GCM
 -  Value: TBD5 (Assumed: 39)
 -  Description: Cipher suite for COSE-HPKE in Base Mode that uses the DHKEM(P-521, HKDF-SHA512) KEM, the HKDF-SHA512 KDF, and the AES-256-GCM AEAD.
 -  Capabilities: [kty]
@@ -764,7 +764,7 @@ the 'COSE Header Parameters' registries.
 -  Reference:  [[TBD: This RFC]]
 -  Recommended: Yes
 
--  Name: HPKE-Base-X25519-SHA256-AES128GCM
+-  Name: HPKE-Base-X25519-SHA256-A128GCM
 -  Value: TBD7 (Assumed: 41)
 -  Description: Cipher suite for COSE-HPKE in Base Mode that uses the DHKEM(X25519, HKDF-SHA256) KEM, the HKDF-SHA256 KDF, and the AES-128-GCM AEAD.
 -  Capabilities: [kty]
@@ -780,7 +780,7 @@ the 'COSE Header Parameters' registries.
 -  Reference:  [[TBD: This RFC]]
 -  Recommended: Yes
 
--  Name: HPKE-Base-X448-SHA512-AES256GCM
+-  Name: HPKE-Base-X448-SHA512-AS256GCM
 -  Value: TBD9 (Assumed: 43)
 -  Description: Cipher suite for COSE-HPKE in Base Mode that uses the DHKEM(X448, HKDF-SHA512) KEM, the HKDF-SHA512 KDF, and the AES-256-GCM AEAD.
 -  Capabilities: [kty]
