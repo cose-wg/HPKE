@@ -3,14 +3,14 @@
 
 
 COSE                                                       H. Tschofenig
-Internet-Draft            University of Applied Sciences Bonn-Rhein-Sieg
+Internet-Draft                                                          
 Intended status: Standards Track                          O. Steele, Ed.
-Expires: 6 January 2025                                        Transmute
+Expires: 7 January 2025                                        Transmute
                                                               D. Ajitomi
                                                                  bibital
                                                             L. Lundblade
                                                      Security Theory LLC
-                                                             5 July 2024
+                                                             6 July 2024
 
 
 Use of Hybrid Public-Key Encryption (HPKE) with CBOR Object Signing and
@@ -47,13 +47,13 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 6 January 2025.
+   This Internet-Draft will expire on 7 January 2025.
 
 
 
 
 
-Tschofenig, et al.       Expires 6 January 2025                 [Page 1]
+Tschofenig, et al.       Expires 7 January 2025                 [Page 1]
 
 Internet-Draft                  COSE HPKE                      July 2024
 
@@ -109,7 +109,7 @@ Table of Contents
 
 
 
-Tschofenig, et al.       Expires 6 January 2025                 [Page 2]
+Tschofenig, et al.       Expires 7 January 2025                 [Page 2]
 
 Internet-Draft                  COSE HPKE                      July 2024
 
@@ -165,7 +165,7 @@ Internet-Draft                  COSE HPKE                      July 2024
 
 
 
-Tschofenig, et al.       Expires 6 January 2025                 [Page 3]
+Tschofenig, et al.       Expires 7 January 2025                 [Page 3]
 
 Internet-Draft                  COSE HPKE                      July 2024
 
@@ -221,7 +221,7 @@ Internet-Draft                  COSE HPKE                      July 2024
 
 
 
-Tschofenig, et al.       Expires 6 January 2025                 [Page 4]
+Tschofenig, et al.       Expires 7 January 2025                 [Page 4]
 
 Internet-Draft                  COSE HPKE                      July 2024
 
@@ -277,7 +277,7 @@ Internet-Draft                  COSE HPKE                      July 2024
 
 
 
-Tschofenig, et al.       Expires 6 January 2025                 [Page 5]
+Tschofenig, et al.       Expires 7 January 2025                 [Page 5]
 
 Internet-Draft                  COSE HPKE                      July 2024
 
@@ -333,7 +333,7 @@ Internet-Draft                  COSE HPKE                      July 2024
 
 
 
-Tschofenig, et al.       Expires 6 January 2025                 [Page 6]
+Tschofenig, et al.       Expires 7 January 2025                 [Page 6]
 
 Internet-Draft                  COSE HPKE                      July 2024
 
@@ -389,7 +389,7 @@ Internet-Draft                  COSE HPKE                      July 2024
 
 
 
-Tschofenig, et al.       Expires 6 January 2025                 [Page 7]
+Tschofenig, et al.       Expires 7 January 2025                 [Page 7]
 
 Internet-Draft                  COSE HPKE                      July 2024
 
@@ -445,7 +445,7 @@ Internet-Draft                  COSE HPKE                      July 2024
 
 
 
-Tschofenig, et al.       Expires 6 January 2025                 [Page 8]
+Tschofenig, et al.       Expires 7 January 2025                 [Page 8]
 
 Internet-Draft                  COSE HPKE                      July 2024
 
@@ -501,7 +501,7 @@ Internet-Draft                  COSE HPKE                      July 2024
 
 
 
-Tschofenig, et al.       Expires 6 January 2025                 [Page 9]
+Tschofenig, et al.       Expires 7 January 2025                 [Page 9]
 
 Internet-Draft                  COSE HPKE                      July 2024
 
@@ -557,7 +557,7 @@ Internet-Draft                  COSE HPKE                      July 2024
 
 
 
-Tschofenig, et al.       Expires 6 January 2025                [Page 10]
+Tschofenig, et al.       Expires 7 January 2025                [Page 10]
 
 Internet-Draft                  COSE HPKE                      July 2024
 
@@ -613,7 +613,7 @@ Internet-Draft                  COSE HPKE                      July 2024
 
 
 
-Tschofenig, et al.       Expires 6 January 2025                [Page 11]
+Tschofenig, et al.       Expires 7 January 2025                [Page 11]
 
 Internet-Draft                  COSE HPKE                      July 2024
 
@@ -669,7 +669,7 @@ Internet-Draft                  COSE HPKE                      July 2024
 
 
 
-Tschofenig, et al.       Expires 6 January 2025                [Page 12]
+Tschofenig, et al.       Expires 7 January 2025                [Page 12]
 
 Internet-Draft                  COSE HPKE                      July 2024
 
@@ -725,7 +725,7 @@ Internet-Draft                  COSE HPKE                      July 2024
 
 
 
-Tschofenig, et al.       Expires 6 January 2025                [Page 13]
+Tschofenig, et al.       Expires 7 January 2025                [Page 13]
 
 Internet-Draft                  COSE HPKE                      July 2024
 
@@ -781,7 +781,7 @@ Internet-Draft                  COSE HPKE                      July 2024
 
 
 
-Tschofenig, et al.       Expires 6 January 2025                [Page 14]
+Tschofenig, et al.       Expires 7 January 2025                [Page 14]
 
 Internet-Draft                  COSE HPKE                      July 2024
 
@@ -837,7 +837,7 @@ Internet-Draft                  COSE HPKE                      July 2024
 
 
 
-Tschofenig, et al.       Expires 6 January 2025                [Page 15]
+Tschofenig, et al.       Expires 7 January 2025                [Page 15]
 
 Internet-Draft                  COSE HPKE                      July 2024
 
@@ -893,7 +893,7 @@ Internet-Draft                  COSE HPKE                      July 2024
 
 
 
-Tschofenig, et al.       Expires 6 January 2025                [Page 16]
+Tschofenig, et al.       Expires 7 January 2025                [Page 16]
 
 Internet-Draft                  COSE HPKE                      July 2024
 
@@ -949,7 +949,7 @@ Internet-Draft                  COSE HPKE                      July 2024
 
 
 
-Tschofenig, et al.       Expires 6 January 2025                [Page 17]
+Tschofenig, et al.       Expires 7 January 2025                [Page 17]
 
 Internet-Draft                  COSE HPKE                      July 2024
 
@@ -1005,7 +1005,7 @@ Internet-Draft                  COSE HPKE                      July 2024
 
 
 
-Tschofenig, et al.       Expires 6 January 2025                [Page 18]
+Tschofenig, et al.       Expires 7 January 2025                [Page 18]
 
 Internet-Draft                  COSE HPKE                      July 2024
 
@@ -1061,7 +1061,7 @@ Internet-Draft                  COSE HPKE                      July 2024
 
 
 
-Tschofenig, et al.       Expires 6 January 2025                [Page 19]
+Tschofenig, et al.       Expires 7 January 2025                [Page 19]
 
 Internet-Draft                  COSE HPKE                      July 2024
 
@@ -1117,7 +1117,7 @@ Internet-Draft                  COSE HPKE                      July 2024
 
 
 
-Tschofenig, et al.       Expires 6 January 2025                [Page 20]
+Tschofenig, et al.       Expires 7 January 2025                [Page 20]
 
 Internet-Draft                  COSE HPKE                      July 2024
 
@@ -1173,7 +1173,7 @@ Internet-Draft                  COSE HPKE                      July 2024
 
 
 
-Tschofenig, et al.       Expires 6 January 2025                [Page 21]
+Tschofenig, et al.       Expires 7 January 2025                [Page 21]
 
 Internet-Draft                  COSE HPKE                      July 2024
 
@@ -1229,7 +1229,7 @@ Internet-Draft                  COSE HPKE                      July 2024
 
 
 
-Tschofenig, et al.       Expires 6 January 2025                [Page 22]
+Tschofenig, et al.       Expires 7 January 2025                [Page 22]
 
 Internet-Draft                  COSE HPKE                      July 2024
 
@@ -1285,7 +1285,7 @@ Appendix A.  Contributors
 
 
 
-Tschofenig, et al.       Expires 6 January 2025                [Page 23]
+Tschofenig, et al.       Expires 7 January 2025                [Page 23]
 
 Internet-Draft                  COSE HPKE                      July 2024
 
@@ -1303,7 +1303,6 @@ Appendix B.  Acknowledgements
 Authors' Addresses
 
    Hannes Tschofenig
-   University of Applied Sciences Bonn-Rhein-Sieg
    Germany
    Email: hannes.tschofenig@gmx.net
 
@@ -1341,4 +1340,5 @@ Authors' Addresses
 
 
 
-Tschofenig, et al.       Expires 6 January 2025                [Page 24]
+
+Tschofenig, et al.       Expires 7 January 2025                [Page 24]
