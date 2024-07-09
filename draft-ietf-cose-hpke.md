@@ -1,7 +1,7 @@
 ---
 title: Use of Hybrid Public-Key Encryption (HPKE) with CBOR Object Signing and Encryption (COSE)
 abbrev: COSE HPKE
-docname: draft-ietf-cose-hpke-08
+docname: draft-ietf-cose-hpke-09
 category: std
 
 ipr: pre5378Trust200902
@@ -17,6 +17,8 @@ author:
   ins: H. Tschofenig
   name: Hannes Tschofenig
   email: hannes.tschofenig@gmx.net
+  abbrev: H-BRS
+  organization: University of Applied Sciences Bonn-Rhein-Sieg
   country: Germany
 -
   ins: O. Steele
