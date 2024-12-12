@@ -366,13 +366,13 @@ HPKE IANA registry {{HPKE-IANA}}.
 | COSE-HPKE                                        |      HPKE        |
 | Cipher Suite Label                               | KEM | KDF | AEAD |
 +--------------------------------------------------+-----+-----+------+
-| HPKE-Base-P256-SHA256-A128GCM                    |0x10 | 0x1 | 0x1  |
-| HPKE-Base-P384-SHA384-AS256GCM                   |0x11 | 0x2 | 0x2  |
-| HPKE-Base-P521-SHA512-AS256GCM                   |0x12 | 0x3 | 0x2  |
-| HPKE-Base-X25519-SHA256-A128GCM                  |0x20 | 0x1 | 0x1  |
-| HPKE-Base-X25519-SHA256-ChaCha20Poly1305         |0x20 | 0x1 | 0x3  |
-| HPKE-Base-X448-SHA512-AS256GCM                   |0x21 | 0x3 | 0x2  |
-| HPKE-Base-X448-SHA512-ChaCha20Poly1305           |0x21 | 0x3 | 0x3  |
+| HPKE-0                    |0x10 | 0x1 | 0x1  |
+| HPKE-1                   |0x11 | 0x2 | 0x2  |
+| HPKE-2                   |0x12 | 0x3 | 0x2  |
+| HPKE-3                  |0x20 | 0x1 | 0x1  |
+| HPKE-4         |0x20 | 0x1 | 0x3  |
+| HPKE-5                   |0x21 | 0x3 | 0x2  |
+| HPKE-6           |0x21 | 0x3 | 0x3  |
 +--------------------------------------------------+-----+-----+------+
 ~~~
 
@@ -441,7 +441,7 @@ for better readability.
 
 This example uses the following:
 
-- alg: HPKE-Base-P256-SHA256-A128GCM
+- alg: HPKE-0
 - plaintext: "This is the content."
 - external_aad: "COSE-HPKE app"
 - skR: h'57c92077664146e876760c9520d054aa93c3afb04e306705db6090308507b4d3'
@@ -449,7 +449,7 @@ This example uses the following:
 
 ~~~
 16([
-    / alg = HPKE-Base-P256-SHA256-A128GCM (Assumed: 35) /
+    / alg = HPKE-0 (Assumed: 35) /
     h'a1011823',
     {
         / kid /
@@ -488,12 +488,12 @@ TODO: recompute this for Recipient_structure
 - plaintext: "This is the content."
 - detatched ciphertext: h'cc168c4e148c52a83010a75250935a47ccb8682deebcef8fce5d60c161e849f53a2dc664'
 - kid:"01"
-    - alg: HPKE-Base-P256-SHA256-A128GCM
+    - alg: HPKE-0
     - external_aad: "COSE-HPKE app"
     - skR: h'57c92077664146e876760c9520d054aa93c3afb04e306705db6090308507b4d3'
     - skE: h'97ad883f949f4cdcb1301b9446950efd4eb519e16c4a3d78304eec832692f9f6'
 - kid:"02"
-    - alg: HPKE-Base-X25519-SHA256-CHACHA20POLY1305
+    - alg: HPKE-4
     - external_aad: "COSE-HPKE app"
     - skR: h'bec275a17e4d362d0819dc0695d89a73be6bf94b66ab726ae0b1afe3c43f41ce'
     - skE: h'b8ed3f4df56c230e36fa6620a47f24d08856d242ea547c5521ff7bd69af8fd6f'
@@ -510,7 +510,7 @@ TODO: recompute this for Recipient_structure
     null,
     [
         [
-            / alg = HPKE-Base-P256-SHA256-A128GCM (Assumed: 35) /
+            / alg = HPKE-0 (Assumed: 35) /
             h'a1011823',
             {
                 / kid /
@@ -527,7 +527,7 @@ TODO: recompute this for Recipient_structure
               c03eced1ad21fcb7e7c2fe64397',
         ],
         [
-            / alg = HPKE-Base-X25519-SHA256-CHACHA20POLY1305 (Assumed: 42) /
+            / alg = HPKE-4 (Assumed: 42) /
             h'a101182a',
             {
                 / kid /
@@ -577,12 +577,12 @@ This example uses the following:
 - MAC alg: HMAC 256/256
 - payload: "This is the content."
 - kid:"01"
-    - alg: HPKE-Base-P256-SHA256-A128GCM
+    - alg: HPKE-0
     - external_aad: "COSE-HPKE app"
     - skR: h'57c92077664146e876760c9520d054aa93c3afb04e306705db6090308507b4d3'
     - skE: h'e5dd9472b5807636c95be0ba2575020ba91cbb3561b52be141da89678c664307'
 - kid:"02"
-    - alg: HPKE-Base-X25519-SHA256-CHACHA20POLY1305
+    - alg: HPKE-4
     - external_aad: "COSE-HPKE app"
     - skR: h'bec275a17e4d362d0819dc0695d89a73be6bf94b66ab726ae0b1afe3c43f41ce'
     - skE: h'78a49d7af71b5244498e943f361aa0250184afc48b8098a68ae97ccd2cd7e56f'
@@ -598,7 +598,7 @@ This example uses the following:
     h'5cdcf6055fcbdb53b4001d8fb88b2a46b200ed28e1ed77e16ddf43fb3cac3a98',
     [
         [
-            / alg = HPKE-Base-P256-SHA256-A128GCM (Assumed: 35) /
+            / alg = HPKE-0 (Assumed: 35) /
             h'a1011823',
             {
                 / kid = '01' /
@@ -616,7 +616,7 @@ This example uses the following:
               432426ee70073a368f29d1',
         ],
         [
-            / alg = HPKE-Base-X25519-SHA256-CHACHA20POLY1305 (Assumed: 42) /
+            / alg = HPKE-4 (Assumed: 42) /
             h'a101182a',
             {
                 / kid = '02' /
@@ -641,7 +641,7 @@ This example uses the following:
 
 Examples of private and public KEM key representation are shown below.
 
-### KEM Public Key for HPKE-Base-P256-SHA256-A128GCM
+### KEM Public Key for HPKE-0
 
 ~~~
 {
@@ -649,7 +649,7 @@ Examples of private and public KEM key representation are shown below.
     1: 2,
     / kid = '01' /
     2: h'3031',
-    / alg = HPKE-Base-P256-SHA256-A128GCM (Assumed: 35) /
+    / alg = HPKE-0 (Assumed: 35) /
     3: 35,
     / crv = 'P-256' /
     -1: 1,
@@ -659,10 +659,10 @@ Examples of private and public KEM key representation are shown below.
     -3: h'1e52ed75701163f7f9e40ddf9f341b3dc9ba860af7e0ca7ca7e9eecd0084d19c'
 }
 ~~~
-{: #hpke-example-key-1 title="Key Representation Example for HPKE-Base-P256-SHA256-A128GCM"}
+{: #hpke-example-key-1 title="Key Representation Example for HPKE-0"}
 
 
-### KEM Private Key for HPKE-Base-P256-SHA256-A128GCM
+### KEM Private Key for HPKE-0
 
 ~~~
 {
@@ -670,7 +670,7 @@ Examples of private and public KEM key representation are shown below.
     1: 2,
     / kid = '01' /
     2: h'3031',
-    / alg = HPKE-Base-P256-SHA256-A128GCM (Assumed: 35) /
+    / alg = HPKE-0 (Assumed: 35) /
     3: 35,
     / key_ops = ['derive_bits'] /
     4: [8],
@@ -684,10 +684,10 @@ Examples of private and public KEM key representation are shown below.
     -4: h'57c92077664146e876760c9520d054aa93c3afb04e306705db6090308507b4d3',
 }
 ~~~
-{: #hpke-example-key-2 title="Key Representation Example for HPKE-Base-P256-SHA256-A128GCM"}
+{: #hpke-example-key-2 title="Key Representation Example for HPKE-0"}
 
 
-### KEM Public Key for HPKE-Base-X25519-SHA256-CHACHA20POLY1305
+### KEM Public Key for HPKE-4
 
 ~~~
 {
@@ -695,7 +695,7 @@ Examples of private and public KEM key representation are shown below.
     1: 1,
     / kid = '11' /
     2: h'3131',
-    / alg = HPKE-Base-X25519-SHA256-CHACHA20POLY1305 (Assumed: 42) /
+    / alg = HPKE-4 (Assumed: 42) /
     3: 42,
     / crv = 'X25519' /
     -1: 4,
@@ -703,7 +703,7 @@ Examples of private and public KEM key representation are shown below.
     -2: h'cb7c09ab7b973c77a808ee05b9bbd373b55c06eaa9bd4ad2bd4e9931b1c34c22',
 }
 ~~~
-{: #hpke-example-key-3 title="Key Representation Example for HPKE-Base-X25519-SHA256-CHACHA20POLY1305"}
+{: #hpke-example-key-3 title="Key Representation Example for HPKE-4"}
 
 # Security Considerations {#sec-cons}
 
@@ -736,7 +736,7 @@ the 'COSE Header Parameters' registries.
 
 ## COSE Algorithms Registry
 
--  Name: HPKE-Base-P256-SHA256-A128GCM
+-  Name: HPKE-0
 -  Value: TBD1 (Assumed: 35)
 -  Description: Cipher suite for COSE-HPKE in Base Mode that uses the DHKEM(P-256, HKDF-SHA256) KEM, the HKDF-SHA256 KDF and the AES-128-GCM AEAD.
 -  Capabilities: [kty]
@@ -744,7 +744,7 @@ the 'COSE Header Parameters' registries.
 -  Reference:  [[TBD: This RFC]]
 -  Recommended: Yes
 
--  Name: HPKE-Base-P384-SHA384-AS256GCM
+-  Name: HPKE-1
 -  Value: TBD3 (Assumed: 37)
 -  Description: Cipher suite for COSE-HPKE in Base Mode that uses the DHKEM(P-384, HKDF-SHA384) KEM, the HKDF-SHA384 KDF, and the AES-256-GCM AEAD.
 -  Capabilities: [kty]
@@ -752,7 +752,7 @@ the 'COSE Header Parameters' registries.
 -  Reference:  [[TBD: This RFC]]
 -  Recommended: Yes
 
--  Name: HPKE-Base-P521-SHA512-AS256GCM
+-  Name: HPKE-2
 -  Value: TBD5 (Assumed: 39)
 -  Description: Cipher suite for COSE-HPKE in Base Mode that uses the DHKEM(P-521, HKDF-SHA512) KEM, the HKDF-SHA512 KDF, and the AES-256-GCM AEAD.
 -  Capabilities: [kty]
@@ -760,7 +760,7 @@ the 'COSE Header Parameters' registries.
 -  Reference:  [[TBD: This RFC]]
 -  Recommended: Yes
 
--  Name: HPKE-Base-X25519-SHA256-A128GCM
+-  Name: HPKE-3
 -  Value: TBD7 (Assumed: 41)
 -  Description: Cipher suite for COSE-HPKE in Base Mode that uses the DHKEM(X25519, HKDF-SHA256) KEM, the HKDF-SHA256 KDF, and the AES-128-GCM AEAD.
 -  Capabilities: [kty]
@@ -768,7 +768,7 @@ the 'COSE Header Parameters' registries.
 -  Reference:  [[TBD: This RFC]]
 -  Recommended: Yes
 
--  Name: HPKE-Base-X25519-SHA256-ChaCha20Poly1305
+-  Name: HPKE-4
 -  Value: TBD8 (Assumed: 42)
 -  Description: Cipher suite for COSE-HPKE in Base Mode that uses the DHKEM(X25519, HKDF-SHA256) KEM, the HKDF-SHA256 KDF, and the ChaCha20Poly1305 AEAD.
 -  Capabilities: [kty]
@@ -776,7 +776,7 @@ the 'COSE Header Parameters' registries.
 -  Reference:  [[TBD: This RFC]]
 -  Recommended: Yes
 
--  Name: HPKE-Base-X448-SHA512-AS256GCM
+-  Name: HPKE-5
 -  Value: TBD9 (Assumed: 43)
 -  Description: Cipher suite for COSE-HPKE in Base Mode that uses the DHKEM(X448, HKDF-SHA512) KEM, the HKDF-SHA512 KDF, and the AES-256-GCM AEAD.
 -  Capabilities: [kty]
@@ -784,7 +784,7 @@ the 'COSE Header Parameters' registries.
 -  Reference:  [[TBD: This RFC]]
 -  Recommended: Yes
 
--  Name: HPKE-Base-X448-SHA512-ChaCha20Poly1305
+-  Name: HPKE-6
 -  Value: TBD10 (Assumed: 44)
 -  Description: Cipher suite for COSE-HPKE in Base Mode that uses the DHKEM(X448, HKDF-SHA512) KEM, the HKDF-SHA512 KDF, and the ChaCha20Poly1305 AEAD.
 -  Capabilities: [kty]
