@@ -123,57 +123,47 @@ is a bstr.
 
 ### HPKE Direct Encryption Mode {#one-layer}
 
-With the HPKE Direct Encryption mode the information carried inside the 
-COSE_recipient structure is embedded inside the COSE_Encrypt0.
+This mode is selected if COSE_Encrypt0 structure uses a COSE-HPKE algoritm.
 
-HPKE is used to directly encrypt the plaintext and the resulting ciphertext
-is either included in the COSE_Encrypt0 or is detached. If a payload is
-transported separately then it is called "detached content". A nil CBOR
-object is placed in the location of the ciphertext. See Section 5
-of {{RFC9052}} for a description of detached payloads.
+Because there are no recipients, COSE_Encrypt structure MUST NOT be used.
 
-The sender MUST set the alg parameter in the protected header, which
-indicates the use of HPKE.
+Because COSE-HPKE supports header protection by definition, if 'alg' parameter is present, it MUST be in protected bucket, and SHALL be a COSE-HPKE algorithm.
 
-The sender MUST place the 'ek' (encapsulated key) parameter into the unprotected
-header. Although the use of the 'kid' parameter in COSE_Encrypt0 is
+Although the use of the 'kid' parameter in COSE_Encrypt0 is
 discouraged by RFC 9052, this documents RECOMMENDS the use of the 'kid' parameter
 (or other parameters) to explicitly identify the static recipient public key
 used by the sender. If the COSE_Encrypt0 contains the 'kid' then the recipient may
 use it to select the appropriate private key.
 
-The HPKE specification describes an API and this API uses an "aad" parameter
-as input. When COSE_Encrypt0 is used then there is no AEAD function executed
-by COSE natively and HPKE offers this functionality.
+When encrypting, the inputs to the HPKE Seal operation are set as follows:
 
-The "aad" parameter provided to the HPKE API is constructed
-as follows (and the design has been re-used from {{RFC9052}}):
+- kem_id: Depends on the COSE-HPKE algorithm used.
+- pkR: The recipient public key, converted into HPKE public key.
+- kdf_id: Depends on the COSE-HPKE algorithm used.
+- aead_id: Depends on the COSE-HPKE algorithm used.
+- info: empty string.
+- aad: Canonical encoding of the Enc_structure from {{RFC9052}}).
+- pt: The raw message plaintext.
 
-~~~
-Enc_structure = [
-    context : "Encrypt0",
-    protected : empty_or_serialized_map,
-    external_aad : bstr
-]
+The outputs are used as follows:
 
-empty_or_serialized_map = bstr .cbor header_map / bstr .size 0
-~~~
+- enc: MUST be placed raw into the 'ek' (encapsulated key) parameter in the unprotected bucket.
+- ct: MUST be used as layer ciphertext. If not using detached content, this is directly placed as
+ciphertext in COSE_Encrypt0 structure. Otherwise, it is transported separately and the ciphertext field is nil.
+See Section 5 of {{RFC9052}} for a description of detached payloads.
 
-The protected field in the Enc_structure contains the protected attributes
-from the COSE_Encrypt0 structure at layer 0, encoded in a bstr type.
+When decrypting, the inputs to the HPKE Open operation are set as follows:
 
-{{cddl-hpke-one-layer}} shows the COSE_Encrypt0 CDDL structure.
+- kem_id: Depends on the COSE-HPKE algorithm used.
+- skR: The recipient private key, converted into HPKE private key.
+- kdf_id: Depends on the COSE-HPKE algorithm used.
+- aead_id: Depends on the COSE-HPKE algorithm used.
+- info: empty string.
+- aad: Canonical encoding of the Enc_structure from {{RFC9052}}).
+- enc: The contents of the layer 'ek' parameter.
+- ct: The contents of the layer ciphertext.
 
-~~~
-COSE_Encrypt0_Tagged = #6.16(COSE_Encrypt0)
-
-; Layer 0
-COSE_Encrypt0 = [
-    Headers,
-    ciphertext : bstr / nil,
-]
-~~~
-{: #cddl-hpke-one-layer title="CDDL used for the HPKE Direct Encryption Mode"}
+The plaintext output is the raw message plaintext. 
 
 The COSE_Encrypt0 MAY be tagged or untagged.
 
@@ -181,8 +171,8 @@ An example is shown in {{one-layer-example}}.
 
 ### HPKE Key Encryption Mode {#two-layer}
 
-With the HPKE Key Encryption mode information is conveyed in the COSE_recipient 
-structure, i.e. one COSE_recipient structure per recipient.
+This mode is selected if COSE_recipient structure uses a COSE-HPKE algorithm.
+
 
 In this approach the following layers are involved: 
 
@@ -192,8 +182,7 @@ it is included in the COSE_Encrypt structure.
 
 - Layer 1 (corresponding to a recipient structure) contains parameters needed for 
 HPKE to generate a shared secret used to encrypt the CEK. This layer conveys the 
-encrypted CEK in the encCEK structure. The protected header MUST contain the HPKE 
-alg parameter and the unprotected header MUST contain the 'ek' parameter.
+encrypted CEK in the COSE_recipient structure using a COSE-HPKE algorithm.
 The unprotected header MAY contain the kid parameter to identify the static recipient
 public key the sender has been using with HPKE.
 
@@ -236,68 +225,44 @@ It provides a means to convey many of the fields in COSE_KDF_Context.
 
 #### COSE-HPKE Recipient Construction
 
-This is the procedure for creating a COSE_recipient for COSE-HPKE.
+Because COSE-HPKE supports header protection by definition, if 'alg' parameter is present, it MUST be in protected bucket, and SHALL be a COSE-HPKE algorithm.
 
-When a COSE_recipeint is constructed for a COSE-HPKE recipient, this is given as the "aad" parameter to the HPKE Seal() API.
-The "info" parameter to HPKE_Seal is not used with COSE_HPKE.
+The unprotected header MAY contain the kid parameter to identify the static recipient public key the sender used.
 
-The creation of the COSE_recipient is as follows:
+When encrypting, the inputs to the HPKE Seal operation are set as follows:
 
-1. Prepare a Recipient_structure
-2. Obtain the key To used use by the next lowest layer
-3. Pass in the following parameters to HPKE Seal API
-    1. Public key of recipient for "pKR"
-    2. Empty string for "info"
-    3. CBOR-encoded Recipient_structure for "aad"
-    4. The key for next lowest COSE layer for "pt"
-4.  The following are returned from the HPKE Seal API
-    1. The "enc" is placed in the "ek" header of the COSE_recipient
-    2. The "ct" is placed in the "ciphertext" field of the COSE_recipient
+- kem_id: Depends on the COSE-HPKE algorithm used.
+- pkR: The recipient public key, converted into HPKE public key.
+- kdf_id: Depends on the COSE-HPKE algorithm used.
+- aead_id: Depends on the COSE-HPKE algorithm used.
+- info: empty string.
+- aad: Canonical encoding of the Recipient_structure.
+- pt: The raw key for the next layer down.
 
-The decoding and decryption of a COSE_recipient is as follows:
+The outputs are used as follows:
 
-1. Prepare a Recipient_structure
-2. Pass in the following parameters to HPKE Open API
-    1. The "ek" header  for "enc"
-    2. Secret key for recipient for "sKR"
-    3. Empty string for "info"
-    4. CBOR-encoded Recipient_structure for "aad"
-    5. The cipher text from the COSE_recipient as "ct"
-3. What is returned from HPKE Open API is the key for the next lowest COSE layer
+- enc: MUST be placed raw into the 'ek' (encapsulated key) parameter in the unprotected bucket.
+- ct: MUST be placed raw in the ciphertext field in the COSE_recipient.
+
+When decrypting, the inputs to the HPKE Open operation are set as follows:
+
+- kem_id: Depends on the COSE-HPKE algorithm used.
+- skR: The recipient private key, converted into HPKE private key.
+- kdf_id: Depends on the COSE-HPKE algorithm used.
+- aead_id: Depends on the COSE-HPKE algorithm used.
+- info: empty string.
+- aad: Canonical encoding of the Recipient_structure.
+- enc: The contents of the layer 'ek' parameter.
+- ct: The contents of the layer ciphertext field.
+
+The plaintext output is the raw key for the next layer down.
 
 It is not necessary to fill in recipient_aad as HPKE itself covers the attacks that recipient_aad (and COSE_KDF_Context (and SP800-56A)) are used to mitigate.
 COSE-HPKE use cases may use it for any purpose they wish, but it should generally be for small identifiers, context or secrets, not to protect bulk external data.
 Bulk external data should be protected at layer 0 with external_aad.
 
 
-The COSE_recipient structure, shown in {{cddl-hpke}}, is repeated for each
-recipient.
-
-~~~
-COSE_Encrypt_Tagged = #6.96(COSE_Encrypt)
- 
-/ Layer 0 /
-COSE_Encrypt = [
-  Headers,
-  ciphertext : bstr / nil,
-  recipients : + COSE_recipient
-]
-
-/ Layer 1 /
-COSE_recipient = [
-  protected   : bstr .cbor header_map,
-  unprotected : header_map,
-  encCEK      : bstr,
-]
-
-header_map = {
-  Generic_Headers,
-  * label => values,
-}
-~~~
-{: #cddl-hpke title="CDDL used for the HPKE Key Encryption Mode"}
-
-The COSE_Encrypt MAY be tagged or untagged. 
+The COSE_recipient structure is repeated for each recipient.
 
 When encrypting the content at layer 0 then the instructions in
 Section 5.3 of {{RFC9052}} MUST to be followed, which includes the
@@ -310,13 +275,11 @@ An example is shown in {{two-layer-example}}.
 The COSE_Key with the existing key types can be used to represent KEM private
 or public keys. When using a COSE_Key for COSE-HPKE, the following checks are made:
 
-* The "kty" field MUST be present, and it MUST be one of the key types for HPKE KEM.
-* If the "kty" field is "OKP" or "EC2", the "crv" field MUST be present
-  and it MUST be a curve for HPKE KEM.
-* If the "alg" field is present, it MUST be one of the supported COSE-HPKE "alg" values
-  and the key type of its KEM MUST match the "kty" field.
-  If the "kty" field is "OKP" or "EC2", the curve of the KEM MUST match the "crv" field.
-  The valid combinations of the "alg", "kty" and "crv" are shown in {{ciphersuite-kty-crv}}.
+* If the "kty" field is "AKP", then the public and private keys SHALL be raw HPKE public and private
+keys (respectively) for the KEM used by the algorithm.
+* Otherwise, the key MUST be suitable for the KEM used by the algorithm. In case the "kty" parameter
+is "EC2" or "OKP", this means the value of "crv" parameter is suitable. For the algorithms defined in
+this document, the valid combinations of the KEM, "kty" and "crv" are shown in  {{ciphersuite-kty-crv}}.
 * If the "key_ops" field is present, it MUST include only "derive bits" for the private key
   and MUST be empty for the public key.
 
@@ -327,7 +290,7 @@ Examples of the COSE_Key for COSE-HPKE are shown in {{key-representation-example
 
 A ciphersuite is a group of algorithms, often sharing component algorithms
 such as hash functions, targeting a security level.
-An HPKE ciphersuite, is composed of the following choices:
+A COSE-HPKE algorithm is composed of the following choices:
 
 - HPKE Mode
 - KEM Algorithm
@@ -395,23 +358,20 @@ KEM, and components should not be mixed between global and national standards.
 
 ## COSE_Keys for COSE-HPKE Ciphersuites
 
-The COSE-HPKE ciphersuite uniquely determines the type of KEM for which a COSE_Key is used.
+The COSE-HPKE algorithm uniquely determines the KEM for which a COSE_Key is used.
 The following mapping table shows the valid combinations
-of the COSE-HPKE ciphersuite, COSE_Key type and its curve.
+of the KEM used, COSE_Key type and its curve/key subtype.
 
 ~~~
 +---------------------+--------------+
-| COSE-HPKE           | COSE_Key     |
-| Ciphersuite Label   | kty | crv    |
+| HPKE KEM id         | COSE_Key     |
+|                     | kty | crv    |
 +---------------------+-----+--------+
-| HPKE-Base-P256-\*   | EC2 | P-256  |
-| HPKE-Base-P384-\*   | EC2 | P-384  |
-| HPKE-Base-P521-\*   | EC2 | P-521  |
-| HPKE-Base-X25519-\* | OKP | X25519 |
-| HPKE-Base-X448-\*   | OKP | X448   |
-| HPKE-Base-CP256-\*  | EC2 | P-256  |
-| HPKE-Base-CP384-\*  | EC2 | P-384  |
-| HPKE-Base-CP521-\*  | EC2 | P-521  |
+| 0x0010, 0x0013      | EC2 | P-256  |
+| 0x0011, 0x0014      | EC2 | P-384  |
+| 0x0012, 0x0015      | EC2 | P-521  |
+| 0x0020              | OKP | X25519 |
+| 0x0021              | OKP | X448   |
 +---------------------+-----+--------+
 ~~~
 {: #ciphersuite-kty-crv title="COSE_Key Types and Curves for COSE-HPKE Ciphersuites"}
