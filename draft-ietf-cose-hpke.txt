@@ -5,17 +5,17 @@
 COSE                                                       H. Tschofenig
 Internet-Draft                                                     H-BRS
 Intended status: Standards Track                          O. Steele, Ed.
-Expires: 16 June 2025                                          Transmute
+Expires: 22 July 2025                                          Transmute
                                                               D. Ajitomi
                                                                  bibital
                                                             L. Lundblade
                                                      Security Theory LLC
-                                                        13 December 2024
+                                                         18 January 2025
 
 
 Use of Hybrid Public-Key Encryption (HPKE) with CBOR Object Signing and
                            Encryption (COSE)
-                        draft-ietf-cose-hpke-09
+                        draft-ietf-cose-hpke-10
 
 Abstract
 
@@ -47,20 +47,20 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 16 June 2025.
+   This Internet-Draft will expire on 22 July 2025.
 
 
 
 
 
-Tschofenig, et al.        Expires 16 June 2025                  [Page 1]
+Tschofenig, et al.        Expires 22 July 2025                  [Page 1]
 
-Internet-Draft                  COSE HPKE                  December 2024
+Internet-Draft                  COSE HPKE                   January 2025
 
 
 Copyright Notice
 
-   Copyright (c) 2024 IETF Trust and the persons identified as the
+   Copyright (c) 2025 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -88,38 +88,37 @@ Table of Contents
 
    1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   3
    2.  Conventions and Terminology . . . . . . . . . . . . . . . . .   3
-   3.  HPKE for COSE . . . . . . . . . . . . . . . . . . . . . . . .   3
+   3.  HPKE for COSE . . . . . . . . . . . . . . . . . . . . . . . .   4
      3.1.  Overview  . . . . . . . . . . . . . . . . . . . . . . . .   4
        3.1.1.  HPKE Direct Encryption Mode . . . . . . . . . . . . .   4
-       3.1.2.  HPKE Key Encryption Mode  . . . . . . . . . . . . . .   5
+       3.1.2.  HPKE Key Encryption Mode  . . . . . . . . . . . . . .   6
      3.2.  Key Representation  . . . . . . . . . . . . . . . . . . .   8
    4.  Ciphersuite Registration  . . . . . . . . . . . . . . . . . .   9
-     4.1.  COSE_Keys for COSE-HPKE Ciphersuites  . . . . . . . . . .  10
+     4.1.  COSE_Keys for COSE-HPKE Ciphersuites  . . . . . . . . . .  11
    5.  Examples  . . . . . . . . . . . . . . . . . . . . . . . . . .  11
      5.1.  HPKE Direct Encryption Mode . . . . . . . . . . . . . . .  11
      5.2.  HPKE Key Encryption Mode  . . . . . . . . . . . . . . . .  12
        5.2.1.  COSE_Encrypt  . . . . . . . . . . . . . . . . . . . .  12
        5.2.2.  COSE_MAC  . . . . . . . . . . . . . . . . . . . . . .  15
      5.3.  Key Representation  . . . . . . . . . . . . . . . . . . .  18
-       5.3.1.  KEM Public Key for HPKE-Base-P256-SHA256-A128GCM  . .  18
-       5.3.2.  KEM Private Key for HPKE-Base-P256-SHA256-A128GCM . .  18
-       5.3.3.  KEM Public Key for
-               HPKE-Base-X25519-SHA256-CHACHA20POLY1305  . . . . . .  19
+       5.3.1.  KEM Public Key for HPKE-0 . . . . . . . . . . . . . .  18
+       5.3.2.  KEM Private Key for HPKE-0  . . . . . . . . . . . . .  18
+       5.3.3.  KEM Public Key for HPKE-4 . . . . . . . . . . . . . .  19
    6.  Security Considerations . . . . . . . . . . . . . . . . . . .  19
-
-
-
-Tschofenig, et al.        Expires 16 June 2025                  [Page 2]
-
-Internet-Draft                  COSE HPKE                  December 2024
-
-
    7.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  20
+
+
+
+Tschofenig, et al.        Expires 22 July 2025                  [Page 2]
+
+Internet-Draft                  COSE HPKE                   January 2025
+
+
      7.1.  COSE Algorithms Registry  . . . . . . . . . . . . . . . .  20
-     7.2.  COSE Header Parameters  . . . . . . . . . . . . . . . . .  22
-   8.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  22
-     8.1.  Normative References  . . . . . . . . . . . . . . . . . .  22
-     8.2.  Informative References  . . . . . . . . . . . . . . . . .  23
+     7.2.  COSE Header Parameters  . . . . . . . . . . . . . . . . .  23
+   8.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  23
+     8.1.  Normative References  . . . . . . . . . . . . . . . . . .  23
+     8.2.  Informative References  . . . . . . . . . . . . . . . . .  24
    Appendix A.  Contributors . . . . . . . . . . . . . . . . . . . .  24
    Appendix B.  Acknowledgements . . . . . . . . . . . . . . . . . .  24
    Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  24
@@ -160,15 +159,18 @@ Internet-Draft                  COSE HPKE                  December 2024
 
    *  Additional Authenticated Data (AAD), see [RFC9180].
 
-3.  HPKE for COSE
 
 
 
 
-Tschofenig, et al.        Expires 16 June 2025                  [Page 3]
+
+
+Tschofenig, et al.        Expires 22 July 2025                  [Page 3]
 
-Internet-Draft                  COSE HPKE                  December 2024
+Internet-Draft                  COSE HPKE                   January 2025
 
+
+3.  HPKE for COSE
 
 3.1.  Overview
 
@@ -217,14 +219,14 @@ Internet-Draft                  COSE HPKE                  December 2024
 
    *  pkR: The recipient public key, converted into HPKE public key.
 
-   *  kdf_id: Depends on the COSE-HPKE algorithm used.
 
 
-
-Tschofenig, et al.        Expires 16 June 2025                  [Page 4]
+Tschofenig, et al.        Expires 22 July 2025                  [Page 4]
 
-Internet-Draft                  COSE HPKE                  December 2024
+Internet-Draft                  COSE HPKE                   January 2025
 
+
+   *  kdf_id: Depends on the COSE-HPKE algorithm used.
 
    *  aead_id: Depends on the COSE-HPKE algorithm used.
 
@@ -270,17 +272,20 @@ Internet-Draft                  COSE HPKE                  December 2024
 
    An example is shown in Section 5.1.
 
+
+
+
+
+
+Tschofenig, et al.        Expires 22 July 2025                  [Page 5]
+
+Internet-Draft                  COSE HPKE                   January 2025
+
+
 3.1.2.  HPKE Key Encryption Mode
 
    This mode is selected if COSE_recipient structure uses a COSE-HPKE
    algorithm.
-
-
-
-Tschofenig, et al.        Expires 16 June 2025                  [Page 5]
-
-Internet-Draft                  COSE HPKE                  December 2024
-
 
    In this approach the following layers are involved:
 
@@ -318,6 +323,21 @@ Internet-Draft                  COSE HPKE                  December 2024
        recipient_aad: bstr
    ]
 
+
+
+
+
+
+
+
+
+
+
+Tschofenig, et al.        Expires 22 July 2025                  [Page 6]
+
+Internet-Draft                  COSE HPKE                   January 2025
+
+
    *  "next_layer_alg" is the algorithm ID of the COSE layer for which
       the COSE_recipient is encrypting a key.  It is the algorithm that
       the key MUST be used with.  This value MUST match the alg
@@ -326,17 +346,6 @@ Internet-Draft                  COSE HPKE                  December 2024
       attacks where a person-in-the-middle changes the following layer
       algorithm from an AEAD algorithm to one that is not foiling the
       protection of the following layer headers).
-
-
-
-
-
-
-
-Tschofenig, et al.        Expires 16 June 2025                  [Page 6]
-
-Internet-Draft                  COSE HPKE                  December 2024
-
 
    *  "recipient_protected_header" contains the protected headers from
       the COSE_recipient CBOR-encoded deterministically with the "Core
@@ -378,6 +387,13 @@ Internet-Draft                  COSE HPKE                  December 2024
 
    The outputs are used as follows:
 
+
+
+Tschofenig, et al.        Expires 22 July 2025                  [Page 7]
+
+Internet-Draft                  COSE HPKE                   January 2025
+
+
    *  enc: MUST be placed raw into the 'ek' (encapsulated key) parameter
       in the unprotected bucket.
 
@@ -386,13 +402,6 @@ Internet-Draft                  COSE HPKE                  December 2024
 
    When decrypting, the inputs to the HPKE Open operation are set as
    follows:
-
-
-
-Tschofenig, et al.        Expires 16 June 2025                  [Page 7]
-
-Internet-Draft                  COSE HPKE                  December 2024
-
 
    *  kem_id: Depends on the COSE-HPKE algorithm used.
 
@@ -433,6 +442,14 @@ Internet-Draft                  COSE HPKE                  December 2024
    private or public keys.  When using a COSE_Key for COSE-HPKE, the
    following checks are made:
 
+
+
+
+Tschofenig, et al.        Expires 22 July 2025                  [Page 8]
+
+Internet-Draft                  COSE HPKE                   January 2025
+
+
    *  If the "kty" field is "AKP", then the public and private keys
       SHALL be raw HPKE public and private keys (respectively) for the
       KEM used by the algorithm.
@@ -442,13 +459,6 @@ Internet-Draft                  COSE HPKE                  December 2024
       means the value of "crv" parameter is suitable.  For the
       algorithms defined in this document, the valid combinations of the
       KEM, "kty" and "crv" are shown in Figure 1.
-
-
-
-Tschofenig, et al.        Expires 16 June 2025                  [Page 8]
-
-Internet-Draft                  COSE HPKE                  December 2024
-
 
    *  If the "key_ops" field is present, it MUST include only "derive
       bits" for the private key and MUST be empty for the public key.
@@ -487,6 +497,15 @@ Internet-Draft                  COSE HPKE                  December 2024
    *  "PSK" refers to "mode_psk", described in Section 5.1.2 of
       [RFC9180], which authenticates using a pre-shared key.
 
+
+
+
+
+Tschofenig, et al.        Expires 22 July 2025                  [Page 9]
+
+Internet-Draft                  COSE HPKE                   January 2025
+
+
    *  "Auth" refers to "mode_auth", described in Section 5.1.3 of
       [RFC9180], which authenticates using an asymmetric key.
 
@@ -499,24 +518,17 @@ Internet-Draft                  COSE HPKE                  December 2024
    registered in this document, which all use the "Base" mode and the
    values registered in the HPKE IANA registry [HPKE-IANA].
 
-
-
-Tschofenig, et al.        Expires 16 June 2025                  [Page 9]
-
-Internet-Draft                  COSE HPKE                  December 2024
-
-
  +--------------------------------------------------+------------------+
  | COSE-HPKE                                        |      HPKE        |
  | Cipher Suite Label                               | KEM | KDF | AEAD |
  +--------------------------------------------------+-----+-----+------+
- | HPKE-Base-P256-SHA256-A128GCM                    |0x10 | 0x1 | 0x1  |
- | HPKE-Base-P384-SHA384-AS256GCM                   |0x11 | 0x2 | 0x2  |
- | HPKE-Base-P521-SHA512-AS256GCM                   |0x12 | 0x3 | 0x2  |
- | HPKE-Base-X25519-SHA256-A128GCM                  |0x20 | 0x1 | 0x1  |
- | HPKE-Base-X25519-SHA256-ChaCha20Poly1305         |0x20 | 0x1 | 0x3  |
- | HPKE-Base-X448-SHA512-AS256GCM                   |0x21 | 0x3 | 0x2  |
- | HPKE-Base-X448-SHA512-ChaCha20Poly1305           |0x21 | 0x3 | 0x3  |
+ | HPKE-0                                           |0x10 | 0x1 | 0x1  |
+ | HPKE-1                                           |0x11 | 0x2 | 0x2  |
+ | HPKE-2                                           |0x12 | 0x3 | 0x2  |
+ | HPKE-3                                           |0x20 | 0x1 | 0x1  |
+ | HPKE-4                                           |0x20 | 0x1 | 0x3  |
+ | HPKE-5                                           |0x21 | 0x3 | 0x2  |
+ | HPKE-6                                           |0x21 | 0x3 | 0x3  |
  +--------------------------------------------------+-----+-----+------+
 
    As the list indicates, the ciphersuite labels have been abbreviated
@@ -538,29 +550,24 @@ Internet-Draft                  COSE HPKE                  December 2024
    used by the KEM, and components should not be mixed between global
    and national standards.
 
+
+
+
+
+
+
+
+Tschofenig, et al.        Expires 22 July 2025                 [Page 10]
+
+Internet-Draft                  COSE HPKE                   January 2025
+
+
 4.1.  COSE_Keys for COSE-HPKE Ciphersuites
 
    The COSE-HPKE algorithm uniquely determines the KEM for which a
    COSE_Key is used.  The following mapping table shows the valid
    combinations of the KEM used, COSE_Key type and its curve/key
    subtype.
-
-
-
-
-
-
-
-
-
-
-
-
-
-Tschofenig, et al.        Expires 16 June 2025                 [Page 10]
-
-Internet-Draft                  COSE HPKE                  December 2024
-
 
    +---------------------+--------------+
    | HPKE KEM id         | COSE_Key     |
@@ -603,20 +610,21 @@ Internet-Draft                  COSE HPKE                  December 2024
    An example of the HPKE Direct Encryption Mode is shown in Figure 2.
    Line breaks and comments have been inserted for better readability.
 
+
+
+
+Tschofenig, et al.        Expires 22 July 2025                 [Page 11]
+
+Internet-Draft                  COSE HPKE                   January 2025
+
+
    This example uses the following:
 
-   *  alg: HPKE-Base-P256-SHA256-A128GCM
+   *  alg: HPKE-0
 
    *  plaintext: "This is the content."
 
    *  external_aad: "COSE-HPKE app"
-
-
-
-Tschofenig, et al.        Expires 16 June 2025                 [Page 11]
-
-Internet-Draft                  COSE HPKE                  December 2024
-
 
    *  skR: h'57c92077664146e876760c9520d054aa93c3afb04e306705db609030850
       7b4d3'
@@ -625,7 +633,7 @@ Internet-Draft                  COSE HPKE                  December 2024
       60218'
 
    16([
-       / alg = HPKE-Base-P256-SHA256-A128GCM (Assumed: 35) /
+       / alg = HPKE-0 (Assumed: 35) /
        h'a1011823',
        {
            / kid /
@@ -658,6 +666,14 @@ Internet-Draft                  COSE HPKE                  December 2024
 
    This example uses the following:
 
+
+
+
+Tschofenig, et al.        Expires 22 July 2025                 [Page 12]
+
+Internet-Draft                  COSE HPKE                   January 2025
+
+
    TODO: recompute this for Recipient_structure
 
    *  Encryption alg: AES-128-GCM
@@ -667,16 +683,9 @@ Internet-Draft                  COSE HPKE                  December 2024
    *  detatched ciphertext: h'cc168c4e148c52a83010a75250935a47ccb8682dee
       bcef8fce5d60c161e849f53a2dc664'
 
-
-
-Tschofenig, et al.        Expires 16 June 2025                 [Page 12]
-
-Internet-Draft                  COSE HPKE                  December 2024
-
-
    *  kid:"01"
 
-      -  alg: HPKE-Base-P256-SHA256-A128GCM
+      -  alg: HPKE-0
 
       -  external_aad: "COSE-HPKE app"
 
@@ -688,7 +697,7 @@ Internet-Draft                  COSE HPKE                  December 2024
 
    *  kid:"02"
 
-      -  alg: HPKE-Base-X25519-SHA256-CHACHA20POLY1305
+      -  alg: HPKE-4
 
       -  external_aad: "COSE-HPKE app"
 
@@ -716,74 +725,65 @@ Internet-Draft                  COSE HPKE                  December 2024
 
 
 
-
-
-
-
-
-
-
-
-
-Tschofenig, et al.        Expires 16 June 2025                 [Page 13]
+Tschofenig, et al.        Expires 22 July 2025                 [Page 13]
 
-Internet-Draft                  COSE HPKE                  December 2024
+Internet-Draft                  COSE HPKE                   January 2025
 
 
-96_0([
-    / alg = AES-128-GCM (1) /
-    h'a10101',
-    {
-        / iv /
-        5: h'b3fb95dde18c6f90a9f0ae55',
-    },
-    / detached ciphertext /
-    null,
-    [
-        [
-            / alg = HPKE-Base-P256-SHA256-A128GCM (Assumed: 35) /
-            h'a1011823',
-            {
-                / kid /
-                4: h'3031',
-                / ek /
-                -4: h'04d97b79486fe2e7b98fb1bd43
-                      c4faee316ff38d28609a1cf568
-                      40a809298a91e601f1cc0c2ba4
-                      6cb67b41f4651b769cafd9df78
-                      e58aa7f5771291bd4f0f420ba6',
-            },
-            / ciphertext containing encrypted CEK /
-            h'24450f54ae93375351467d17aa7a795cfede2
-              c03eced1ad21fcb7e7c2fe64397',
-        ],
-        [
-            / alg = HPKE-Base-X25519-SHA256-CHACHA20POLY1305 (Assumed: 42) /
-            h'a101182a',
-            {
-                / kid /
-                4: h'3032',
-                / ek /
-                -4: h'd1afbdc95b0e735676f6bca34f
-                      be50f2822259ac09bfc3c500f1
-                      4a05de9b2833',
-            },
-            / ciphertext containing encrypted CEK /
-            h'079b443ec6dfcda6a5f8748aff3875146a8ed
-              40359e1279b545166385d8d9b59',
-        ],
-    ],
-])
+   96_0([
+       / alg = AES-128-GCM (1) /
+       h'a10101',
+       {
+           / iv /
+           5: h'b3fb95dde18c6f90a9f0ae55',
+       },
+       / detached ciphertext /
+       null,
+       [
+           [
+               / alg = HPKE-0 (Assumed: 35) /
+               h'a1011823',
+               {
+                   / kid /
+                   4: h'3031',
+                   / ek /
+                   -4: h'04d97b79486fe2e7b98fb1bd43
+                         c4faee316ff38d28609a1cf568
+                         40a809298a91e601f1cc0c2ba4
+                         6cb67b41f4651b769cafd9df78
+                         e58aa7f5771291bd4f0f420ba6',
+               },
+               / ciphertext containing encrypted CEK /
+               h'24450f54ae93375351467d17aa7a795cfede2
+                 c03eced1ad21fcb7e7c2fe64397',
+           ],
+           [
+               / alg = HPKE-4 (Assumed: 42) /
+               h'a101182a',
+               {
+                   / kid /
+                   4: h'3032',
+                   / ek /
+                   -4: h'd1afbdc95b0e735676f6bca34f
+                         be50f2822259ac09bfc3c500f1
+                         4a05de9b2833',
+               },
+               / ciphertext containing encrypted CEK /
+               h'079b443ec6dfcda6a5f8748aff3875146a8ed
+                 40359e1279b545166385d8d9b59',
+           ],
+       ],
+   ])
 
-               Figure 3: COSE_Encrypt Example for HPKE
-
-
+                  Figure 3: COSE_Encrypt Example for HPKE
 
 
 
-Tschofenig, et al.        Expires 16 June 2025                 [Page 14]
+
+
+Tschofenig, et al.        Expires 22 July 2025                 [Page 14]
 
-Internet-Draft                  COSE HPKE                  December 2024
+Internet-Draft                  COSE HPKE                   January 2025
 
 
    To offer authentication of the sender the payload in Figure 3 is
@@ -818,7 +818,7 @@ Internet-Draft                  COSE HPKE                  December 2024
 
    *  kid:"01"
 
-      -  alg: HPKE-Base-P256-SHA256-A128GCM
+      -  alg: HPKE-0
 
       -  external_aad: "COSE-HPKE app"
 
@@ -830,16 +830,16 @@ Internet-Draft                  COSE HPKE                  December 2024
 
    *  kid:"02"
 
-      -  alg: HPKE-Base-X25519-SHA256-CHACHA20POLY1305
+      -  alg: HPKE-4
 
       -  external_aad: "COSE-HPKE app"
 
 
 
 
-Tschofenig, et al.        Expires 16 June 2025                 [Page 15]
+Tschofenig, et al.        Expires 22 July 2025                 [Page 15]
 
-Internet-Draft                  COSE HPKE                  December 2024
+Internet-Draft                  COSE HPKE                   January 2025
 
 
       -  skR: h'bec275a17e4d362d0819dc0695d89a73be6bf94b66ab726ae0b1afe3
@@ -893,65 +893,65 @@ Internet-Draft                  COSE HPKE                  December 2024
 
 
 
-Tschofenig, et al.        Expires 16 June 2025                 [Page 16]
+Tschofenig, et al.        Expires 22 July 2025                 [Page 16]
 
-Internet-Draft                  COSE HPKE                  December 2024
+Internet-Draft                  COSE HPKE                   January 2025
 
 
-97_0([
-    / alg = HMAC 256/256 (5) /
-    h'a10105',
-    {},
-    / payload = 'This is the content.' /
-    h'546869732069732074686520636f6e74656e742e',
-    / tag /
-    h'5cdcf6055fcbdb53b4001d8fb88b2a46b200ed28e1ed77e16ddf43fb3cac3a98',
-    [
-        [
-            / alg = HPKE-Base-P256-SHA256-A128GCM (Assumed: 35) /
-            h'a1011823',
-            {
-                / kid = '01' /
-                4: h'3031',
-                / ek /
-                -4: h'043ac21632e45e1fbd733f002a
-                      621aa4f3d94737adc395d5a7cb
-                      6e9554bd1ad273aec991493786
-                      d72616d9759bf8526e6e20c1ed
-                      c41ba5739f2b2e441781aa0eb4',
-            },
-            / ciphertext containing encrypted MAC key /
-            h'5cee2b4235a7ff695164f7a8d1e79ccf3ca3d
-              e8b22f3592626020a95b2a8d3fb4d7aa7fe37
-              432426ee70073a368f29d1',
-        ],
-        [
-            / alg = HPKE-Base-X25519-SHA256-CHACHA20POLY1305 (Assumed: 42) /
-            h'a101182a',
-            {
-                / kid = '02' /
-                4: h'3032',
-                / ek /
-                -4: h'02cffacc60def3bb3d0a1c3661
-                      227c9de8dc2b1d3939dd2c07d4
-                      49ebb0bba324',
-            },
-            / ciphertext containing encrypted MAC key /
-            h'3f5b8b60271d5234dbea554dc1461d0239e9f
-              4589f6415e8563b061dbcb37795a616111b78
-              2b4c589b534309327ffadc',
-        ],
-    ],
-])
+   97_0([
+       / alg = HMAC 256/256 (5) /
+       h'a10105',
+       {},
+       / payload = 'This is the content.' /
+       h'546869732069732074686520636f6e74656e742e',
+       / tag /
+       h'5cdcf6055fcbdb53b4001d8fb88b2a46b200ed28e1e
+             d77e16ddf43fb3cac3a98',
+       [
+           [
+               / alg = HPKE-0 (Assumed: 35) /
+               h'a1011823',
+               {
+                   / kid = '01' /
+                   4: h'3031',
+                   / ek /
+                   -4: h'043ac21632e45e1fbd733f002a
+                         621aa4f3d94737adc395d5a7cb
+                         6e9554bd1ad273aec991493786
+                         d72616d9759bf8526e6e20c1ed
+                         c41ba5739f2b2e441781aa0eb4',
+               },
+               / ciphertext containing encrypted MAC key /
+               h'5cee2b4235a7ff695164f7a8d1e79ccf3ca3d
+                 e8b22f3592626020a95b2a8d3fb4d7aa7fe37
+                 432426ee70073a368f29d1',
+           ],
+           [
+               / alg = HPKE-4 (Assumed: 42) /
+               h'a101182a',
+               {
+                   / kid = '02' /
+                   4: h'3032',
+                   / ek /
+                   -4: h'02cffacc60def3bb3d0a1c3661
+                         227c9de8dc2b1d3939dd2c07d4
+                         49ebb0bba324',
+               },
+               / ciphertext containing encrypted MAC key /
+               h'3f5b8b60271d5234dbea554dc1461d0239e9f
+                 4589f6415e8563b061dbcb37795a616111b78
+                 2b4c589b534309327ffadc',
+           ],
+       ],
+   ])
 
-                 Figure 5: COSE_MAC Example for HPKE
+                    Figure 5: COSE_MAC Example for HPKE
 
 
 
-
-Tschofenig, et al.        Expires 16 June 2025                 [Page 17]
+Tschofenig, et al.        Expires 22 July 2025                 [Page 17]
 
-Internet-Draft                  COSE HPKE                  December 2024
+Internet-Draft                  COSE HPKE                   January 2025
 
 
 5.3.  Key Representation
@@ -959,79 +959,112 @@ Internet-Draft                  COSE HPKE                  December 2024
    Examples of private and public KEM key representation are shown
    below.
 
-5.3.1.  KEM Public Key for HPKE-Base-P256-SHA256-A128GCM
+5.3.1.  KEM Public Key for HPKE-0
 
-{
-    / kty = 'EC2' /
-    1: 2,
-    / kid = '01' /
-    2: h'3031',
-    / alg = HPKE-Base-P256-SHA256-A128GCM (Assumed: 35) /
-    3: 35,
-    / crv = 'P-256' /
-    -1: 1,
-    / x /
-    -2: h'65eda5a12577c2bae829437fe338701a10aaa375e1bb5b5de108de439c08551d',
-    / y /
-    -3: h'1e52ed75701163f7f9e40ddf9f341b3dc9ba860af7e0ca7ca7e9eecd0084d19c'
-}
+   {
+       / kty = 'EC2' /
+       1: 2,
+       / kid = '01' /
+       2: h'3031',
+       / alg = HPKE-0 (Assumed: 35) /
+       3: 35,
+       / crv = 'P-256' /
+       -1: 1,
+       / x /
+       -2: h'65eda5a12577c2bae829437fe338701a10aaa375
+                 e1bb5b5de108de439c08551d',
+       / y /
+       -3: h'1e52ed75701163f7f9e40ddf9f341b3dc9ba860af
+                 7e0ca7ca7e9eecd0084d19c'
+   }
 
-         Figure 6: Key Representation Example for HPKE-Base-
-                         P256-SHA256-A128GCM
+              Figure 6: Key Representation Example for HPKE-0
 
-5.3.2.  KEM Private Key for HPKE-Base-P256-SHA256-A128GCM
-
-{
-    / kty = 'EC2' /
-    1: 2,
-    / kid = '01' /
-    2: h'3031',
-    / alg = HPKE-Base-P256-SHA256-A128GCM (Assumed: 35) /
-    3: 35,
-    / key_ops = ['derive_bits'] /
-    4: [8],
-    / crv = 'P-256' /
-    -1: 1,
-    / x /
-    -2: h'bac5b11cad8f99f9c72b05cf4b9e26d244dc189f745228255a219a86d6a09eff',
-    / y /
-    -3: h'20138bf82dc1b6d562be0fa54ab7804a3a64b6d72ccfed6b6fb6ed28bbfc117e',
-    / d /
-    -4: h'57c92077664146e876760c9520d054aa93c3afb04e306705db6090308507b4d3',
-}
-
-         Figure 7: Key Representation Example for HPKE-Base-
-                         P256-SHA256-A128GCM
+5.3.2.  KEM Private Key for HPKE-0
 
 
 
-Tschofenig, et al.        Expires 16 June 2025                 [Page 18]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Tschofenig, et al.        Expires 22 July 2025                 [Page 18]
 
-Internet-Draft                  COSE HPKE                  December 2024
+Internet-Draft                  COSE HPKE                   January 2025
 
 
-5.3.3.  KEM Public Key for HPKE-Base-X25519-SHA256-CHACHA20POLY1305
+   {
+       / kty = 'EC2' /
+       1: 2,
+       / kid = '01' /
+       2: h'3031',
+       / alg = HPKE-0 (Assumed: 35) /
+       3: 35,
+       / key_ops = ['derive_bits'] /
+       4: [8],
+       / crv = 'P-256' /
+       -1: 1,
+       / x /
+       -2: h'bac5b11cad8f99f9c72b05cf4b9e26d244dc189f7
+                 45228255a219a86d6a09eff',
+       / y /
+       -3: h'20138bf82dc1b6d562be0fa54ab7804a3a64b6d72
+                 ccfed6b6fb6ed28bbfc117e',
+       / d /
+       -4: h'57c92077664146e876760c9520d054aa93c3afb04
+                 e306705db6090308507b4d3',
+   }
 
-{
-    / kty = 'OKP' /
-    1: 1,
-    / kid = '11' /
-    2: h'3131',
-    / alg = HPKE-Base-X25519-SHA256-CHACHA20POLY1305 (Assumed: 42) /
-    3: 42,
-    / crv = 'X25519' /
-    -1: 4,
-    / x /
-    -2: h'cb7c09ab7b973c77a808ee05b9bbd373b55c06eaa9bd4ad2bd4e9931b1c34c22',
-}
+              Figure 7: Key Representation Example for HPKE-0
 
-         Figure 8: Key Representation Example for HPKE-Base-
-                    X25519-SHA256-CHACHA20POLY1305
+5.3.3.  KEM Public Key for HPKE-4
+
+   {
+       / kty = 'OKP' /
+       1: 1,
+       / kid = '11' /
+       2: h'3131',
+       / alg = HPKE-4 (Assumed: 42) /
+       3: 42,
+       / crv = 'X25519' /
+       -1: 4,
+       / x /
+       -2: h'cb7c09ab7b973c77a808ee05b9bbd373b55c06eaa
+                 9bd4ad2bd4e9931b1c34c22',
+   }
+
+              Figure 8: Key Representation Example for HPKE-4
 
 6.  Security Considerations
 
    This specification is based on HPKE and the security considerations
    of [RFC9180] are therefore applicable also to this specification.
+
+
+
+
+
+Tschofenig, et al.        Expires 22 July 2025                 [Page 19]
+
+Internet-Draft                  COSE HPKE                   January 2025
+
 
    HPKE assumes the sender is in possession of the public key of the
    recipient and HPKE COSE makes the same assumptions.  Hence, some form
@@ -1056,16 +1089,6 @@ Internet-Draft                  COSE HPKE                  December 2024
    case when an AEAD cipher is used to produce the detached ciphertext
    but may not be guaranteed by non-AEAD ciphers.
 
-
-
-
-
-
-Tschofenig, et al.        Expires 16 June 2025                 [Page 19]
-
-Internet-Draft                  COSE HPKE                  December 2024
-
-
 7.  IANA Considerations
 
    This document requests IANA to add new values to the 'COSE
@@ -1073,7 +1096,7 @@ Internet-Draft                  COSE HPKE                  December 2024
 
 7.1.  COSE Algorithms Registry
 
-   *  Name: HPKE-Base-P256-SHA256-A128GCM
+   *  Name: HPKE-0
 
    *  Value: TBD1 (Assumed: 35)
 
@@ -1089,7 +1112,15 @@ Internet-Draft                  COSE HPKE                  December 2024
 
    *  Recommended: Yes
 
-   *  Name: HPKE-Base-P384-SHA384-AS256GCM
+   *  Name: HPKE-1
+
+
+
+
+Tschofenig, et al.        Expires 22 July 2025                 [Page 20]
+
+Internet-Draft                  COSE HPKE                   January 2025
+
 
    *  Value: TBD3 (Assumed: 37)
 
@@ -1105,7 +1136,7 @@ Internet-Draft                  COSE HPKE                  December 2024
 
    *  Recommended: Yes
 
-   *  Name: HPKE-Base-P521-SHA512-AS256GCM
+   *  Name: HPKE-2
 
    *  Value: TBD5 (Assumed: 39)
 
@@ -1115,20 +1146,13 @@ Internet-Draft                  COSE HPKE                  December 2024
 
    *  Capabilities: [kty]
 
-
-
-Tschofenig, et al.        Expires 16 June 2025                 [Page 20]
-
-Internet-Draft                  COSE HPKE                  December 2024
-
-
    *  Change Controller: IESG
 
    *  Reference: [[TBD: This RFC]]
 
    *  Recommended: Yes
 
-   *  Name: HPKE-Base-X25519-SHA256-A128GCM
+   *  Name: HPKE-3
 
    *  Value: TBD7 (Assumed: 41)
 
@@ -1144,7 +1168,15 @@ Internet-Draft                  COSE HPKE                  December 2024
 
    *  Recommended: Yes
 
-   *  Name: HPKE-Base-X25519-SHA256-ChaCha20Poly1305
+   *  Name: HPKE-4
+
+
+
+
+Tschofenig, et al.        Expires 22 July 2025                 [Page 21]
+
+Internet-Draft                  COSE HPKE                   January 2025
+
 
    *  Value: TBD8 (Assumed: 42)
 
@@ -1160,7 +1192,7 @@ Internet-Draft                  COSE HPKE                  December 2024
 
    *  Recommended: Yes
 
-   *  Name: HPKE-Base-X448-SHA512-AS256GCM
+   *  Name: HPKE-5
 
    *  Value: TBD9 (Assumed: 43)
 
@@ -1170,21 +1202,13 @@ Internet-Draft                  COSE HPKE                  December 2024
 
    *  Capabilities: [kty]
 
-
-
-
-Tschofenig, et al.        Expires 16 June 2025                 [Page 21]
-
-Internet-Draft                  COSE HPKE                  December 2024
-
-
    *  Change Controller: IESG
 
    *  Reference: [[TBD: This RFC]]
 
    *  Recommended: Yes
 
-   *  Name: HPKE-Base-X448-SHA512-ChaCha20Poly1305
+   *  Name: HPKE-6
 
    *  Value: TBD10 (Assumed: 44)
 
@@ -1199,6 +1223,16 @@ Internet-Draft                  COSE HPKE                  December 2024
    *  Reference: [[TBD: This RFC]]
 
    *  Recommended: Yes
+
+
+
+
+
+
+Tschofenig, et al.        Expires 22 July 2025                 [Page 22]
+
+Internet-Draft                  COSE HPKE                   January 2025
+
 
 7.2.  COSE Header Parameters
 
@@ -1227,13 +1261,6 @@ Internet-Draft                  COSE HPKE                  December 2024
               2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
               May 2017, <https://www.rfc-editor.org/rfc/rfc8174>.
 
-
-
-Tschofenig, et al.        Expires 16 June 2025                 [Page 22]
-
-Internet-Draft                  COSE HPKE                  December 2024
-
-
    [RFC9052]  Schaad, J., "CBOR Object Signing and Encryption (COSE):
               Structures and Process", STD 96, RFC 9052,
               DOI 10.17487/RFC9052, August 2022,
@@ -1255,6 +1282,13 @@ Internet-Draft                  COSE HPKE                  December 2024
               Representation (CBOR)", STD 94, RFC 8949,
               DOI 10.17487/RFC8949, December 2020,
               <https://www.rfc-editor.org/info/rfc8949>.
+
+
+
+Tschofenig, et al.        Expires 22 July 2025                 [Page 23]
+
+Internet-Draft                  COSE HPKE                   January 2025
+
 
 8.2.  Informative References
 
@@ -1278,17 +1312,6 @@ Internet-Draft                  COSE HPKE                  December 2024
               and C. Wood, "Randomness Improvements for Security
               Protocols", RFC 8937, DOI 10.17487/RFC8937, October 2020,
               <https://www.rfc-editor.org/rfc/rfc8937>.
-
-
-
-
-
-
-
-Tschofenig, et al.        Expires 16 June 2025                 [Page 23]
-
-Internet-Draft                  COSE HPKE                  December 2024
-
 
 Appendix A.  Contributors
 
@@ -1316,6 +1339,13 @@ Authors' Addresses
    Email: hannes.tschofenig@gmx.net
 
 
+
+
+Tschofenig, et al.        Expires 22 July 2025                 [Page 24]
+
+Internet-Draft                  COSE HPKE                   January 2025
+
+
    Orie Steele (editor)
    Transmute
    United States
@@ -1341,4 +1371,30 @@ Authors' Addresses
 
 
 
-Tschofenig, et al.        Expires 16 June 2025                 [Page 24]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Tschofenig, et al.        Expires 22 July 2025                 [Page 25]
