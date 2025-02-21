@@ -171,7 +171,7 @@ An example is shown in {{one-layer-example}}.
 
 ### HPKE Key Encryption Mode {#two-layer}
 
-This mode is selected if COSE_recipient structure uses a COSE-HPKE algorithm.
+This mode is selected if the COSE_recipient structure uses a COSE-HPKE algorithm.
 
 
 In this approach the following layers are involved: 
@@ -192,7 +192,7 @@ As stated above, the specification uses a CEK to encrypt the content at layer 0.
 
 #### Recipient Encryption
 
-This describes the Recipient_structure.
+This section describes the Recipient_structure.
 It serves instead of COSE_KDF_Context for COSE-HPKE recipients (and possibly other COSE algorithms defined outside this document).
 It MUST be used for COSE-HPKE recipients as it provides the protection for recipient protected headers.
 It is patterned after the Enc_structure in {{RFC9052}}, but is specifically for a COSE_recipient, never a COSE_Encrypt.
@@ -225,9 +225,12 @@ It provides a means to convey many of the fields in COSE_KDF_Context.
 
 #### COSE-HPKE Recipient Construction
 
-Because COSE-HPKE supports header protection by definition, if 'alg' parameter is present, it MUST be in protected bucket, and SHALL be a COSE-HPKE algorithm.
+Because COSE-HPKE supports header protection, if 'alg' parameter is present, it MUST be in protected bucket, and SHALL be a COSE-HPKE algorithm.
 
 The unprotected header MAY contain the kid parameter to identify the static recipient public key the sender used.
+This documents RECOMMENDS the use of the 'kid' parameter
+(or other parameters) to explicitly identify the static recipient public key
+used by the sender.
 
 When encrypting, the inputs to the HPKE Seal operation are set as follows:
 
