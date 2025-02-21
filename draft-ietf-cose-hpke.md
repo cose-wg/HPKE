@@ -123,11 +123,10 @@ is a bstr.
 
 ### HPKE Direct Encryption Mode {#one-layer}
 
-This mode is selected if COSE_Encrypt0 structure uses a COSE-HPKE algoritm.
+This mode applies if the COSE_Encrypt0 structure uses a COSE-HPKE algorithm and has no recipients.
 
-Because there are no recipients, COSE_Encrypt structure MUST NOT be used.
-
-Because COSE-HPKE supports header protection by definition, if 'alg' parameter is present, it MUST be in protected bucket, and SHALL be a COSE-HPKE algorithm.
+Because COSE-HPKE supports header protection, if the 'alg' parameter is present, it MUST be included
+in the protected header and MUST be a COSE-HPKE algorithm.
 
 Although the use of the 'kid' parameter in COSE_Encrypt0 is
 discouraged by RFC 9052, this documents RECOMMENDS the use of the 'kid' parameter
