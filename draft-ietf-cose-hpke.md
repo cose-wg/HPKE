@@ -138,7 +138,7 @@ use it to select the appropriate private key.
 When encrypting, the inputs to the HPKE Seal operation are set as follows:
 
 - kem_id: Depends on the COSE-HPKE algorithm used.
-- pkR: The recipient public key, converted into a HPKE public key.
+- pkR: The recipient public key, converted into an HPKE public key.
 - kdf_id: Depends on the COSE-HPKE algorithm used.
 - aead_id: Depends on the COSE-HPKE algorithm used.
 - info: empty string.
