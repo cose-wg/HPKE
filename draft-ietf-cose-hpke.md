@@ -225,7 +225,7 @@ It provides a means to convey many of the fields in COSE_KDF_Context.
 
 #### COSE-HPKE Recipient Construction
 
-Because COSE-HPKE supports header protection, if 'alg' parameter is present, it MUST be in protected bucket, and SHALL be a COSE-HPKE algorithm.
+Because COSE-HPKE supports header protection, if the 'alg' parameter is present, it MUST be in the protected header and MUST be a COSE-HPKE algorithm.
 
 The unprotected header MAY contain the kid parameter to identify the static recipient public key the sender used.
 This documents RECOMMENDS the use of the 'kid' parameter
