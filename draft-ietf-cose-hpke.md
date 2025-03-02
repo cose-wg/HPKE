@@ -228,8 +228,8 @@ It provides a means to convey many of the fields in COSE_KDF_Context.
 Because COSE-HPKE supports header protection, if the 'alg' parameter is present, it MUST be in the protected header and MUST be a COSE-HPKE algorithm.
 
 The unprotected header MAY contain the kid parameter to identify the static recipient public key the sender used.
-This documents RECOMMENDS the use of the 'kid' parameter
-(or other parameters) to explicitly identify the static recipient public key
+Use of the 'kid' parameter is RECOMMENDED
+to explicitly identify the static recipient public key
 used by the sender.
 
 When encrypting, the inputs to the HPKE Seal operation are set as follows:
