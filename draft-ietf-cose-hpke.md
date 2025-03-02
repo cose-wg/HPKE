@@ -155,7 +155,7 @@ See Section 5 of {{RFC9052}} for a description of detached payloads.
 When decrypting, the inputs to the HPKE Open operation are set as follows:
 
 - kem_id: Depends on the COSE-HPKE algorithm used.
-- skR: The recipient private key, converted into a HPKE private key.
+- skR: The recipient private key, converted into an HPKE private key.
 - kdf_id: Depends on the COSE-HPKE algorithm used.
 - aead_id: Depends on the COSE-HPKE algorithm used.
 - info: empty string.
