@@ -786,5 +786,11 @@ contributions to the draft as co-authors of initial versions.
 
 # Acknowledgements
 
-We would like to thank John Mattsson, Mike Prorock, Michael Richardson,
-and Goeran Selander for their review feedback.
+We would like to thank
+Michael B. Jones,
+John Mattsson,
+Mike Prorock,
+Michael Richardson,
+and
+Goeran Selander
+for their review feedback.
