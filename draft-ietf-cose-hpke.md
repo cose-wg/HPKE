@@ -1,7 +1,7 @@
 ---
 title: Use of Hybrid Public-Key Encryption (HPKE) with CBOR Object Signing and Encryption (COSE)
 abbrev: COSE HPKE
-docname: draft-ietf-cose-hpke-11
+docname: draft-ietf-cose-hpke-12
 category: std
 
 ipr: pre5378Trust200902
@@ -140,7 +140,7 @@ When encrypting, the inputs to the HPKE Seal operation are set as follows:
 - pkR: The recipient public key, converted into an HPKE public key.
 - kdf_id: Depends on the COSE-HPKE algorithm used.
 - aead_id: Depends on the COSE-HPKE algorithm used.
-- info: empty string.
+- info: Defaults to the empty string; mutually known private information MAY be used instead.
 - aad: Canonical encoding of the Enc_structure from {{RFC9052}}).
 - pt: The raw message plaintext.
 
@@ -157,7 +157,7 @@ When decrypting, the inputs to the HPKE Open operation are set as follows:
 - skR: The recipient private key, converted into an HPKE private key.
 - kdf_id: Depends on the COSE-HPKE algorithm used.
 - aead_id: Depends on the COSE-HPKE algorithm used.
-- info: empty string.
+- info: Defaults to the empty string; mutually known private information MAY be used instead.
 - aad: Canonical encoding of the Enc_structure from {{RFC9052}}).
 - enc: The contents of the layer 'ek' parameter.
 - ct: The contents of the layer ciphertext.
@@ -237,7 +237,7 @@ When encrypting, the inputs to the HPKE Seal operation are set as follows:
 - pkR: The recipient public key, converted into HPKE public key.
 - kdf_id: Depends on the COSE-HPKE algorithm used.
 - aead_id: Depends on the COSE-HPKE algorithm used.
-- info: empty string.
+- info: Defaults to the empty string; mutually known private information MAY be used instead.
 - aad: Canonical encoding of the Recipient_structure.
 - pt: The raw key for the next layer down.
 
@@ -252,7 +252,7 @@ When decrypting, the inputs to the HPKE Open operation are set as follows:
 - skR: The recipient private key, converted into HPKE private key.
 - kdf_id: Depends on the COSE-HPKE algorithm used.
 - aead_id: Depends on the COSE-HPKE algorithm used.
-- info: empty string.
+- info: Defaults to the empty string; mutually known private information MAY be used instead.
 - aad: Canonical encoding of the Recipient_structure.
 - enc: The contents of the layer 'ek' parameter.
 - ct: The contents of the layer ciphertext field.
