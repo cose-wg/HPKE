@@ -58,7 +58,14 @@ informative:
      title: Hybrid Public Key Encryption (HPKE) IANA Registry
      target: https://www.iana.org/assignments/hpke/hpke.xhtml
      date: October 2023
-  
+
+  NIST.SP.800-56Ar3:
+     author:
+        org: National Institute of Standards and Technology
+     title: Recommendation for Pair-Wise Key-Establishment Schemes Using Discrete Logarithm Cryptography, NIST Special Publication 800-56A Revision 3
+     target: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-56Ar3.pdf
+     date: April 2018
+
 --- abstract
 
 This specification defines hybrid public-key encryption (HPKE) for use with 
@@ -120,6 +127,8 @@ For use with HPKE the 'ek' header parameter MUST
 be present in the unprotected header parameter and MUST contain
 the encapsulated key, which is output of the HPKE KEM, and it
 is a bstr.
+
+For all modes, the HPKE info parameter defaults to the empty string; mutually known private information MAY be used instead. The concept of mutually known private information is defined in {{NIST.SP.800-56Ar3}} as an input to the key derivation function.
 
 ### HPKE Direct Encryption Mode {#one-layer}
 
