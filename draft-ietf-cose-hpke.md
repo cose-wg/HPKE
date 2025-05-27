@@ -1,7 +1,7 @@
 ---
 title: Use of Hybrid Public-Key Encryption (HPKE) with CBOR Object Signing and Encryption (COSE)
 abbrev: COSE HPKE
-docname: draft-ietf-cose-hpke-11
+docname: draft-ietf-cose-hpke-12
 category: std
 
 ipr: pre5378Trust200902
@@ -58,7 +58,14 @@ informative:
      title: Hybrid Public Key Encryption (HPKE) IANA Registry
      target: https://www.iana.org/assignments/hpke/hpke.xhtml
      date: October 2023
-  
+
+  NIST.SP.800-56Ar3:
+     author:
+        org: National Institute of Standards and Technology
+     title: Recommendation for Pair-Wise Key-Establishment Schemes Using Discrete Logarithm Cryptography, NIST Special Publication 800-56A Revision 3
+     target: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-56Ar3.pdf
+     date: April 2018
+
 --- abstract
 
 This specification defines hybrid public-key encryption (HPKE) for use with 
@@ -121,6 +128,8 @@ be present in the unprotected header parameter and MUST contain
 the encapsulated key, which is output of the HPKE KEM, and it
 is a bstr.
 
+For all modes, the HPKE info parameter defaults to the empty string; mutually known private information MAY be used instead. The concept of mutually known private information is defined in {{NIST.SP.800-56Ar3}} as an input to the key derivation function.
+
 ### HPKE Direct Encryption Mode {#one-layer}
 
 This mode applies if the COSE_Encrypt0 structure uses a COSE-HPKE algorithm and has no recipients.
@@ -140,7 +149,7 @@ When encrypting, the inputs to the HPKE Seal operation are set as follows:
 - pkR: The recipient public key, converted into an HPKE public key.
 - kdf_id: Depends on the COSE-HPKE algorithm used.
 - aead_id: Depends on the COSE-HPKE algorithm used.
-- info: empty string.
+- info: Defaults to the empty string; mutually known private information MAY be used instead.
 - aad: Canonical encoding of the Enc_structure from {{RFC9052}}).
 - pt: The raw message plaintext.
 
@@ -157,7 +166,7 @@ When decrypting, the inputs to the HPKE Open operation are set as follows:
 - skR: The recipient private key, converted into an HPKE private key.
 - kdf_id: Depends on the COSE-HPKE algorithm used.
 - aead_id: Depends on the COSE-HPKE algorithm used.
-- info: empty string.
+- info: Defaults to the empty string; mutually known private information MAY be used instead.
 - aad: Canonical encoding of the Enc_structure from {{RFC9052}}).
 - enc: The contents of the layer 'ek' parameter.
 - ct: The contents of the layer ciphertext.
@@ -237,7 +246,7 @@ When encrypting, the inputs to the HPKE Seal operation are set as follows:
 - pkR: The recipient public key, converted into HPKE public key.
 - kdf_id: Depends on the COSE-HPKE algorithm used.
 - aead_id: Depends on the COSE-HPKE algorithm used.
-- info: empty string.
+- info: Defaults to the empty string; mutually known private information MAY be used instead.
 - aad: Canonical encoding of the Recipient_structure.
 - pt: The raw key for the next layer down.
 
@@ -252,7 +261,7 @@ When decrypting, the inputs to the HPKE Open operation are set as follows:
 - skR: The recipient private key, converted into HPKE private key.
 - kdf_id: Depends on the COSE-HPKE algorithm used.
 - aead_id: Depends on the COSE-HPKE algorithm used.
-- info: empty string.
+- info: Defaults to the empty string; mutually known private information MAY be used instead.
 - aad: Canonical encoding of the Recipient_structure.
 - enc: The contents of the layer 'ek' parameter.
 - ct: The contents of the layer ciphertext field.
@@ -786,5 +795,11 @@ contributions to the draft as co-authors of initial versions.
 
 # Acknowledgements
 
-We would like to thank John Mattsson, Mike Prorock, Michael Richardson,
-and Goeran Selander for their review feedback.
+We would like to thank
+Michael B. Jones,
+John Mattsson,
+Mike Prorock,
+Michael Richardson,
+and
+Goeran Selander
+for their review feedback.
