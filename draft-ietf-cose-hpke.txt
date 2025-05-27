@@ -5,17 +5,17 @@
 COSE                                                       H. Tschofenig
 Internet-Draft                                                     H-BRS
 Intended status: Standards Track                          O. Steele, Ed.
-Expires: 22 July 2025                                          Transmute
+Expires: 28 November 2025                                      Transmute
                                                               D. Ajitomi
                                                                  bibital
                                                             L. Lundblade
                                                      Security Theory LLC
-                                                         18 January 2025
+                                                             27 May 2025
 
 
 Use of Hybrid Public-Key Encryption (HPKE) with CBOR Object Signing and
                            Encryption (COSE)
-                        draft-ietf-cose-hpke-10
+                        draft-ietf-cose-hpke-12
 
 Abstract
 
@@ -47,15 +47,15 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 22 July 2025.
+   This Internet-Draft will expire on 28 November 2025.
 
 
 
 
 
-Tschofenig, et al.        Expires 22 July 2025                  [Page 1]
+Tschofenig, et al.      Expires 28 November 2025                [Page 1]
 
-Internet-Draft                  COSE HPKE                   January 2025
+Internet-Draft                  COSE HPKE                       May 2025
 
 
 Copyright Notice
@@ -109,9 +109,9 @@ Table of Contents
 
 
 
-Tschofenig, et al.        Expires 22 July 2025                  [Page 2]
+Tschofenig, et al.      Expires 28 November 2025                [Page 2]
 
-Internet-Draft                  COSE HPKE                   January 2025
+Internet-Draft                  COSE HPKE                       May 2025
 
 
      7.1.  COSE Algorithms Registry  . . . . . . . . . . . . . . . .  20
@@ -120,8 +120,8 @@ Internet-Draft                  COSE HPKE                   January 2025
      8.1.  Normative References  . . . . . . . . . . . . . . . . . .  23
      8.2.  Informative References  . . . . . . . . . . . . . . . . .  24
    Appendix A.  Contributors . . . . . . . . . . . . . . . . . . . .  24
-   Appendix B.  Acknowledgements . . . . . . . . . . . . . . . . . .  24
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  24
+   Appendix B.  Acknowledgements . . . . . . . . . . . . . . . . . .  25
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  25
 
 1.  Introduction
 
@@ -165,9 +165,9 @@ Internet-Draft                  COSE HPKE                   January 2025
 
 
 
-Tschofenig, et al.        Expires 22 July 2025                  [Page 3]
+Tschofenig, et al.      Expires 28 November 2025                [Page 3]
 
-Internet-Draft                  COSE HPKE                   January 2025
+Internet-Draft                  COSE HPKE                       May 2025
 
 
 3.  HPKE for COSE
@@ -193,16 +193,18 @@ Internet-Draft                  COSE HPKE                   January 2025
    unprotected header parameter and MUST contain the encapsulated key,
    which is output of the HPKE KEM, and it is a bstr.
 
+   For all modes, the HPKE info parameter defaults to the empty string;
+   mutually known private information MAY be used instead.  The concept
+   of mutually known private information is defined in
+   [NIST.SP.800-56Ar3] as an input to the key derivation function.
+
 3.1.1.  HPKE Direct Encryption Mode
 
-   This mode is selected if COSE_Encrypt0 structure uses a COSE-HPKE
-   algoritm.
+   This mode applies if the COSE_Encrypt0 structure uses a COSE-HPKE
+   algorithm and has no recipients.
 
-   Because there are no recipients, COSE_Encrypt structure MUST NOT be
-   used.
-
-   Because COSE-HPKE supports header protection by definition, if 'alg'
-   parameter is present, it MUST be in protected bucket, and SHALL be a
+   Because COSE-HPKE supports header protection, if the 'alg' parameter
+   is present, it MUST be included in the protected header and MUST be a
    COSE-HPKE algorithm.
 
    Although the use of the 'kid' parameter in COSE_Encrypt0 is
@@ -217,20 +219,21 @@ Internet-Draft                  COSE HPKE                   January 2025
 
    *  kem_id: Depends on the COSE-HPKE algorithm used.
 
-   *  pkR: The recipient public key, converted into HPKE public key.
 
 
-
-Tschofenig, et al.        Expires 22 July 2025                  [Page 4]
+Tschofenig, et al.      Expires 28 November 2025                [Page 4]
 
-Internet-Draft                  COSE HPKE                   January 2025
+Internet-Draft                  COSE HPKE                       May 2025
 
+
+   *  pkR: The recipient public key, converted into an HPKE public key.
 
    *  kdf_id: Depends on the COSE-HPKE algorithm used.
 
    *  aead_id: Depends on the COSE-HPKE algorithm used.
 
-   *  info: empty string.
+   *  info: Defaults to the empty string; mutually known private
+      information MAY be used instead.
 
    *  aad: Canonical encoding of the Enc_structure from [RFC9052]).
 
@@ -252,13 +255,15 @@ Internet-Draft                  COSE HPKE                   January 2025
 
    *  kem_id: Depends on the COSE-HPKE algorithm used.
 
-   *  skR: The recipient private key, converted into HPKE private key.
+   *  skR: The recipient private key, converted into an HPKE private
+      key.
 
    *  kdf_id: Depends on the COSE-HPKE algorithm used.
 
    *  aead_id: Depends on the COSE-HPKE algorithm used.
 
-   *  info: empty string.
+   *  info: Defaults to the empty string; mutually known private
+      information MAY be used instead.
 
    *  aad: Canonical encoding of the Enc_structure from [RFC9052]).
 
@@ -270,22 +275,19 @@ Internet-Draft                  COSE HPKE                   January 2025
 
    The COSE_Encrypt0 MAY be tagged or untagged.
 
-   An example is shown in Section 5.1.
 
 
-
-
-
-
-Tschofenig, et al.        Expires 22 July 2025                  [Page 5]
+Tschofenig, et al.      Expires 28 November 2025                [Page 5]
 
-Internet-Draft                  COSE HPKE                   January 2025
+Internet-Draft                  COSE HPKE                       May 2025
 
+
+   An example is shown in Section 5.1.
 
 3.1.2.  HPKE Key Encryption Mode
 
-   This mode is selected if COSE_recipient structure uses a COSE-HPKE
-   algorithm.
+   This mode is selected if the COSE_recipient structure uses a COSE-
+   HPKE algorithm.
 
    In this approach the following layers are involved:
 
@@ -308,7 +310,7 @@ Internet-Draft                  COSE HPKE                   January 2025
 
 3.1.2.1.  Recipient Encryption
 
-   This describes the Recipient_structure.  It serves instead of
+   This section describes the Recipient_structure.  It serves instead of
    COSE_KDF_Context for COSE-HPKE recipients (and possibly other COSE
    algorithms defined outside this document).  It MUST be used for COSE-
    HPKE recipients as it provides the protection for recipient protected
@@ -323,26 +325,19 @@ Internet-Draft                  COSE HPKE                   January 2025
        recipient_aad: bstr
    ]
 
-
-
-
-
-
-
-
-
-
-
-Tschofenig, et al.        Expires 22 July 2025                  [Page 6]
-
-Internet-Draft                  COSE HPKE                   January 2025
-
-
    *  "next_layer_alg" is the algorithm ID of the COSE layer for which
       the COSE_recipient is encrypting a key.  It is the algorithm that
       the key MUST be used with.  This value MUST match the alg
       parameter in the next lower COSE layer.  (This serves the same
       purpose as the alg ID in the COSE_KDF_Context.  It also mitigates
+
+
+
+Tschofenig, et al.      Expires 28 November 2025                [Page 6]
+
+Internet-Draft                  COSE HPKE                       May 2025
+
+
       attacks where a person-in-the-middle changes the following layer
       algorithm from an AEAD algorithm to one that is not foiling the
       protection of the following layer headers).
@@ -361,12 +356,14 @@ Internet-Draft                  COSE HPKE                   January 2025
 
 3.1.2.2.  COSE-HPKE Recipient Construction
 
-   Because COSE-HPKE supports header protection by definition, if 'alg'
-   parameter is present, it MUST be in protected bucket, and SHALL be a
-   COSE-HPKE algorithm.
+   Because COSE-HPKE supports header protection, if the 'alg' parameter
+   is present, it MUST be in the protected header and MUST be a COSE-
+   HPKE algorithm.
 
    The unprotected header MAY contain the kid parameter to identify the
-   static recipient public key the sender used.
+   static recipient public key the sender used.  Use of the 'kid'
+   parameter is RECOMMENDED to explicitly identify the static recipient
+   public key used by the sender.
 
    When encrypting, the inputs to the HPKE Seal operation are set as
    follows:
@@ -379,7 +376,8 @@ Internet-Draft                  COSE HPKE                   January 2025
 
    *  aead_id: Depends on the COSE-HPKE algorithm used.
 
-   *  info: empty string.
+   *  info: Defaults to the empty string; mutually known private
+      information MAY be used instead.
 
    *  aad: Canonical encoding of the Recipient_structure.
 
@@ -389,9 +387,11 @@ Internet-Draft                  COSE HPKE                   January 2025
 
 
 
-Tschofenig, et al.        Expires 22 July 2025                  [Page 7]
+
+
+Tschofenig, et al.      Expires 28 November 2025                [Page 7]
 
-Internet-Draft                  COSE HPKE                   January 2025
+Internet-Draft                  COSE HPKE                       May 2025
 
 
    *  enc: MUST be placed raw into the 'ek' (encapsulated key) parameter
@@ -411,7 +411,8 @@ Internet-Draft                  COSE HPKE                   January 2025
 
    *  aead_id: Depends on the COSE-HPKE algorithm used.
 
-   *  info: empty string.
+   *  info: Defaults to the empty string; mutually known private
+      information MAY be used instead.
 
    *  aad: Canonical encoding of the Recipient_structure.
 
@@ -444,10 +445,9 @@ Internet-Draft                  COSE HPKE                   January 2025
 
 
 
-
-Tschofenig, et al.        Expires 22 July 2025                  [Page 8]
+Tschofenig, et al.      Expires 28 November 2025                [Page 8]
 
-Internet-Draft                  COSE HPKE                   January 2025
+Internet-Draft                  COSE HPKE                       May 2025
 
 
    *  If the "kty" field is "AKP", then the public and private keys
@@ -501,9 +501,9 @@ Internet-Draft                  COSE HPKE                   January 2025
 
 
 
-Tschofenig, et al.        Expires 22 July 2025                  [Page 9]
+Tschofenig, et al.      Expires 28 November 2025                [Page 9]
 
-Internet-Draft                  COSE HPKE                   January 2025
+Internet-Draft                  COSE HPKE                       May 2025
 
 
    *  "Auth" refers to "mode_auth", described in Section 5.1.3 of
@@ -557,9 +557,9 @@ Internet-Draft                  COSE HPKE                   January 2025
 
 
 
-Tschofenig, et al.        Expires 22 July 2025                 [Page 10]
+Tschofenig, et al.      Expires 28 November 2025               [Page 10]
 
-Internet-Draft                  COSE HPKE                   January 2025
+Internet-Draft                  COSE HPKE                       May 2025
 
 
 4.1.  COSE_Keys for COSE-HPKE Ciphersuites
@@ -613,9 +613,9 @@ Internet-Draft                  COSE HPKE                   January 2025
 
 
 
-Tschofenig, et al.        Expires 22 July 2025                 [Page 11]
+Tschofenig, et al.      Expires 28 November 2025               [Page 11]
 
-Internet-Draft                  COSE HPKE                   January 2025
+Internet-Draft                  COSE HPKE                       May 2025
 
 
    This example uses the following:
@@ -669,9 +669,9 @@ Internet-Draft                  COSE HPKE                   January 2025
 
 
 
-Tschofenig, et al.        Expires 22 July 2025                 [Page 12]
+Tschofenig, et al.      Expires 28 November 2025               [Page 12]
 
-Internet-Draft                  COSE HPKE                   January 2025
+Internet-Draft                  COSE HPKE                       May 2025
 
 
    TODO: recompute this for Recipient_structure
@@ -725,9 +725,9 @@ Internet-Draft                  COSE HPKE                   January 2025
 
 
 
-Tschofenig, et al.        Expires 22 July 2025                 [Page 13]
+Tschofenig, et al.      Expires 28 November 2025               [Page 13]
 
-Internet-Draft                  COSE HPKE                   January 2025
+Internet-Draft                  COSE HPKE                       May 2025
 
 
    96_0([
@@ -781,9 +781,9 @@ Internet-Draft                  COSE HPKE                   January 2025
 
 
 
-Tschofenig, et al.        Expires 22 July 2025                 [Page 14]
+Tschofenig, et al.      Expires 28 November 2025               [Page 14]
 
-Internet-Draft                  COSE HPKE                   January 2025
+Internet-Draft                  COSE HPKE                       May 2025
 
 
    To offer authentication of the sender the payload in Figure 3 is
@@ -837,9 +837,9 @@ Internet-Draft                  COSE HPKE                   January 2025
 
 
 
-Tschofenig, et al.        Expires 22 July 2025                 [Page 15]
+Tschofenig, et al.      Expires 28 November 2025               [Page 15]
 
-Internet-Draft                  COSE HPKE                   January 2025
+Internet-Draft                  COSE HPKE                       May 2025
 
 
       -  skR: h'bec275a17e4d362d0819dc0695d89a73be6bf94b66ab726ae0b1afe3
@@ -893,9 +893,9 @@ Internet-Draft                  COSE HPKE                   January 2025
 
 
 
-Tschofenig, et al.        Expires 22 July 2025                 [Page 16]
+Tschofenig, et al.      Expires 28 November 2025               [Page 16]
 
-Internet-Draft                  COSE HPKE                   January 2025
+Internet-Draft                  COSE HPKE                       May 2025
 
 
    97_0([
@@ -949,9 +949,9 @@ Internet-Draft                  COSE HPKE                   January 2025
 
 
 
-Tschofenig, et al.        Expires 22 July 2025                 [Page 17]
+Tschofenig, et al.      Expires 28 November 2025               [Page 17]
 
-Internet-Draft                  COSE HPKE                   January 2025
+Internet-Draft                  COSE HPKE                       May 2025
 
 
 5.3.  Key Representation
@@ -1005,9 +1005,9 @@ Internet-Draft                  COSE HPKE                   January 2025
 
 
 
-Tschofenig, et al.        Expires 22 July 2025                 [Page 18]
+Tschofenig, et al.      Expires 28 November 2025               [Page 18]
 
-Internet-Draft                  COSE HPKE                   January 2025
+Internet-Draft                  COSE HPKE                       May 2025
 
 
    {
@@ -1061,9 +1061,9 @@ Internet-Draft                  COSE HPKE                   January 2025
 
 
 
-Tschofenig, et al.        Expires 22 July 2025                 [Page 19]
+Tschofenig, et al.      Expires 28 November 2025               [Page 19]
 
-Internet-Draft                  COSE HPKE                   January 2025
+Internet-Draft                  COSE HPKE                       May 2025
 
 
    HPKE assumes the sender is in possession of the public key of the
@@ -1117,9 +1117,9 @@ Internet-Draft                  COSE HPKE                   January 2025
 
 
 
-Tschofenig, et al.        Expires 22 July 2025                 [Page 20]
+Tschofenig, et al.      Expires 28 November 2025               [Page 20]
 
-Internet-Draft                  COSE HPKE                   January 2025
+Internet-Draft                  COSE HPKE                       May 2025
 
 
    *  Value: TBD3 (Assumed: 37)
@@ -1173,9 +1173,9 @@ Internet-Draft                  COSE HPKE                   January 2025
 
 
 
-Tschofenig, et al.        Expires 22 July 2025                 [Page 21]
+Tschofenig, et al.      Expires 28 November 2025               [Page 21]
 
-Internet-Draft                  COSE HPKE                   January 2025
+Internet-Draft                  COSE HPKE                       May 2025
 
 
    *  Value: TBD8 (Assumed: 42)
@@ -1229,9 +1229,9 @@ Internet-Draft                  COSE HPKE                   January 2025
 
 
 
-Tschofenig, et al.        Expires 22 July 2025                 [Page 22]
+Tschofenig, et al.      Expires 28 November 2025               [Page 22]
 
-Internet-Draft                  COSE HPKE                   January 2025
+Internet-Draft                  COSE HPKE                       May 2025
 
 
 7.2.  COSE Header Parameters
@@ -1285,9 +1285,9 @@ Internet-Draft                  COSE HPKE                   January 2025
 
 
 
-Tschofenig, et al.        Expires 22 July 2025                 [Page 23]
+Tschofenig, et al.      Expires 28 November 2025               [Page 23]
 
-Internet-Draft                  COSE HPKE                   January 2025
+Internet-Draft                  COSE HPKE                       May 2025
 
 
 8.2.  Informative References
@@ -1300,9 +1300,17 @@ Internet-Draft                  COSE HPKE                   January 2025
    [I-D.irtf-cfrg-dnhpke]
               Harkins, D., "Deterministic Nonce-less Hybrid Public Key
               Encryption", Work in Progress, Internet-Draft, draft-irtf-
-              cfrg-dnhpke-05, 9 September 2024,
+              cfrg-dnhpke-06, 3 March 2025,
               <https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-
-              dnhpke-05>.
+              dnhpke-06>.
+
+   [NIST.SP.800-56Ar3]
+              National Institute of Standards and Technology,
+              "Recommendation for Pair-Wise Key-Establishment Schemes
+              Using Discrete Logarithm Cryptography, NIST Special
+              Publication 800-56A Revision 3", April 2018,
+              <https://nvlpubs.nist.gov/nistpubs/SpecialPublications/
+              NIST.SP.800-56Ar3.pdf>.
 
    [RFC2630]  Housley, R., "Cryptographic Message Syntax", RFC 2630,
               DOI 10.17487/RFC2630, June 1999,
@@ -1326,10 +1334,23 @@ Appendix A.  Contributors
    Finally, we would like to thank Russ Housley and Brendan Moran for
    their contributions to the draft as co-authors of initial versions.
 
+
+
+
+
+
+
+
+Tschofenig, et al.      Expires 28 November 2025               [Page 24]
+
+Internet-Draft                  COSE HPKE                       May 2025
+
+
 Appendix B.  Acknowledgements
 
-   We would like to thank John Mattsson, Mike Prorock, Michael
-   Richardson, and Goeran Selander for their review feedback.
+   We would like to thank Michael B.  Jones, John Mattsson, Mike
+   Prorock, Michael Richardson, and Goeran Selander for their review
+   feedback.
 
 Authors' Addresses
 
@@ -1337,13 +1358,6 @@ Authors' Addresses
    University of Applied Sciences Bonn-Rhein-Sieg
    Germany
    Email: hannes.tschofenig@gmx.net
-
-
-
-
-Tschofenig, et al.        Expires 22 July 2025                 [Page 24]
-
-Internet-Draft                  COSE HPKE                   January 2025
 
 
    Orie Steele (editor)
@@ -1383,18 +1397,4 @@ Internet-Draft                  COSE HPKE                   January 2025
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Tschofenig, et al.        Expires 22 July 2025                 [Page 25]
+Tschofenig, et al.      Expires 28 November 2025               [Page 25]
