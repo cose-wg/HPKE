@@ -1,7 +1,7 @@
 ---
 title: Use of Hybrid Public-Key Encryption (HPKE) with CBOR Object Signing and Encryption (COSE)
 abbrev: COSE HPKE
-docname: draft-ietf-cose-hpke-12
+docname: draft-ietf-cose-hpke-13
 category: std
 
 ipr: pre5378Trust200902
@@ -75,8 +75,8 @@ public-key encryption of arbitrary-sized plaintexts for a recipient public key.
 HPKE works for any combination of an asymmetric key encapsulation mechanism (KEM),
 key derivation function (KDF), and authenticated encryption with
 additional data (AEAD) function. Authentication for HPKE in COSE is
-provided by COSE-native security mechanisms or by one of the authenticated
-variants of HPKE.
+provided by COSE-native security mechanisms or by the pre-shared key authenticated
+variant of HPKE.
 
 This document defines the use of the HPKE with COSE.
 
@@ -116,23 +116,24 @@ This specification supports two modes of HPKE in COSE, namely
 
   *  HPKE Direct Encryption mode, where HPKE is used to encrypt the plaintext. This mode can only be used with a single recipient. {{one-layer}} provides the details.
   
-  *  HPKE Key Encryption mode, where HPKE is used to encrypt a content encryption key (CEK) and the CEK is subsequently used to encrypt the plaintext. This mode supports multiple recipients. {{two-layer}} 
-  provides the details.
+  *  HPKE Key Encryption mode, where HPKE is used to encrypt a content encryption key (CEK) and the CEK is subsequently used to encrypt the plaintext. This mode supports multiple recipients. {{two-layer}} provides the details.
 
-In both cases a new COSE header parameter, called 'ek',
-is used to convey the content of the enc structure defined in the HPKE
-specification. "Enc" represents the serialized public key.
+In both cases, a new COSE header parameter called 'ek' is used
+to convey the content of the enc structure defined in the HPKE
+specification. The enc value represents the serialized encapsulated
+public key.
 
-For use with HPKE the 'ek' header parameter MUST
-be present in the unprotected header parameter and MUST contain
-the encapsulated key, which is output of the HPKE KEM, and it
-is a bstr.
+When used with HPKE, the 'ek' header parameter MUST be present in
+the unprotected header and MUST contain the encapsulated key,
+which is the output of the HPKE KEM. The value of 'ek' MUST be a
+bstr.
 
 For all modes, the HPKE info parameter defaults to the empty string; mutually known private information MAY be used instead. The concept of mutually known private information is defined in {{NIST.SP.800-56Ar3}} as an input to the key derivation function.
 
 ### HPKE Direct Encryption Mode {#one-layer}
 
-This mode applies if the COSE_Encrypt0 structure uses a COSE-HPKE algorithm and has no recipients.
+This mode applies if the COSE_Encrypt0 structure uses a COSE-HPKE algorithm
+and has no recipient structure(s).
 
 Because COSE-HPKE supports header protection, if the 'alg' parameter is present, it MUST be included
 in the protected header and MUST be a COSE-HPKE algorithm.
@@ -140,8 +141,8 @@ in the protected header and MUST be a COSE-HPKE algorithm.
 Although the use of the 'kid' parameter in COSE_Encrypt0 is
 discouraged by RFC 9052, this documents RECOMMENDS the use of the 'kid' parameter
 (or other parameters) to explicitly identify the static recipient public key
-used by the sender. If the COSE_Encrypt0 contains the 'kid' then the recipient may
-use it to select the appropriate private key.
+used by the sender. If the COSE_Encrypt0 structure includes a 'kid' parameter, the
+recipient MAY use it to select the corresponding private key.
 
 When encrypting, the inputs to the HPKE Seal operation are set as follows:
 
@@ -286,7 +287,7 @@ An example is shown in {{two-layer-example}}.
 The COSE_Key with the existing key types can be used to represent KEM private
 or public keys. When using a COSE_Key for COSE-HPKE, the following checks are made:
 
-* If the "kty" field is "AKP", then the public and private keys SHALL be raw HPKE public and private
+* If the "kty" field is "AKP", then the public and private keys SHALL be the raw HPKE public and private
 keys (respectively) for the KEM used by the algorithm.
 * Otherwise, the key MUST be suitable for the KEM used by the algorithm. In case the "kty" parameter
 is "EC2" or "OKP", this means the value of "crv" parameter is suitable. For the algorithms defined in
