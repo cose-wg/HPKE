@@ -130,6 +130,13 @@ bstr.
 
 For all modes, the HPKE info parameter defaults to the empty string; mutually known private information MAY be used instead. The concept of mutually known private information is defined in {{NIST.SP.800-56Ar3}} as an input to the key derivation function.
 
+HPKE defines several authentication modes, as described in Table 1 of {{RFC9180}}.
+In COSE HPKE, only 'mode_base' and 'mode_psk' are supported. The mode is 'mode_psk' if
+the 'psk_id' header parameter is present; otherwise, the mode defaults to 'mode_base'.
+'mode_base' is described in Section 5.1.1 of {{RFC9180}}, which only enables encryption
+to the holder of a given KEM private key. 'mode_psk' is described in Section 5.1.2 of {{RFC9180}},
+which authenticates using a pre-shared key.
+
 ### HPKE Direct Encryption Mode {#one-layer}
 
 This mode applies if the COSE_Encrypt0 structure uses a COSE-HPKE algorithm
@@ -160,6 +167,9 @@ The outputs are used as follows:
 - ct: MUST be used as layer ciphertext. If not using detached content, this is directly placed as
 ciphertext in COSE_Encrypt0 structure. Otherwise, it is transported separately and the ciphertext field is nil.
 See Section 5 of {{RFC9052}} for a description of detached payloads.
+
+If 'mode_psk' has been selected, then the 'psk_id' parameter MUST be present.
+If 'mode_base' has been chosen, then the 'psk_id' parameter MUST NOT be present.
 
 When decrypting, the inputs to the HPKE Open operation are set as follows:
 
@@ -310,36 +320,20 @@ A COSE-HPKE algorithm is composed of the following choices:
 - AEAD Algorithm
 
 The "KEM", "KDF", and "AEAD" values are chosen from the HPKE IANA
-registry {{HPKE-IANA}}. 
+registry {{HPKE-IANA}}.
 
-For readability the algorithm ciphersuites labels are built according
-to the following scheme: 
-
-~~~
-HPKE-<Version>-<Mode>-<KEM>-<KDF>-<AEAD>
-~~~
-
-The "Mode" indicator may be populated with the following values from
-Table 1 of {{RFC9180}}:
-
-- "Base" refers to "mode_base" described in Section 5.1.1 of {{RFC9180}},
-which only enables encryption to the holder of a given KEM private key.
-- "PSK" refers to "mode_psk", described in Section 5.1.2 of {{RFC9180}},
-which authenticates using a pre-shared key.
-- "Auth" refers to "mode_auth", described in Section 5.1.3 of {{RFC9180}},
-which authenticates using an asymmetric key.
-- "Auth_Psk" refers to "mode_auth_psk", described in Section 5.1.4 of {{RFC9180}},
-which authenticates using both a PSK and an asymmetric key.
+The HPKE mode is determined by the presence or absence of the
+'psk_id' parameter and is therefore not explicitly indicated in the
+ciphersuite.
 
 For a list of ciphersuite registrations, please see {{IANA}}. The following
 table summarizes the relationship between the ciphersuites registered in this
-document, which all use the "Base" mode and the values registered in the
-HPKE IANA registry {{HPKE-IANA}}.
+document and the values registered in the HPKE IANA registry {{HPKE-IANA}}.
 
 ~~~
 +--------------------------------------------------+------------------+
 | COSE-HPKE                                        |      HPKE        |
-| Cipher Suite Label                               | KEM | KDF | AEAD |
+| Ciphersuite Label                                | KEM | KDF | AEAD |
 +--------------------------------------------------+-----+-----+------+
 | HPKE-0                                           |0x10 | 0x1 | 0x1  |
 | HPKE-1                                           |0x11 | 0x2 | 0x2  |
@@ -362,7 +356,7 @@ Additionally, ciphersuites utilizing the compact encoding of the public keys,
 as defined in {{I-D.irtf-cfrg-dnhpke}}, may be standardized for use in
 constrained environments.
 
-As a guideline for ciphersuite submissions to the IANA CoSE algorithm
+As a guideline for ciphersuite submissions to the IANA COSE algorithm
 registry, the designated experts must only register combinations of 
 (KEM, KDF, AEAD) triple that consitute valid combinations for use with
 HPKE, the KDF used should (if possible) match one internally used by the
@@ -779,7 +773,15 @@ the 'COSE Header Parameters' registries.
 -  Value Registry: N/A
 -  Description: HPKE encapsulated key
 -  Reference: [[This specification]]
- 
+
+-  Name: psk_id
+-  Label: TBDX (Assumed: -5)
+-  Value type: bstr
+-  Value Registry: N/A
+-  Description: A key identifier (kid) for the pre-shared key
+as defined in Section 5.1.2 of {{RFC9180}}
+-  Reference: [[This specification]]
+
 --- back
 
 # Contributors
