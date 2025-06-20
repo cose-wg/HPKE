@@ -449,8 +449,6 @@ inserted for better readability.
 
 This example uses the following:
 
-TODO: recompute this for Recipient_structure
-
 - Encryption alg: AES-128-GCM
 - plaintext: "This is the content."
 - detatched ciphertext: h'cc168c4e148c52a83010a75250935a47ccb8682deebcef8fce5d60c161e849f53a2dc664'
