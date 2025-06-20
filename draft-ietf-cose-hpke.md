@@ -72,13 +72,14 @@ This specification defines hybrid public-key encryption (HPKE) for use with
 CBOR Object Signing and Encryption (COSE). HPKE offers a variant of
 public-key encryption of arbitrary-sized plaintexts for a recipient public key.
 
-HPKE works for any combination of an asymmetric key encapsulation mechanism (KEM),
-key derivation function (KDF), and authenticated encryption with
-additional data (AEAD) function. Authentication for HPKE in COSE is
+HPKE is a general encryption framework utilizing an asymmetric key encapsulation
+mechanism (KEM), a key derivation function (KDF), and an authenticated encryption
+with additional data (AEAD) algorithm.
+
+This document defines the use of the HPKE with COSE. Authentication for HPKE in COSE is
 provided by COSE-native security mechanisms or by the pre-shared key authenticated
 variant of HPKE.
 
-This document defines the use of the HPKE with COSE.
 
 --- middle
 
