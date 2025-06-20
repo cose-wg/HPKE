@@ -115,7 +115,7 @@ This specification uses the following abbreviations and terms:
 
 This specification supports two modes of HPKE in COSE, namely 
 
-  *  HPKE Direct Encryption mode, where HPKE is used to encrypt the plaintext. This mode can only be used with a single recipient. {{one-layer}} provides the details.
+  *  HPKE Integrated Encryption mode, where HPKE is used to encrypt the plaintext. This mode can only be used with a single recipient. {{one-layer}} provides the details.
   
   *  HPKE Key Encryption mode, where HPKE is used to encrypt a content encryption key (CEK) and the CEK is subsequently used to encrypt the plaintext. This mode supports multiple recipients. {{two-layer}} provides the details.
 
@@ -138,7 +138,7 @@ the 'psk_id' header parameter is present; otherwise, the mode defaults to 'mode_
 to the holder of a given KEM private key. 'mode_psk' is described in Section 5.1.2 of {{RFC9180}},
 which authenticates using a pre-shared key.
 
-### HPKE Direct Encryption Mode {#one-layer}
+### HPKE Integrated Encryption Mode {#one-layer}
 
 This mode applies if the COSE_Encrypt0 structure uses a COSE-HPKE algorithm
 and has no recipient structure(s).
@@ -397,12 +397,12 @@ that can be used to check the interoperability of COSE-HPKE implementations:
 - skR: A recipient private key.
 - skE: An ephemeral sender private key paired with the encapsulated key.
 
-## HPKE Direct Encryption Mode {#one-layer-example}
+## HPKE Integrated Encryption Mode {#one-layer-example}
 
 This example assumes that a sender wants to communicate an
 encrypted payload to a single recipient in the most efficient way.
 
-An example of the HPKE Direct Encryption Mode is
+An example of the HPKE Integrated Encryption Mode is
 shown in {{hpke-example-one}}. Line breaks and comments have been inserted
 for better readability.
 
