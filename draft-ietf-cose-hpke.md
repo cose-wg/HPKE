@@ -346,6 +346,17 @@ document and the values registered in the HPKE IANA registry {{HPKE-IANA}}.
 +--------------------------------------------------+-----+-----+------+
 ~~~
 
+The following list maps the ciphersuite labels to their textual
+description.
+
+- HPKE-0: DHKEM(P-256, HKDF-SHA256) KEM, HKDF-SHA256 KDF and AES-128-GCM AEAD.
+- HPKE-1: DHKEM(P-384, HKDF-SHA384) KEM, HKDF-SHA384 KDF, and AES-256-GCM AEAD.
+- HPKE-2: DHKEM(P-521, HKDF-SHA512) KEM, HKDF-SHA512 KDF, and AES-256-GCM AEAD.
+- HPKE-3: DHKEM(X25519, HKDF-SHA256) KEM, HKDF-SHA256 KDF, and AES-128-GCM AEAD.
+- HPKE-4: DHKEM(X25519, HKDF-SHA256) KEM, HKDF-SHA256 KDF, and ChaCha20Poly1305 AEAD.
+- HPKE-5: DHKEM(X448, HKDF-SHA512) KEM, HKDF-SHA512 KDF, and AES-256-GCM AEAD.
+- HPKE-6: DHKEM(X448, HKDF-SHA512) KEM, HKDF-SHA512 KDF, and ChaCha20Poly1305 AEAD.
+
 As the list indicates, the ciphersuite labels have been abbreviated at least
 to some extend to maintain the tradeoff between readability and length.
 
