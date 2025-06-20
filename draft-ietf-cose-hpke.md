@@ -76,7 +76,7 @@ HPKE is a general encryption framework utilizing an asymmetric key encapsulation
 mechanism (KEM), a key derivation function (KDF), and an authenticated encryption
 with additional data (AEAD) algorithm.
 
-This document defines the use of the HPKE with COSE. Authentication for HPKE in COSE is
+This document defines the use of HPKE with COSE. Authentication for HPKE in COSE is
 provided by COSE-native security mechanisms or by the pre-shared key authenticated
 variant of HPKE.
 
@@ -219,7 +219,7 @@ It is patterned after the Enc_structure in {{RFC9052}}, but is specifically for 
 The COSE_KDF_Context MUST NOT be used in COSE-HPKE.
 
 ~~~
-Recipient_structure = [ 
+Recipient_structure = [
     context: "Recipient",
     next_layer_alg: int/tstr,
     recipient_protected_header: empty_or_serialize_map,
@@ -238,7 +238,7 @@ It also mitigates attacks where a person-in-the-middle changes the following lay
 - "recipient_aad" contains any additional context the application wishes to protect.
 If none, it is a zero-length string.
 This is distinct from the external_aad for the whole COSE encrypt.
-It is per-recipient.
+It is per recipient.
 Since it is not a header, it may be secret data that is not transmitted.
 It provides a means to convey many of the fields in COSE_KDF_Context.
 
@@ -289,7 +289,7 @@ The COSE_recipient structure is repeated for each recipient.
 
 When encrypting the content at layer 0 then the instructions in
 Section 5.3 of {{RFC9052}} MUST to be followed, which includes the
-calculation of the authenticated data strcture.
+calculation of the authenticated data structure.
 
 An example is shown in {{two-layer-example}}.
 
@@ -358,7 +358,7 @@ description.
 - HPKE-6: DHKEM(X448, HKDF-SHA512) KEM, HKDF-SHA512 KDF, and ChaCha20Poly1305 AEAD.
 
 As the list indicates, the ciphersuite labels have been abbreviated at least
-to some extend to maintain the tradeoff between readability and length.
+to some extent to maintain the tradeoff between readability and length.
 
 The ciphersuite list above is a minimal starting point. Additional
 ciphersuites can be registered into the already existing registry.
@@ -370,7 +370,7 @@ constrained environments.
 
 As a guideline for ciphersuite submissions to the IANA COSE algorithm
 registry, the designated experts must only register combinations of 
-(KEM, KDF, AEAD) triple that consitute valid combinations for use with
+(KEM, KDF, AEAD) triple that constitute valid combinations for use with
 HPKE, the KDF used should (if possible) match one internally used by the
 KEM, and components should not be mixed between global and national standards.
 
@@ -378,7 +378,7 @@ KEM, and components should not be mixed between global and national standards.
 
 The COSE-HPKE algorithm uniquely determines the KEM for which a COSE_Key is used.
 The following mapping table shows the valid combinations
-of the KEM used, COSE_Key type and its curve/key subtype.
+of the KEM used, COSE_Key type, and its curve/key subtype.
 
 ~~~
 +---------------------+--------------+
@@ -464,7 +464,7 @@ TODO: recompute this for Recipient_structure
 
 - Encryption alg: AES-128-GCM
 - plaintext: "This is the content."
-- detatched ciphertext: h'cc168c4e148c52a83010a75250935a47ccb8682deebcef8fce5d60c161e849f53a2dc664'
+- detached ciphertext: h'cc168c4e148c52a83010a75250935a47ccb8682deebcef8fce5d60c161e849f53a2dc664'
 - kid:"01"
     - alg: HPKE-0
     - external_aad: "COSE-HPKE app"
@@ -798,7 +798,7 @@ as defined in Section 5.1.2 of {{RFC9180}}
 
 # Contributors
 
-We would like thank the following individuals for their contributions
+We would like to thank the following individuals for their contributions
 to the design of embedding the HPKE output into the COSE structure 
 following a long and lively mailing list discussion:
 
@@ -816,5 +816,5 @@ John Mattsson,
 Mike Prorock,
 Michael Richardson,
 and
-Goeran Selander
+Göran Selander
 for their review feedback.
