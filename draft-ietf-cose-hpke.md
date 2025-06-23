@@ -1,7 +1,7 @@
 ---
 title: Use of Hybrid Public-Key Encryption (HPKE) with CBOR Object Signing and Encryption (COSE)
 abbrev: COSE HPKE
-docname: draft-ietf-cose-hpke-13
+docname: draft-ietf-cose-hpke-14
 category: std
 
 ipr: pre5378Trust200902
@@ -159,7 +159,7 @@ When encrypting, the inputs to the HPKE Seal operation are set as follows:
 - kdf_id: Depends on the COSE-HPKE algorithm used.
 - aead_id: Depends on the COSE-HPKE algorithm used.
 - info: Defaults to the empty string; mutually known private information MAY be used instead.
-- aad: Canonical encoding of the Enc_structure from {{RFC9052}}).
+- aad: Canonical encoding of the Recipient_structure.
 - pt: The raw message plaintext.
 
 The outputs are used as follows:
@@ -179,7 +179,7 @@ When decrypting, the inputs to the HPKE Open operation are set as follows:
 - kdf_id: Depends on the COSE-HPKE algorithm used.
 - aead_id: Depends on the COSE-HPKE algorithm used.
 - info: Defaults to the empty string; mutually known private information MAY be used instead.
-- aad: Canonical encoding of the Enc_structure from {{RFC9052}}).
+- aad: Canonical encoding of the Recipient_structure.
 - enc: The contents of the layer 'ek' parameter.
 - ct: The contents of the layer ciphertext.
 
