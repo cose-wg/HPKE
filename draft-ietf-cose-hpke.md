@@ -698,13 +698,13 @@ Examples of private and public KEM key representation are shown below.
 This specification is based on HPKE and the security considerations of
 {{RFC9180}} are therefore applicable also to this specification.
 
-HPKE assumes the sender is in possession of the public key of the recipient and
-HPKE COSE makes the same assumptions. Hence, some form of public key distribution
-mechanism is assumed to exist but outside the scope of this document.
+Both HPKE and HPKE COSE assume that the sender possesses the recipient's
+public key. Therefore, some form of public key distribution mechanism is
+assumed to exist, but this is outside the scope of this document.
 
 HPKE relies on a source of randomness to be available on the device. Additionally, 
 with the two layer structure the CEK is randomly generated and it MUST be
-ensured that the guidelines in {{RFC8937}} for random number generations are followed.
+ensured that the guidelines in {{RFC8937}} for random number generation are followed.
 
 HPKE in Base mode does not offer authentication as part of the HPKE KEM. In this
 case COSE constructs like COSE_Sign, COSE_Sign1, COSE_Mac, or COSE_Mac0 can be
@@ -724,6 +724,8 @@ the 'COSE Header Parameters' registries.
 
 ## COSE Algorithms Registry
 
+### HPKE-0
+
 -  Name: HPKE-0
 -  Value: TBD1 (Assumed: 35)
 -  Description: Cipher suite for COSE-HPKE in Base Mode that uses the DHKEM(P-256, HKDF-SHA256) KEM, the HKDF-SHA256 KDF and the AES-128-GCM AEAD.
@@ -731,6 +733,8 @@ the 'COSE Header Parameters' registries.
 -  Change Controller: IESG
 -  Reference:  [[TBD: This RFC]]
 -  Recommended: Yes
+
+### HPKE-1
 
 -  Name: HPKE-1
 -  Value: TBD3 (Assumed: 37)
@@ -740,6 +744,8 @@ the 'COSE Header Parameters' registries.
 -  Reference:  [[TBD: This RFC]]
 -  Recommended: Yes
 
+### HPKE-2
+
 -  Name: HPKE-2
 -  Value: TBD5 (Assumed: 39)
 -  Description: Cipher suite for COSE-HPKE in Base Mode that uses the DHKEM(P-521, HKDF-SHA512) KEM, the HKDF-SHA512 KDF, and the AES-256-GCM AEAD.
@@ -747,6 +753,8 @@ the 'COSE Header Parameters' registries.
 -  Change Controller: IESG
 -  Reference:  [[TBD: This RFC]]
 -  Recommended: Yes
+
+### HPKE-3
 
 -  Name: HPKE-3
 -  Value: TBD7 (Assumed: 41)
@@ -756,6 +764,8 @@ the 'COSE Header Parameters' registries.
 -  Reference:  [[TBD: This RFC]]
 -  Recommended: Yes
 
+### HPKE-4
+
 -  Name: HPKE-4
 -  Value: TBD8 (Assumed: 42)
 -  Description: Cipher suite for COSE-HPKE in Base Mode that uses the DHKEM(X25519, HKDF-SHA256) KEM, the HKDF-SHA256 KDF, and the ChaCha20Poly1305 AEAD.
@@ -764,6 +774,8 @@ the 'COSE Header Parameters' registries.
 -  Reference:  [[TBD: This RFC]]
 -  Recommended: Yes
 
+### HPKE-5
+
 -  Name: HPKE-5
 -  Value: TBD9 (Assumed: 43)
 -  Description: Cipher suite for COSE-HPKE in Base Mode that uses the DHKEM(X448, HKDF-SHA512) KEM, the HKDF-SHA512 KDF, and the AES-256-GCM AEAD.
@@ -771,6 +783,8 @@ the 'COSE Header Parameters' registries.
 -  Change Controller: IESG
 -  Reference:  [[TBD: This RFC]]
 -  Recommended: Yes
+
+### HPKE-6
 
 -  Name: HPKE-6
 -  Value: TBD10 (Assumed: 44)
@@ -782,6 +796,8 @@ the 'COSE Header Parameters' registries.
 
 ## COSE Header Parameters
 
+### ek Header Parameter
+
 -  Name: ek
 -  Label: TBDX (Assumed: -4)
 -  Value type: bstr
@@ -789,12 +805,14 @@ the 'COSE Header Parameters' registries.
 -  Description: HPKE encapsulated key
 -  Reference: [[This specification]]
 
+### psk_id Header Parameter
+
 -  Name: psk_id
 -  Label: TBDX (Assumed: -5)
 -  Value type: bstr
 -  Value Registry: N/A
 -  Description: A key identifier (kid) for the pre-shared key
-as defined in Section 5.1.2 of {{RFC9180}}
+as defined in {{Section 5.1.2 of RFC9180}}
 -  Reference: [[This specification]]
 
 --- back
@@ -818,6 +836,7 @@ Michael B. Jones,
 John Mattsson,
 Mike Prorock,
 Michael Richardson,
+Thomas Fossati,
 and
 Göran Selander
 for their review feedback.
