@@ -52,6 +52,7 @@ informative:
   RFC8937:
   RFC2630:
   I-D.irtf-cfrg-dnhpke:
+  I-D.ietf-lamps-cms-cek-hkdf-sha256:
   HPKE-IANA:
      author:
         org: IANA
@@ -147,7 +148,7 @@ Because COSE-HPKE supports header protection, if the 'alg' parameter is present,
 in the protected header and MUST be a COSE-HPKE algorithm.
 
 Although the use of the 'kid' parameter in COSE_Encrypt0 is
-discouraged by RFC 9052, this documents RECOMMENDS the use of the 'kid' parameter
+discouraged by RFC 9052, this document RECOMMENDS the use of the 'kid' parameter
 (or other parameters) to explicitly identify the static recipient public key
 used by the sender. If the COSE_Encrypt0 structure includes a 'kid' parameter, the
 recipient MAY use it to select the corresponding private key.
@@ -204,7 +205,7 @@ it is included in the COSE_Encrypt structure.
 HPKE to generate a shared secret used to encrypt the CEK. This layer conveys the 
 encrypted CEK in the COSE_recipient structure using a COSE-HPKE algorithm.
 The unprotected header MAY contain the kid parameter to identify the static recipient
-public key the sender has been using with HPKE.
+public key that the sender has been using with HPKE.
 
 This two-layer structure is used to encrypt content that can also be shared with
 multiple parties at the expense of a single additional encryption operation.
@@ -214,7 +215,7 @@ As stated above, the specification uses a CEK to encrypt the content at layer 0.
 
 This section describes the Recipient_structure.
 It serves instead of COSE_KDF_Context for COSE-HPKE recipients (and possibly other COSE algorithms defined outside this document).
-It MUST be used for COSE-HPKE recipients as it provides the protection for recipient protected headers.
+It MUST be used for COSE-HPKE recipients as it provides the protection for recipient-protected headers.
 It is patterned after the Enc_structure in {{RFC9052}}, but is specifically for a COSE_recipient, never a COSE_Encrypt.
 The COSE_KDF_Context MUST NOT be used in COSE-HPKE.
 
@@ -231,13 +232,15 @@ Recipient_structure = [
 It is the algorithm that the key MUST be used with.
 This value MUST match the alg parameter in the next lower COSE layer.
 (This serves the same purpose as the alg ID in the COSE_KDF_Context.
-It also mitigates attacks where a person-in-the-middle changes the following layer algorithm from an AEAD algorithm to one that is not foiling the protection of the following layer headers).
+It also mitigates attacks where a where the attacker manipulates the content-encryption
+algorithm identifier. This attack has been demonstrated against CMS and the mitigation
+can be found in {{I-D.ietf-lamps-cms-cek-hkdf-sha256}}.
 
 - "recipient_protected_header" contains the protected headers from the COSE_recipient CBOR-encoded deterministically with the "Core Deterministic Encoding Requirements", specified in Section 4.2.1 of RFC 8949 {{STD94}}.
 
 - "recipient_aad" contains any additional context the application wishes to protect.
 If none, it is a zero-length string.
-This is distinct from the external_aad for the whole COSE encrypt.
+This is distinct from the external_aad for the whole COSE_Encrypt.
 It is per recipient.
 Since it is not a header, it may be secret data that is not transmitted.
 It provides a means to convey many of the fields in COSE_KDF_Context.
@@ -247,7 +250,7 @@ It provides a means to convey many of the fields in COSE_KDF_Context.
 
 Because COSE-HPKE supports header protection, if the 'alg' parameter is present, it MUST be in the protected header and MUST be a COSE-HPKE algorithm.
 
-The unprotected header MAY contain the kid parameter to identify the static recipient public key the sender used.
+The unprotected header MAY contain the kid parameter to identify the static recipient public key that the sender used.
 Use of the 'kid' parameter is RECOMMENDED
 to explicitly identify the static recipient public key
 used by the sender.
@@ -287,9 +290,9 @@ Bulk external data should be protected at layer 0 with external_aad.
 
 The COSE_recipient structure is repeated for each recipient.
 
-When encrypting the content at layer 0 then the instructions in
-Section 5.3 of {{RFC9052}} MUST to be followed, which includes the
-calculation of the authenticated data structure.
+When encrypting the content at layer 0, the instructions in {{Section 5.3
+of RFC9052}} MUST be followed, including the calculation of the
+authenticated data structure.
 
 An example is shown in {{two-layer-example}}.
 
@@ -301,10 +304,10 @@ or public keys. When using a COSE_Key for COSE-HPKE, the following checks are ma
 * If the "kty" field is "AKP", then the public and private keys SHALL be the raw HPKE public and private
 keys (respectively) for the KEM used by the algorithm.
 * Otherwise, the key MUST be suitable for the KEM used by the algorithm. In case the "kty" parameter
-is "EC2" or "OKP", this means the value of "crv" parameter is suitable. For the algorithms defined in
-this document, the valid combinations of the KEM, "kty" and "crv" are shown in  {{ciphersuite-kty-crv}}.
+is "EC2" or "OKP", this means the value of "crv" parameter is suitable. The valid combinations of
+KEM, "kty" and "crv" for the algorithms defined in this document are shown in {{ciphersuite-kty-crv}}.
 * If the "key_ops" field is present, it MUST include only "derive bits" for the private key
-  and MUST be empty for the public key.
+and MUST be empty for the public key.
 
 Examples of the COSE_Key for COSE-HPKE are shown in {{key-representation-example}}.
 
@@ -358,7 +361,7 @@ description.
 - HPKE-6: DHKEM(X448, HKDF-SHA512) KEM, HKDF-SHA512 KDF, and ChaCha20Poly1305 AEAD.
 
 As the list indicates, the ciphersuite labels have been abbreviated at least
-to some extent to maintain the tradeoff between readability and length.
+to some extent to strike a balance between readability and length.
 
 The ciphersuite list above is a minimal starting point. Additional
 ciphersuites can be registered into the already existing registry.
@@ -396,8 +399,8 @@ of the KEM used, COSE_Key type, and its curve/key subtype.
 
 # Examples
 
-This section provides a set of examples that shows all COSE message types
-(COSE_Encrypt0, COSE_Encrypt and COSE_MAC) to which the COSE-HPKE can be
+This section provides a set of examples that show all COSE message types
+(COSE_Encrypt0, COSE_Encrypt and COSE_Mac) to which the COSE-HPKE can be
 applied, and also provides some examples of key representation for HPKE KEM.
 
 Each example of the COSE message includes the following information
@@ -545,9 +548,9 @@ The payload in {{hpke-example-sign}} is meant to contain the content of
 ~~~
 {: #hpke-example-sign title="COSE_Encrypt Example for HPKE"}
 
-### COSE_MAC
+### COSE_Mac
 
-An example of the COSE_MAC structure using the HPKE scheme is
+An example of the COSE_Mac structure using the HPKE scheme is
 shown in {{hpke-example-cose-mac}}.
 
 This example uses the following:
@@ -613,7 +616,7 @@ This example uses the following:
     ],
 ])
 ~~~
-{: #hpke-example-cose-mac title="COSE_MAC Example for HPKE"}
+{: #hpke-example-cose-mac title="COSE_Mac Example for HPKE"}
 
 
 ## Key Representation {#key-representation-example}
@@ -704,12 +707,12 @@ with the two layer structure the CEK is randomly generated and it MUST be
 ensured that the guidelines in {{RFC8937}} for random number generations are followed.
 
 HPKE in Base mode does not offer authentication as part of the HPKE KEM. In this
-case COSE constructs like COSE_Sign, COSE_Sign1, COSE_MAC, or COSE_MAC0 can be
+case COSE constructs like COSE_Sign, COSE_Sign1, COSE_Mac, or COSE_Mac0 can be
 used to add authentication. HPKE also offers modes that offer authentication.
 
 If COSE_Encrypt or COSE_Encrypt0 is used with a detached ciphertext then the
-subsequently applied integrity protection via COSE_Sign, COSE_Sign1, COSE_MAC, 
-or COSE_MAC0 does not cover this detached ciphertext. Implementers MUST ensure
+subsequently applied integrity protection via COSE_Sign, COSE_Sign1, COSE_Mac, 
+or COSE_Mac0 does not cover this detached ciphertext. Implementers MUST ensure
 that the detached ciphertext also experiences integrity protection. This is, for
 example, the case when an AEAD cipher is used to produce the detached ciphertext
 but may not be guaranteed by non-AEAD ciphers.
