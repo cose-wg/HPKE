@@ -708,7 +708,7 @@ ensured that the guidelines in {{RFC8937}} for random number generation are foll
 
 HPKE in Base mode does not offer authentication as part of the HPKE KEM. In this
 case COSE constructs like COSE_Sign, COSE_Sign1, COSE_Mac, or COSE_Mac0 can be
-used to add authentication. HPKE also offers modes that offer authentication.
+used to add authentication.
 
 If COSE_Encrypt or COSE_Encrypt0 is used with a detached ciphertext then the
 subsequently applied integrity protection via COSE_Sign, COSE_Sign1, COSE_Mac, 
