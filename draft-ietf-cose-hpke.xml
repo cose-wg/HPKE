@@ -12,7 +12,7 @@
 ]>
 
 
-<rfc ipr="pre5378Trust200902" docName="draft-ietf-cose-hpke-14" category="std" consensus="true" tocInclude="true" sortRefs="true" symRefs="true">
+<rfc ipr="pre5378Trust200902" docName="draft-ietf-cose-hpke-15" category="std" consensus="true" tocInclude="true" sortRefs="true" symRefs="true">
   <front>
     <title abbrev="COSE HPKE">Use of Hybrid Public-Key Encryption (HPKE) with CBOR Object Signing and Encryption (COSE)</title>
 
@@ -1150,7 +1150,7 @@ H4sIAAAAAAAAA+1de3PbyJH/H58CJVed5ISk8H4olarIkjZ2bK99lvZyqY3L
 NQAGIiIQYABQsnbX+Vj3Be6LXXfPDDAASVneR7JXd6xdmQQHMz09/fh1Tw84
 n8+NruhKfmJ+03Kzzs3n90lTZObbTVIW6fwlvzcvqrS5X3dFXZlHz9++vHhq
 3hXd0jx79uad+Sb5G08787K4rorq2mRVNmp+9uby4qnBkqThtycmfjKxByOr
-04qtYNCsYXk3L3iXz9O65fPl+obPbc9IWcev6+b+xGy7zDCKdXNirhvuu2F0
+04qtYNCsYXk3L3iXz9O65fPl+obPbd9IWcev6+b+xGy7zDCKdXNirhvuu2F0
 1WzazrGs2HIM1nB2Yl7ydNMU3b1xVzc31029WYuxjBt+D5eyE/NF1fGm4t38
 HMczjLYDSj+wsq6AhnveGuvixPy2q9OZ2dZN1/C8hXf3K3zz3jDYplvWzYkx
 N0yzqNoT8/nCvGrTZZ3zqriGi2Iyz1lV8Xb8DV+xojwxl/TVouu/+sP16uMC
@@ -1356,7 +1356,7 @@ p79oN/tdAfF5k4EaNhX+zKf5omRNYb4qNu0tg3U2jK8KGSff7Z7vO+jNfF5v
 2pKLQ4XPGvw5RSzLhdBimLQxmrQKBeh3ZDFgTeu5+G1HSqEXFegoK036BVVo
 TpHIaYpPSyp5di0eRbhvCYzXOClems8W5p9qmNbM+FO9BIJY17VtXc2gATR/
 29RNnd7M+uaSF9TialmvgKqv6raFkGeGz8Ew/vjf/4UzuuQlw4yJMawnHsqE
-KCeHOAplZWH8D5PUBoefdwAA
+KCeHOAplZWH8D6W6hpifdwAA
 
 -->
 
