@@ -59,7 +59,6 @@ informative:
      title: Hybrid Public Key Encryption (HPKE) IANA Registry
      target: https://www.iana.org/assignments/hpke/hpke.xhtml
      date: October 2023
-
   NIST.SP.800-56Ar3:
      author:
         org: National Institute of Standards and Technology
@@ -80,7 +79,6 @@ with Associated Data (AEAD) algorithm.
 This document defines the use of HPKE with COSE. Authentication for HPKE in COSE is
 provided by COSE-native security mechanisms or by the pre-shared key authenticated
 variant of HPKE.
-
 
 --- middle
 
@@ -193,7 +191,6 @@ An example is shown in {{one-layer-example}}.
 ### HPKE Key Encryption Mode {#two-layer}
 
 This mode is selected if the COSE_recipient structure uses a COSE-HPKE algorithm.
-
 
 In this approach the following layers are involved: 
 
@@ -803,7 +800,7 @@ the 'COSE Header Parameters' registries.
 -  Value type: bstr
 -  Value Registry: N/A
 -  Description: HPKE encapsulated key
--  Reference: [[This specification]]
+-  Reference: [[TBD: This RFC]]
 
 ### psk_id Header Parameter
 
@@ -813,7 +810,7 @@ the 'COSE Header Parameters' registries.
 -  Value Registry: N/A
 -  Description: A key identifier (kid) for the pre-shared key
 as defined in {{Section 5.1.2 of RFC9180}}
--  Reference: [[This specification]]
+-  Reference: [[TBD: This RFC]]
 
 --- back
 
