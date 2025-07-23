@@ -114,9 +114,14 @@ This specification uses the following abbreviations and terms:
 
 This specification supports two modes of HPKE in COSE, namely 
 
-  *  HPKE Integrated Encryption mode, where HPKE is used to encrypt the plaintext. This mode can only be used with a single recipient. {{one-layer}} provides the details.
+ *  HPKE Integrated Encryption mode, where HPKE is used to encrypt
+the plaintext. This mode can only be used with a single recipient.
+{{one-layer}} provides the details.
   
-  *  HPKE Key Encryption mode, where HPKE is used to encrypt a content encryption key (CEK) and the CEK is subsequently used to encrypt the plaintext. This mode supports multiple recipients. {{two-layer}} provides the details.
+ *  HPKE Key Encryption mode, where HPKE is used to encrypt a
+content encryption key (CEK) and the CEK is subsequently used to
+encrypt the plaintext. This mode supports multiple recipients.
+{{two-layer}} provides the details.
 
 In both cases, a new COSE header parameter called 'ek' is used
 to convey the content of the enc structure defined in the HPKE
@@ -127,8 +132,6 @@ When used with HPKE, the 'ek' header parameter MUST be present in
 the unprotected header and MUST contain the encapsulated key,
 which is the output of the HPKE KEM. The value of 'ek' MUST be a
 bstr.
-
-
 
 HPKE defines several authentication modes, as described in Table 1 of {{RFC9180}}.
 In COSE HPKE, only 'mode_base' and 'mode_psk' are supported. The mode is 'mode_psk' if
@@ -237,7 +240,9 @@ It also mitigates attacks where a where the attacker manipulates the content-enc
 algorithm identifier. This attack has been demonstrated against CMS and the mitigation
 can be found in {{I-D.ietf-lamps-cms-cek-hkdf-sha256}}.
 
-- "recipient_protected_header" contains the protected headers from the COSE_recipient CBOR-encoded deterministically with the "Core Deterministic Encoding Requirements", specified in Section 4.2.1 of RFC 8949 {{STD94}}.
+- "recipient_protected_header" contains the protected headers from the COSE_recipient
+CBOR-encoded deterministically with the "Core Deterministic Encoding Requirements",
+specified in Section 4.2.1 of RFC 8949 {{STD94}}.
 
 - "recipient_aad" contains any additional context the application wishes to protect.
 If none, it is a zero-length string.
@@ -249,12 +254,12 @@ It provides a means to convey many of the fields in COSE_KDF_Context.
 
 #### COSE-HPKE Recipient Construction
 
-Because COSE-HPKE supports header protection, if the 'alg' parameter is present, it MUST be in the protected header and MUST be a COSE-HPKE algorithm.
+Because COSE-HPKE supports header protection, if the 'alg' parameter is present, it
+MUST be in the protected header and MUST be a COSE-HPKE algorithm.
 
-The unprotected header MAY contain the kid parameter to identify the static recipient public key that the sender used.
-Use of the 'kid' parameter is RECOMMENDED
-to explicitly identify the static recipient public key
-used by the sender.
+The unprotected header MAY contain the kid parameter to identify the static recipient
+public key that the sender used. Use of the 'kid' parameter is RECOMMENDED
+to explicitly identify the static recipient public key used by the sender.
 
 When encrypting, the inputs to the HPKE Seal operation are set as follows:
 
