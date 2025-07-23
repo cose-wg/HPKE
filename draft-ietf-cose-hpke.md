@@ -468,11 +468,15 @@ TODO: recompute this for Recipient_structure
 - kid:"01"
     - alg: HPKE-0
     - external_aad: "COSE-HPKE app"
+    - salt: 'aabbccddeeffgghh'
+    - identity of the recipient:'bob@example.com'
     - skR: h'57c92077664146e876760c9520d054aa93c3afb04e306705db6090308507b4d3'
     - skE: h'97ad883f949f4cdcb1301b9446950efd4eb519e16c4a3d78304eec832692f9f6'
 - kid:"02"
     - alg: HPKE-4
     - external_aad: "COSE-HPKE app"
+    - no salt
+    - identity of the recipient: 'alice@example.com'
     - skR: h'bec275a17e4d362d0819dc0695d89a73be6bf94b66ab726ae0b1afe3c43f41ce'
     - skE: h'b8ed3f4df56c230e36fa6620a47f24d08856d242ea547c5521ff7bd69af8fd6f'
 
@@ -488,8 +492,13 @@ TODO: recompute this for Recipient_structure
     null,
     [
         [
-            / alg = HPKE-0 (Assumed: 35) /
-            h'a1011823',
+            / protected h'A301182333506161626263636464
+              6565666667676868374F626F62406578616D706C
+              652E636F6D' / << {
+               / alg / 1:35, /  HPKE-0 (Assumed: 35) /
+               / salt / -20: 'aabbccddeeffgghh',
+               / PartyV identity / -24:'bob@example.com'
+            } >>,
             {
                 / kid /
                 4: h'3031',
@@ -505,8 +514,11 @@ TODO: recompute this for Recipient_structure
               c03eced1ad21fcb7e7c2fe64397',
         ],
         [
-            / alg = HPKE-4 (Assumed: 42) /
-            h'a101182a',
+            / protected h'A201182A3751616C696365406578
+              616D706C652E636F6D' / << {
+               / alg / 1:42, /  HPKE-4 (Assumed: 42) /
+               / PartyV identity / -24:'alice@example.com'
+            } >>,
             {
                 / kid /
                 4: h'3032',
