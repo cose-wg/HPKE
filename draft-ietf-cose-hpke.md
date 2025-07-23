@@ -88,7 +88,10 @@ Hybrid public-key encryption (HPKE) {{RFC9180}} is a scheme that
 provides public key encryption of arbitrary-sized plaintexts given a 
 recipient's public key.
 
-This document defines the use of the HPKE with COSE ({{RFC9052}}, {{RFC9053}}).
+This document defines the use of the HPKE with COSE ({{RFC9052}}, {{RFC9053}})
+with the single-shot APIs defined in Section 6 of {{RFC9180}}. Multiple
+invocations of Open() / Seal() on the same context, as discussed in
+Section 9.7.1 of {{RFC9180}} are not supported.
 
 # Conventions and Terminology
 
