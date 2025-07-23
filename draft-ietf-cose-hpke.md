@@ -128,7 +128,7 @@ the unprotected header and MUST contain the encapsulated key,
 which is the output of the HPKE KEM. The value of 'ek' MUST be a
 bstr.
 
-For all modes, the HPKE info parameter defaults to the empty string; mutually known private information MAY be used instead. The concept of mutually known private information is defined in {{NIST.SP.800-56Ar3}} as an input to the key derivation function.
+
 
 HPKE defines several authentication modes, as described in Table 1 of {{RFC9180}}.
 In COSE HPKE, only 'mode_base' and 'mode_psk' are supported. The mode is 'mode_psk' if
@@ -157,8 +157,8 @@ When encrypting, the inputs to the HPKE Seal operation are set as follows:
 - pkR: The recipient public key, converted into an HPKE public key.
 - kdf_id: Depends on the COSE-HPKE algorithm used.
 - aead_id: Depends on the COSE-HPKE algorithm used.
-- info: Defaults to the empty string; mutually known private information MAY be used instead.
-- aad: Canonical encoding of the Recipient_structure.
+- info: Defaults to the empty string; externally provided information MAY be used instead.
+- aad: Defaults to the empty string; externally provided information MAY be used instead.
 - pt: The raw message plaintext.
 
 The outputs are used as follows:
@@ -177,8 +177,8 @@ When decrypting, the inputs to the HPKE Open operation are set as follows:
 - skR: The recipient private key, converted into an HPKE private key.
 - kdf_id: Depends on the COSE-HPKE algorithm used.
 - aead_id: Depends on the COSE-HPKE algorithm used.
-- info: Defaults to the empty string; mutually known private information MAY be used instead.
-- aad: Canonical encoding of the Recipient_structure.
+- info: Defaults to the empty string; externally provided information MAY be used instead.
+- aad: Defaults to the empty string; externally provided information MAY be used instead.
 - enc: The contents of the layer 'ek' parameter.
 - ct: The contents of the layer ciphertext.
 
@@ -210,15 +210,19 @@ As stated above, the specification uses a CEK to encrypt the content at layer 0.
 
 #### Recipient Encryption
 
-This section describes the Recipient_structure.
-It serves instead of COSE_KDF_Context for COSE-HPKE recipients (and possibly other COSE algorithms defined outside this document).
-It MUST be used for COSE-HPKE recipients as it provides the protection for recipient-protected headers.
-It is patterned after the Enc_structure in {{RFC9052}}, but is specifically for a COSE_recipient, never a COSE_Encrypt.
-The COSE_KDF_Context MUST NOT be used in COSE-HPKE.
+This section defines the Recipient_structure, which is used in place of COSE_KDF_Context
+for COSE-HPKE recipients. It MUST be used for COSE-HPKE recipients, as it provides
+integrity protection for recipient-protected headers.
+
+The Recipient_structure is modeled after the Enc_structure defined in {{RFC9052}},
+but is specific to COSE_recipient structures and MUST NOT be used with COSE_Encrypt.
+
+Furthermore, the use of COSE_KDF_Context is prohibited in COSE-HPKE; it MUST NOT be
+used.
 
 ~~~
 Recipient_structure = [
-    context: "Recipient",
+    context: "HPKE Recipient",
     next_layer_alg: int/tstr,
     recipient_protected_header: empty_or_serialize_map,
     recipient_aad: bstr
@@ -258,8 +262,8 @@ When encrypting, the inputs to the HPKE Seal operation are set as follows:
 - pkR: The recipient public key, converted into HPKE public key.
 - kdf_id: Depends on the COSE-HPKE algorithm used.
 - aead_id: Depends on the COSE-HPKE algorithm used.
-- info: Defaults to the empty string; mutually known private information MAY be used instead.
-- aad: Canonical encoding of the Recipient_structure.
+- info: Canonical encoding of the Recipient_structure.
+- aad: Defaults to the empty string; externally provided information MAY be used instead.
 - pt: The raw key for the next layer down.
 
 The outputs are used as follows:
@@ -274,18 +278,21 @@ When decrypting, the inputs to the HPKE Open operation are set as follows:
 - kdf_id: Depends on the COSE-HPKE algorithm used.
 - aead_id: Depends on the COSE-HPKE algorithm used.
 - info: Defaults to the empty string; mutually known private information MAY be used instead.
-- aad: Canonical encoding of the Recipient_structure.
-- enc: The contents of the layer 'ek' parameter.
+- info: Canonical encoding of the Recipient_structure.
+- aad: Defaults to the empty string; externally provided information MAY be used instead.
 - ct: The contents of the layer ciphertext field.
 
 The plaintext output is the raw key for the next layer down.
 
-It is not necessary to fill in recipient_aad as HPKE itself covers the attacks that recipient_aad (and COSE_KDF_Context (and SP800-56A)) are used to mitigate.
-COSE-HPKE use cases may use it for any purpose they wish, but it should generally be for small identifiers, context or secrets, not to protect bulk external data.
-Bulk external data should be protected at layer 0 with external_aad.
+It is not necessary to populate recipient_aad, as HPKE inherently mitigates the classes of
+attacks that COSE_KDF_Context, and SP800-56A are designed to address. COSE-HPKE use cases
+may still utilize recipient_aad for other purposes as needed; however, it is generally
+intended for small values such as identifiers, contextual information, or secrets. It is
+not designed for protecting large or bulk external data.
 
+Any bulk external data that requires protection should be handled at layer 0 using external_aad.
 
-The COSE_recipient structure is repeated for each recipient.
+The COSE_recipient structure is computed for each recipient.
 
 When encrypting the content at layer 0, the instructions in {{Section 5.3
 of RFC9052}} MUST be followed, including the calculation of the
@@ -307,7 +314,6 @@ KEM, "kty" and "crv" for the algorithms defined in this document are shown in {{
 and MUST be empty for the public key.
 
 Examples of the COSE_Key for COSE-HPKE are shown in {{key-representation-example}}.
-
 
 # Ciphersuite Registration
 
