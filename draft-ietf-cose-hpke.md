@@ -1,7 +1,7 @@
 ---
 title: Use of Hybrid Public-Key Encryption (HPKE) with CBOR Object Signing and Encryption (COSE)
 abbrev: COSE HPKE
-docname: draft-ietf-cose-hpke-15
+docname: draft-ietf-cose-hpke-16
 category: std
 
 ipr: pre5378Trust200902
@@ -397,7 +397,7 @@ of the KEM used, COSE_Key type, and its curve/key subtype.
 # Examples
 
 This section provides a set of examples that show all COSE message types
-(COSE_Encrypt0, COSE_Encrypt and COSE_Mac) to which the COSE-HPKE can be
+(COSE_Encrypt0 and COSE_Encrypt) to which the COSE-HPKE can be
 applied, and also provides some examples of key representation for HPKE KEM.
 
 Each example of the COSE message includes the following information
@@ -544,77 +544,6 @@ The payload in {{hpke-example-sign}} is meant to contain the content of
 )
 ~~~
 {: #hpke-example-sign title="COSE_Encrypt Example for HPKE"}
-
-### COSE_Mac
-
-An example of the COSE_Mac structure using the HPKE scheme is
-shown in {{hpke-example-cose-mac}}.
-
-This example uses the following:
-
-- MAC alg: HMAC 256/256
-- payload: "This is the content."
-- kid:"01"
-    - alg: HPKE-0
-    - external_aad: "COSE-HPKE app"
-    - skR: h'57c92077664146e876760c9520d054aa93c3afb04e306705db6090308507b4d3'
-    - skE: h'e5dd9472b5807636c95be0ba2575020ba91cbb3561b52be141da89678c664307'
-- kid:"02"
-    - alg: HPKE-4
-    - external_aad: "COSE-HPKE app"
-    - skR: h'bec275a17e4d362d0819dc0695d89a73be6bf94b66ab726ae0b1afe3c43f41ce'
-    - skE: h'78a49d7af71b5244498e943f361aa0250184afc48b8098a68ae97ccd2cd7e56f'
-
-~~~
-97_0([
-    / alg = HMAC 256/256 (5) /
-    h'a10105',
-    {},
-    / payload = 'This is the content.' /
-    h'546869732069732074686520636f6e74656e742e',
-    / tag /
-    h'5cdcf6055fcbdb53b4001d8fb88b2a46b200ed28e1e
-	  d77e16ddf43fb3cac3a98',
-    [
-        [
-            / alg = HPKE-0 (Assumed: 35) /
-            h'a1011823',
-            {
-                / kid = '01' /
-                4: h'3031',
-                / ek /
-                -4: h'043ac21632e45e1fbd733f002a
-                      621aa4f3d94737adc395d5a7cb
-                      6e9554bd1ad273aec991493786
-                      d72616d9759bf8526e6e20c1ed
-                      c41ba5739f2b2e441781aa0eb4',
-            },
-            / ciphertext containing encrypted MAC key /
-            h'5cee2b4235a7ff695164f7a8d1e79ccf3ca3d
-              e8b22f3592626020a95b2a8d3fb4d7aa7fe37
-              432426ee70073a368f29d1',
-        ],
-        [
-            / alg = HPKE-4 (Assumed: 42) /
-            h'a101182a',
-            {
-                / kid = '02' /
-                4: h'3032',
-                / ek /
-                -4: h'02cffacc60def3bb3d0a1c3661
-                      227c9de8dc2b1d3939dd2c07d4
-                      49ebb0bba324',
-            },
-            / ciphertext containing encrypted MAC key /
-            h'3f5b8b60271d5234dbea554dc1461d0239e9f
-              4589f6415e8563b061dbcb37795a616111b78
-              2b4c589b534309327ffadc',
-        ],
-    ],
-])
-~~~
-{: #hpke-example-cose-mac title="COSE_Mac Example for HPKE"}
-
 
 ## Key Representation {#key-representation-example}
 
