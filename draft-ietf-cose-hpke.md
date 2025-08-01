@@ -246,10 +246,6 @@ specified in Section 4.2.1 of RFC 8949 {{STD94}}.
 
 - "recipient_extra_info" contains any additional context the application wishes to include in the key derivation.
 If none, it is a zero-length string.
-This is distinct from the external_aad for the whole COSE_Encrypt.
-It is per recipient.
-Since it is not a header, it may be secret data that is not transmitted.
-It provides a means to convey many of the fields in COSE_KDF_Context.
 
 
 #### COSE-HPKE Recipient Construction
