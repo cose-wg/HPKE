@@ -240,7 +240,7 @@ It also mitigates attacks where a where the attacker manipulates the content-enc
 algorithm identifier. This attack has been demonstrated against CMS and the mitigation
 can be found in {{I-D.ietf-lamps-cms-cek-hkdf-sha256}}.
 
-- "recipient_protected_header" contains the protected headers from the COSE_recipient
+- "recipient_protected_header" contains the protected header parameters from the COSE_recipient
 CBOR-encoded deterministically with the "Core Deterministic Encoding Requirements",
 specified in Section 4.2.1 of RFC 8949 {{STD94}}.
 
