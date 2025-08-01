@@ -180,7 +180,7 @@ When decrypting, the inputs to the HPKE Open operation are set as follows:
 - skR: The recipient private key, converted into an HPKE private key.
 - kdf_id: Depends on the COSE-HPKE algorithm used.
 - aead_id: Depends on the COSE-HPKE algorithm used.
-- info: Canonical encoding of the Recipient_structure.
+- info: Defaults to the empty string; externally provided information MAY be used instead.
 - aad: Defaults to the empty string; externally provided information MAY be used instead.
 - enc: The contents of the layer 'ek' parameter.
 - ct: The contents of the layer ciphertext.
