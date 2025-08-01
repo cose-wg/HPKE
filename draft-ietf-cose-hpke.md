@@ -244,7 +244,7 @@ can be found in {{I-D.ietf-lamps-cms-cek-hkdf-sha256}}.
 CBOR-encoded deterministically with the "Core Deterministic Encoding Requirements",
 specified in Section 4.2.1 of RFC 8949 {{STD94}}.
 
-- "recipient_aad" contains any additional context the application wishes to protect.
+- "recipient_extra_info" contains any additional context the application wishes to include in the key derivation.
 If none, it is a zero-length string.
 This is distinct from the external_aad for the whole COSE_Encrypt.
 It is per recipient.
