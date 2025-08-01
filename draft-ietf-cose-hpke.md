@@ -256,7 +256,7 @@ MUST be in the protected header parameters and MUST be a COSE-HPKE algorithm.
 The protected header MAY contain the kid parameter to identify the static recipient
 public key that the sender used. Use of the 'kid' parameter is RECOMMENDED
 to explicitly identify the static recipient public key used by the sender.
-Including it in the protected header ensures that it is input into the
+Including it in the protected header parameters ensures that it is input into the
 key derivation function of HPKE.
 
 When encrypting, the inputs to the HPKE Seal operation are set as follows:
