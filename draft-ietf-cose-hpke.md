@@ -215,7 +215,7 @@ As stated above, the specification uses a CEK to encrypt the content at layer 0.
 
 This section defines the Recipient_structure, which is used in place of COSE_KDF_Context
 for COSE-HPKE recipients. It MUST be used for COSE-HPKE recipients, as it provides
-integrity protection for recipient-protected headers.
+integrity protection for recipient-protected header parameters.
 
 The Recipient_structure is modeled after the Enc_structure defined in {{RFC9052}},
 but is specific to COSE_recipient structures and MUST NOT be used with COSE_Encrypt.
