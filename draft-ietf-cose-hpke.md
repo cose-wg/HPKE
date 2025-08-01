@@ -228,7 +228,7 @@ Recipient_structure = [
     context: "HPKE Recipient",
     next_layer_alg: int/tstr,
     recipient_protected_header: empty_or_serialize_map,
-    recipient_extra: bstr
+    recipient_extra_info: bstr
 ]
 ~~~
 
