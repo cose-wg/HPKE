@@ -160,7 +160,7 @@ When encrypting, the inputs to the HPKE Seal operation are set as follows:
 - pkR: The recipient public key, converted into an HPKE public key.
 - kdf_id: Depends on the COSE-HPKE algorithm used.
 - aead_id: Depends on the COSE-HPKE algorithm used.
-- info: Canonical encoding of the Recipient_structure.
+- info: Defaults to the empty string; externally provided information MAY be used instead.
 - aad: Defaults to the empty string; externally provided information MAY be used instead.
 - pt: The raw message plaintext.
 
