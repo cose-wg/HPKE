@@ -244,8 +244,8 @@ can be found in {{I-D.ietf-lamps-cms-cek-hkdf-sha256}}.
 CBOR-encoded deterministically with the "Core Deterministic Encoding Requirements",
 specified in Section 4.2.1 of RFC 8949 {{STD94}}.
 
-- "recipient_extra_info" contains any additional context the application wishes to include in the key derivation.
-If none, it is a zero-length string.
+- "recipient_extra_info" contains any additional context the application wishes to include in
+the key derivation via the HPKE info parameter. If none, it is a zero-length string.
 
 
 #### COSE-HPKE Recipient Construction
@@ -265,7 +265,7 @@ When encrypting, the inputs to the HPKE Seal operation are set as follows:
 - pkR: The recipient public key, converted into HPKE public key.
 - kdf_id: Depends on the COSE-HPKE algorithm used.
 - aead_id: Depends on the COSE-HPKE algorithm used.
-- info: Canonical encoding of the Recipient_structure.
+- info: Deterministic encoding of the Recipient_structure.
 - aad: Defaults to the empty string; externally provided information MAY be used instead.
 - pt: The raw key for the next layer down.
 
@@ -280,8 +280,7 @@ When decrypting, the inputs to the HPKE Open operation are set as follows:
 - skR: The recipient private key, converted into HPKE private key.
 - kdf_id: Depends on the COSE-HPKE algorithm used.
 - aead_id: Depends on the COSE-HPKE algorithm used.
-- info: Defaults to the empty string; mutually known private information MAY be used instead.
-- info: Canonical encoding of the Recipient_structure.
+- info: Deterministic encoding of the Recipient_structure.
 - aad: Defaults to the empty string; externally provided information MAY be used instead.
 - ct: The contents of the layer ciphertext field.
 
