@@ -46,7 +46,7 @@ normative:
   RFC9180:
   RFC9052:
   RFC9053:
-  STD94:
+  RFC8949:
   
 informative:
   RFC8937:
@@ -89,9 +89,9 @@ provides public key encryption of arbitrary-sized plaintexts given a
 recipient's public key.
 
 This document defines the use of the HPKE with COSE ({{RFC9052}}, {{RFC9053}})
-with the single-shot APIs defined in Section 6 of {{RFC9180}}. Multiple
+with the single-shot APIs defined in {{Section 6 of RFC9180}}. Multiple
 invocations of Open() / Seal() on the same context, as discussed in
-Section 9.7.1 of {{RFC9180}} are not supported.
+{{Section 9.7.1 of RFC9180}} are not supported.
 
 # Conventions and Terminology
 
@@ -139,8 +139,8 @@ bstr.
 HPKE defines several authentication modes, as described in Table 1 of {{RFC9180}}.
 In COSE HPKE, only 'mode_base' and 'mode_psk' are supported. The mode is 'mode_psk' if
 the 'psk_id' header parameter is present; otherwise, the mode defaults to 'mode_base'.
-'mode_base' is described in Section 5.1.1 of {{RFC9180}}, which only enables encryption
-to the holder of a given KEM private key. 'mode_psk' is described in Section 5.1.2 of {{RFC9180}},
+'mode_base' is described in {{Section 5.1.1 of RFC9180}}, which only enables encryption
+to the holder of a given KEM private key. 'mode_psk' is described in {{Section 5.1.2 of RFC9180}},
 which authenticates using a pre-shared key.
 
 ### HPKE Integrated Encryption Mode {#one-layer}
@@ -172,7 +172,7 @@ The outputs are used as follows:
 - enc: MUST be placed raw into the 'ek' (encapsulated key) parameter in the unprotected bucket.
 - ct: MUST be used as layer ciphertext. If not using detached content, this is directly placed as
 ciphertext in COSE_Encrypt0 structure. Otherwise, it is transported separately and the ciphertext field is nil.
-See Section 5 of {{RFC9052}} for a description of detached payloads.
+See {{Section 5 of RFC9052}} for a description of detached payloads.
 
 If 'mode_psk' has been selected, then the 'psk_id' parameter MUST be present.
 If 'mode_base' has been chosen, then the 'psk_id' parameter MUST NOT be present.
@@ -245,7 +245,7 @@ can be found in {{I-D.ietf-lamps-cms-cek-hkdf-sha256}}.
 
 - "recipient_protected_header" contains the protected header parameters from the COSE_recipient
 CBOR-encoded deterministically with the "Core Deterministic Encoding Requirements",
-specified in Section 4.2.1 of RFC 8949 {{STD94}}.
+specified in {{Section 4.2.1 of RFC8949}}.
 
 - "recipient_extra_info" contains any additional context the application wishes to include in
 the key derivation via the HPKE info parameter. If none, it is a zero-length string.
