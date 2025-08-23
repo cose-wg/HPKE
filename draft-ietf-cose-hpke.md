@@ -465,73 +465,70 @@ although it will be less efficient.
 
 ### COSE_Encrypt
 
-An example of the COSE_Encrypt structure using the HPKE scheme is
+An example of key encryption using the COSE_Encrypt structure using HPKE is
 shown in {{hpke-example-cose-encrypt}}. Line breaks and comments have been
 inserted for better readability. 
 
-This example uses the following:
+This example uses the following input parameters:
 
-TODO: recompute this for Recipient_structure
+- Content encryption algorithm: AES-128-GCM
+- plaintext: "This is the payload."
+- kid:"alice"
+- alg: HPKE-0 - DHKEM(P-256, HKDF-SHA256), KDF: HKDF-SHA256, AEAD: AES-128-GCM
+- external_aad: "some externally provided aad"
 
-- Encryption alg: AES-128-GCM
-- plaintext: "This is the content."
-- detached ciphertext: h'cc168c4e148c52a83010a75250935a47ccb8682deebcef8fce5d60c161e849f53a2dc664'
-- kid:"01"
-    - alg: HPKE-0
-    - external_aad: "COSE-HPKE app"
-    - skR: h'57c92077664146e876760c9520d054aa93c3afb04e306705db6090308507b4d3'
-    - skE: h'97ad883f949f4cdcb1301b9446950efd4eb519e16c4a3d78304eec832692f9f6'
-- kid:"02"
-    - alg: HPKE-4
-    - external_aad: "COSE-HPKE app"
-    - skR: h'bec275a17e4d362d0819dc0695d89a73be6bf94b66ab726ae0b1afe3c43f41ce'
-    - skE: h'b8ed3f4df56c230e36fa6620a47f24d08856d242ea547c5521ff7bd69af8fd6f'
+Alice uses the following NIST P-256 ECC keys.
+
+Private Key: 
 
 ~~~
-96_0([
-    / alg = AES-128-GCM (1) /
-    h'a10101',
-    {
-        / iv /
-        5: h'b3fb95dde18c6f90a9f0ae55',
-    },
-    / detached ciphertext /
-    null,
-    [
-        [
-            / alg = HPKE-0 (Assumed: 35) /
-            h'a1011823',
-            {
-                / kid /
-                4: h'3031',
-                / ek /
-                -4: h'04d97b79486fe2e7b98fb1bd43
-                      c4faee316ff38d28609a1cf568
-                      40a809298a91e601f1cc0c2ba4
-                      6cb67b41f4651b769cafd9df78
-                      e58aa7f5771291bd4f0f420ba6',
-            },
-            / ciphertext containing encrypted CEK /
-            h'24450f54ae93375351467d17aa7a795cfede2
-              c03eced1ad21fcb7e7c2fe64397',
-        ],
-        [
-            / alg = HPKE-4 (Assumed: 42) /
-            h'a101182a',
-            {
-                / kid /
-                4: h'3032',
-                / ek /
-                -4: h'd1afbdc95b0e735676f6bca34f
-                      be50f2822259ac09bfc3c500f1
-                      4a05de9b2833',
-            },
-            / ciphertext containing encrypted CEK /
-            h'079b443ec6dfcda6a5f8748aff3875146a8ed
-              40359e1279b545166385d8d9b59',
-        ],
-    ],
-])
+0xaf, 0xf9, 0x07, 0xc9, 0x9f, 0x9a, 0xd3, 0xaa,
+0xe6, 0xc4, 0xcd, 0xf2, 0x11, 0x22, 0xbc, 0xe2,
+0xbd, 0x68, 0xb5, 0x28, 0x3e, 0x69, 0x07, 0x15,
+0x4a, 0xd9, 0x11, 0x84, 0x0f, 0xa2, 0x08, 0xcf
+~~~
+
+Public Key:
+
+~~~
+/* SEC Serialization of X and Y */
+0x04,
+
+/* X & Y */
+0x65, 0xed, 0xa5, 0xa1, 0x25, 0x77, 0xc2, 0xba,
+0xe8, 0x29, 0x43, 0x7f, 0xe3, 0x38, 0x70, 0x1a,
+0x10, 0xaa, 0xa3, 0x75, 0xe1, 0xbb, 0x5b, 0x5d,
+0xe1, 0x08, 0xde, 0x43, 0x9c, 0x08, 0x55, 0x1d,
+
+0x1e, 0x52, 0xed, 0x75, 0x70, 0x11, 0x63, 0xf7,
+0xf9, 0xe4, 0x0d, 0xdf, 0x9f, 0x34, 0x1b, 0x3d,
+0xc9, 0xba, 0x86, 0x0a, 0xf7, 0xe0, 0xca, 0x7c,
+0xa7, 0xe9, 0xee, 0xcd, 0x00, 0x84, 0xd1, 0x9c
+~~~
+
+As a result, the following COSE_Encrypt payload is
+created:
+
+~~~
+d8 60 84 43 a1 01 01 a1 05 50 7f 55 a2 6b 98 c0 
+49 b4 28 a7 cf 25 9d c3 0e 54 58 23 3f ae 53 ee 
+83 55 ee 40 4e 86 7c 00 74 f8 c3 8c 6d 13 6b 65 
+bb 61 93 92 79 b4 38 48 c5 8c b6 a4 76 03 55 81 
+83 4b a2 01 18 23 04 45 61 6c 69 63 65 a1 23 58 
+41 04 fe 73 6d 1d 93 11 4d f6 11 3b c2 87 cd 8e 
+63 67 e1 0a b4 78 d7 fe df ac a1 6e 12 6f f0 16 
+d6 95 d5 f7 22 34 03 e3 99 60 75 55 bc cf b9 65 
+17 5f 49 14 e0 47 73 f7 04 07 5b 46 58 bf 7a dd 
+84 a3 58 20 55 12 c2 35 7d 4c b6 bd 23 8a 5f bc 
+10 84 b6 c9 74 0a c2 41 1d 93 63 7a 51 e6 9d 51 
+0b 4f ae f8 
+~~~
+
+Decoded, this hex-sequence has the following
+content:
+
+~~~
+{::include-fold example/cose_encrypt_ex1.txt}
 ~~~
 {: #hpke-example-cose-encrypt title="COSE_Encrypt Example for HPKE"}
 
@@ -540,21 +537,24 @@ is signed with a COSE_Sign1 wrapper, which is outlined in {{hpke-example-sign}}.
 The payload in {{hpke-example-sign}} is meant to contain the content of
 {{hpke-example-cose-encrypt}}.
 
+Bob uses the following signature key to sign the COSE_Encrypt payload
+without any additional data.
+
+Private Key: 
+
 ~~~
-18(
-  [
-    / protected / h'a10126' / {
-            \ alg \ 1:-7 \ ECDSA 256 \
-          } / ,
-    / unprotected / {
-          / kid / 4:'sender@example.com'
-        },
-    / payload /     h'AA19...B80C',
-    / signature /   h'E3B8...25B8'
-  ]
-)
+0xd9, 0xb5, 0xe7, 0x1f, 0x77, 0x28, 0xbf, 0xe5,
+0x63, 0xa9, 0xdc, 0x93, 0x75, 0x62, 0x27, 0x7e,
+0x32, 0x7d, 0x98, 0xd9, 0x94, 0x80, 0xf3, 0xdc,
+0x92, 0x41, 0xe5, 0x74, 0x2a, 0xc4, 0x58, 0x89
 ~~~
-{: #hpke-example-sign title="COSE_Encrypt Example for HPKE"}
+
+The output of the message is as follows:
+
+~~~
+{::include-fold example/cose_sign1_ex1.txt}
+~~~
+{: #hpke-example-sign title="COSE_Sign1 Example"}
 
 ## Key Representation {#key-representation-example}
 
