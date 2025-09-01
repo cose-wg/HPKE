@@ -1,0 +1,22 @@
+  96([
+       / alg = AES-128-GCM (1) /
+       h'A10101',
+       {
+           / iv /
+           5: h'33739C468ACB8EEC693C563EAEA12DD0'
+       },
+       / ciphertext /
+       h'1F3EE9966D5CEE016E49365CF366FD608F271FC3B5ABDD5253844EE38EE6ABB7F5559A',
+       [
+           [
+               / alg = HPKE-0 (35), kid = 'alice' /
+               h'A20118230445616C696365',
+               {
+                   / ek /
+                   -4: h'040506BE8D9C2AFE42D3330676A3F616BAE02F6779D962449F26759B8D1E8F4DF10C9F344627DEB063EE1DDB4858A5E7605BD09ECEB409B037E6E61F44D1E946C1'
+               },
+               / ciphertext containing encrypted CEK /
+               h'B11361397A19E9C155C3E0E8117B5E88155600E550DDE03DC834A46A182DE6F1'
+           ]
+       ]
+   ])
