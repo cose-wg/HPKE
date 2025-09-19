@@ -50,7 +50,7 @@ normative:
   
 informative:
   RFC8937:
-  RFC2630:
+  RFC5652:
   I-D.irtf-cfrg-dnhpke:
   I-D.ietf-lamps-cms-cek-hkdf-sha256:
   HPKE-IANA:
@@ -59,12 +59,6 @@ informative:
      title: Hybrid Public Key Encryption (HPKE) IANA Registry
      target: https://www.iana.org/assignments/hpke/hpke.xhtml
      date: October 2023
-  NIST.SP.800-56Ar3:
-     author:
-        org: National Institute of Standards and Technology
-     title: Recommendation for Pair-Wise Key-Establishment Schemes Using Discrete Logarithm Cryptography, NIST Special Publication 800-56A Revision 3
-     target: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-56Ar3.pdf
-     date: April 2018
 
 --- abstract
 
@@ -88,7 +82,7 @@ Hybrid public-key encryption (HPKE) {{RFC9180}} is a scheme that
 provides public key encryption of arbitrary-sized plaintexts given a 
 recipient's public key.
 
-This document defines the use of the HPKE with COSE ({{RFC9052}}, {{RFC9053}})
+This document defines the use of HPKE with COSE ({{RFC9052}}, {{RFC9053}})
 with the single-shot APIs defined in {{Section 6 of RFC9180}}. Multiple
 invocations of Open() / Seal() on the same context, as discussed in
 {{Section 9.7.1 of RFC9180}} are not supported.
@@ -102,7 +96,7 @@ when, and only when, they appear in all capitals, as shown here.
 
 This specification uses the following abbreviations and terms:
 
-- Content-encryption key (CEK), a term defined in CMS {{RFC2630}}.
+- Content-encryption key (CEK), a term defined in CMS {{RFC5652}}.
 - Hybrid Public Key Encryption (HPKE) is defined in {{RFC9180}}.
 - pkR is the public key of the recipient, as defined in {{RFC9180}}.
 - skR is the private key of the recipient, as defined in {{RFC9180}}.
@@ -239,7 +233,7 @@ Recipient_structure = [
 It is the algorithm that the key MUST be used with.
 This value MUST match the alg parameter in the next lower COSE layer.
 (This serves the same purpose as the alg ID in the COSE_KDF_Context.
-It also mitigates attacks where a where the attacker manipulates the content-encryption
+It also mitigates attacks where the attacker manipulates the content-encryption
 algorithm identifier. This attack has been demonstrated against CMS and the mitigation
 can be found in {{I-D.ietf-lamps-cms-cek-hkdf-sha256}}.
 
@@ -736,7 +730,7 @@ the 'COSE Header Parameters' registries.
 ### ek Header Parameter
 
 -  Name: ek
--  Label: TBDX (Assumed: -4)
+-  Label: TBD11 (Assumed: -4)
 -  Value type: bstr
 -  Value Registry: N/A
 -  Description: HPKE encapsulated key
@@ -745,7 +739,7 @@ the 'COSE Header Parameters' registries.
 ### psk_id Header Parameter
 
 -  Name: psk_id
--  Label: TBDX (Assumed: -5)
+-  Label: TBD12 (Assumed: -5)
 -  Value type: bstr
 -  Value Registry: N/A
 -  Description: A key identifier (kid) for the pre-shared key
