@@ -5,12 +5,12 @@
 COSE                                                       H. Tschofenig
 Internet-Draft                                                     H-BRS
 Intended status: Standards Track                          O. Steele, Ed.
-Expires: 9 March 2026                                          Transmute
+Expires: 23 March 2026                                         Transmute
                                                               D. Ajitomi
                                                                  bibital
                                                             L. Lundblade
                                                      Security Theory LLC
-                                                        5 September 2025
+                                                       19 September 2025
 
 
 Use of Hybrid Public-Key Encryption (HPKE) with CBOR Object Signing and
@@ -47,13 +47,13 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 9 March 2026.
+   This Internet-Draft will expire on 23 March 2026.
 
 
 
 
 
-Tschofenig, et al.        Expires 9 March 2026                  [Page 1]
+Tschofenig, et al.        Expires 23 March 2026                 [Page 1]
 
 Internet-Draft                  COSE HPKE                 September 2025
 
@@ -109,7 +109,7 @@ Table of Contents
 
 
 
-Tschofenig, et al.        Expires 9 March 2026                  [Page 2]
+Tschofenig, et al.        Expires 23 March 2026                 [Page 2]
 
 Internet-Draft                  COSE HPKE                 September 2025
 
@@ -137,7 +137,7 @@ Internet-Draft                  COSE HPKE                 September 2025
    provides public key encryption of arbitrary-sized plaintexts given a
    recipient's public key.
 
-   This document defines the use of the HPKE with COSE ([RFC9052],
+   This document defines the use of HPKE with COSE ([RFC9052],
    [RFC9053]) with the single-shot APIs defined in Section 6 of
    [RFC9180].  Multiple invocations of Open() / Seal() on the same
    context, as discussed in Section 9.7.1 of [RFC9180] are not
@@ -153,7 +153,7 @@ Internet-Draft                  COSE HPKE                 September 2025
 
    This specification uses the following abbreviations and terms:
 
-   *  Content-encryption key (CEK), a term defined in CMS [RFC2630].
+   *  Content-encryption key (CEK), a term defined in CMS [RFC5652].
 
    *  Hybrid Public Key Encryption (HPKE) is defined in [RFC9180].
 
@@ -165,7 +165,7 @@ Internet-Draft                  COSE HPKE                 September 2025
 
 
 
-Tschofenig, et al.        Expires 9 March 2026                  [Page 3]
+Tschofenig, et al.        Expires 23 March 2026                 [Page 3]
 
 Internet-Draft                  COSE HPKE                 September 2025
 
@@ -221,7 +221,7 @@ Internet-Draft                  COSE HPKE                 September 2025
 
 
 
-Tschofenig, et al.        Expires 9 March 2026                  [Page 4]
+Tschofenig, et al.        Expires 23 March 2026                 [Page 4]
 
 Internet-Draft                  COSE HPKE                 September 2025
 
@@ -277,7 +277,7 @@ Internet-Draft                  COSE HPKE                 September 2025
 
 
 
-Tschofenig, et al.        Expires 9 March 2026                  [Page 5]
+Tschofenig, et al.        Expires 23 March 2026                 [Page 5]
 
 Internet-Draft                  COSE HPKE                 September 2025
 
@@ -333,7 +333,7 @@ Internet-Draft                  COSE HPKE                 September 2025
 
 
 
-Tschofenig, et al.        Expires 9 March 2026                  [Page 6]
+Tschofenig, et al.        Expires 23 March 2026                 [Page 6]
 
 Internet-Draft                  COSE HPKE                 September 2025
 
@@ -364,9 +364,9 @@ Internet-Draft                  COSE HPKE                 September 2025
       the key MUST be used with.  This value MUST match the alg
       parameter in the next lower COSE layer.  (This serves the same
       purpose as the alg ID in the COSE_KDF_Context.  It also mitigates
-      attacks where a where the attacker manipulates the content-
-      encryption algorithm identifier.  This attack has been
-      demonstrated against CMS and the mitigation can be found in
+      attacks where the attacker manipulates the content-encryption
+      algorithm identifier.  This attack has been demonstrated against
+      CMS and the mitigation can be found in
       [I-D.ietf-lamps-cms-cek-hkdf-sha256].
 
    *  "recipient_protected_header" contains the protected header
@@ -389,7 +389,7 @@ Internet-Draft                  COSE HPKE                 September 2025
 
 
 
-Tschofenig, et al.        Expires 9 March 2026                  [Page 7]
+Tschofenig, et al.        Expires 23 March 2026                 [Page 7]
 
 Internet-Draft                  COSE HPKE                 September 2025
 
@@ -445,7 +445,7 @@ Internet-Draft                  COSE HPKE                 September 2025
 
 
 
-Tschofenig, et al.        Expires 9 March 2026                  [Page 8]
+Tschofenig, et al.        Expires 23 March 2026                 [Page 8]
 
 Internet-Draft                  COSE HPKE                 September 2025
 
@@ -501,7 +501,7 @@ Internet-Draft                  COSE HPKE                 September 2025
 
 
 
-Tschofenig, et al.        Expires 9 March 2026                  [Page 9]
+Tschofenig, et al.        Expires 23 March 2026                 [Page 9]
 
 Internet-Draft                  COSE HPKE                 September 2025
 
@@ -557,7 +557,7 @@ Internet-Draft                  COSE HPKE                 September 2025
 
 
 
-Tschofenig, et al.        Expires 9 March 2026                 [Page 10]
+Tschofenig, et al.        Expires 23 March 2026                [Page 10]
 
 Internet-Draft                  COSE HPKE                 September 2025
 
@@ -613,7 +613,7 @@ Internet-Draft                  COSE HPKE                 September 2025
 
 
 
-Tschofenig, et al.        Expires 9 March 2026                 [Page 11]
+Tschofenig, et al.        Expires 23 March 2026                [Page 11]
 
 Internet-Draft                  COSE HPKE                 September 2025
 
@@ -669,7 +669,7 @@ Internet-Draft                  COSE HPKE                 September 2025
 
 
 
-Tschofenig, et al.        Expires 9 March 2026                 [Page 12]
+Tschofenig, et al.        Expires 23 March 2026                [Page 12]
 
 Internet-Draft                  COSE HPKE                 September 2025
 
@@ -725,7 +725,7 @@ Internet-Draft                  COSE HPKE                 September 2025
 
 
 
-Tschofenig, et al.        Expires 9 March 2026                 [Page 13]
+Tschofenig, et al.        Expires 23 March 2026                [Page 13]
 
 Internet-Draft                  COSE HPKE                 September 2025
 
@@ -781,7 +781,7 @@ Internet-Draft                  COSE HPKE                 September 2025
 
 
 
-Tschofenig, et al.        Expires 9 March 2026                 [Page 14]
+Tschofenig, et al.        Expires 23 March 2026                [Page 14]
 
 Internet-Draft                  COSE HPKE                 September 2025
 
@@ -837,7 +837,7 @@ Internet-Draft                  COSE HPKE                 September 2025
 
 
 
-Tschofenig, et al.        Expires 9 March 2026                 [Page 15]
+Tschofenig, et al.        Expires 23 March 2026                [Page 15]
 
 Internet-Draft                  COSE HPKE                 September 2025
 
@@ -893,7 +893,7 @@ Internet-Draft                  COSE HPKE                 September 2025
 
 
 
-Tschofenig, et al.        Expires 9 March 2026                 [Page 16]
+Tschofenig, et al.        Expires 23 March 2026                [Page 16]
 
 Internet-Draft                  COSE HPKE                 September 2025
 
@@ -949,7 +949,7 @@ Internet-Draft                  COSE HPKE                 September 2025
 
 
 
-Tschofenig, et al.        Expires 9 March 2026                 [Page 17]
+Tschofenig, et al.        Expires 23 March 2026                [Page 17]
 
 Internet-Draft                  COSE HPKE                 September 2025
 
@@ -1005,7 +1005,7 @@ Internet-Draft                  COSE HPKE                 September 2025
 
 
 
-Tschofenig, et al.        Expires 9 March 2026                 [Page 18]
+Tschofenig, et al.        Expires 23 March 2026                [Page 18]
 
 Internet-Draft                  COSE HPKE                 September 2025
 
@@ -1061,7 +1061,7 @@ Internet-Draft                  COSE HPKE                 September 2025
 
 
 
-Tschofenig, et al.        Expires 9 March 2026                 [Page 19]
+Tschofenig, et al.        Expires 23 March 2026                [Page 19]
 
 Internet-Draft                  COSE HPKE                 September 2025
 
@@ -1117,7 +1117,7 @@ Internet-Draft                  COSE HPKE                 September 2025
 
 
 
-Tschofenig, et al.        Expires 9 March 2026                 [Page 20]
+Tschofenig, et al.        Expires 23 March 2026                [Page 20]
 
 Internet-Draft                  COSE HPKE                 September 2025
 
@@ -1146,7 +1146,7 @@ Internet-Draft                  COSE HPKE                 September 2025
 
    *  Name: ek
 
-   *  Label: TBDX (Assumed: -4)
+   *  Label: TBD11 (Assumed: -4)
 
    *  Value type: bstr
 
@@ -1160,7 +1160,7 @@ Internet-Draft                  COSE HPKE                 September 2025
 
    *  Name: psk_id
 
-   *  Label: TBDX (Assumed: -5)
+   *  Label: TBD12 (Assumed: -5)
 
    *  Value type: bstr
 
@@ -1173,7 +1173,7 @@ Internet-Draft                  COSE HPKE                 September 2025
 
 
 
-Tschofenig, et al.        Expires 9 March 2026                 [Page 21]
+Tschofenig, et al.        Expires 23 March 2026                [Page 21]
 
 Internet-Draft                  COSE HPKE                 September 2025
 
@@ -1229,7 +1229,7 @@ Internet-Draft                  COSE HPKE                 September 2025
 
 
 
-Tschofenig, et al.        Expires 9 March 2026                 [Page 22]
+Tschofenig, et al.        Expires 23 March 2026                [Page 22]
 
 Internet-Draft                  COSE HPKE                 September 2025
 
@@ -1241,17 +1241,9 @@ Internet-Draft                  COSE HPKE                 September 2025
               <https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-
               dnhpke-06>.
 
-   [NIST.SP.800-56Ar3]
-              National Institute of Standards and Technology,
-              "Recommendation for Pair-Wise Key-Establishment Schemes
-              Using Discrete Logarithm Cryptography, NIST Special
-              Publication 800-56A Revision 3", April 2018,
-              <https://nvlpubs.nist.gov/nistpubs/SpecialPublications/
-              NIST.SP.800-56Ar3.pdf>.
-
-   [RFC2630]  Housley, R., "Cryptographic Message Syntax", RFC 2630,
-              DOI 10.17487/RFC2630, June 1999,
-              <https://www.rfc-editor.org/rfc/rfc2630>.
+   [RFC5652]  Housley, R., "Cryptographic Message Syntax (CMS)", STD 70,
+              RFC 5652, DOI 10.17487/RFC5652, September 2009,
+              <https://www.rfc-editor.org/rfc/rfc5652>.
 
    [RFC8937]  Cremers, C., Garratt, L., Smyshlyaev, S., Sullivan, N.,
               and C. Wood, "Randomness Improvements for Security
@@ -1274,7 +1266,7 @@ Appendix A.  Contributors
 Appendix B.  Acknowledgements
 
    We would like to thank Michael B.  Jones, John Mattsson, Mike
-   Prorock, Michael Richardson, Thomas Fossati, and Göran Selander for
+   Prorock, Michael Richardson, Thomas Fossati, and Goeran Selander for
    their review feedback.
 
 Authors' Addresses
@@ -1282,14 +1274,6 @@ Authors' Addresses
    Hannes Tschofenig
    University of Applied Sciences Bonn-Rhein-Sieg
    Germany
-
-
-
-Tschofenig, et al.        Expires 9 March 2026                 [Page 23]
-
-Internet-Draft                  COSE HPKE                 September 2025
-
-
    Email: hannes.tschofenig@gmx.net
 
 
@@ -1297,6 +1281,13 @@ Internet-Draft                  COSE HPKE                 September 2025
    Transmute
    United States
    Email: orie@transmute.industries
+
+
+
+
+Tschofenig, et al.        Expires 23 March 2026                [Page 23]
+
+Internet-Draft                  COSE HPKE                 September 2025
 
 
    Daisuke Ajitomi
@@ -1341,4 +1332,13 @@ Internet-Draft                  COSE HPKE                 September 2025
 
 
 
-Tschofenig, et al.        Expires 9 March 2026                 [Page 24]
+
+
+
+
+
+
+
+
+
+Tschofenig, et al.        Expires 23 March 2026                [Page 24]
