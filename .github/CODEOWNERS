@@ -1,0 +1,3 @@
+# Automatically generated CODEOWNERS
+# Regenerate with `make update-codeowners`
+draft-ietf-cose-hpke.md hannes.tschofenig@gmx.net orie@transmute.industries dajiaji@gmail.com lgl@securitytheory.com

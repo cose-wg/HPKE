@@ -1,0 +1,7 @@
+<note title="Discussion Venues" removeInRFC="true">
+<t>Discussion of this document takes place on the
+    CBOR Object Signing and Encryption Working Group mailing list (cose@ietf.org),
+    which is archived at <eref target="https://mailarchive.ietf.org/arch/browse/cose/"/>.</t>
+<t>Source for this draft and an issue tracker can be found at
+    <eref target="https://github.com/cose-wg/draft-ietf-cose-hpke"/>.</t>
+</note>
